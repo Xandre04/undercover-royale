@@ -47,10 +47,10 @@
     body {
       font-family: 'Rubik', sans-serif;
       background-color: #1a1c2c;
-      /* UPDATED: Using local background as pattern */
-      background-image: url('./assets/background.png');
+      /* Using direct GitHub raw link for background */
+      background-image: url('https://github.com/Xandre04/undercover-royale/blob/main/assets/background.png?raw=true');
       background-repeat: repeat;
-      background-size: 400px; /* Adjust tile size here if needed */
+      background-size: 200px; 
       background-position: center;
       touch-action: manipulation;
       color: white;
@@ -64,9 +64,9 @@
         content: "";
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(26, 28, 44, 0.85); /* Increased opacity for better readability over busy patterns */
+        background: rgba(26, 28, 44, 0.75);
         z-index: -1;
-        backdrop-filter: blur(2px);
+        backdrop-filter: blur(1px);
     }
 
     .clash-font { font-weight: 900; letter-spacing: 0.05em; }
