@@ -30,6 +30,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
   
   <style>
+    /* Define the custom Clash font */
+    @font-face {
+        font-family: 'Clash Regular';
+        src: url('./assets/fonts/Clash_Regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
     :root {
       --clash-blue: #4176FF;
       --clash-yellow: #FFB900;
@@ -69,7 +77,11 @@
         backdrop-filter: blur(1px);
     }
 
-    .clash-font { font-weight: 900; letter-spacing: 0.05em; }
+    .clash-font { 
+        font-family: 'Clash Regular', 'Rubik', sans-serif; 
+        font-weight: 900; /* Keep 900 for Rubik fallback, Clash OTF might ignore it which is fine */
+        letter-spacing: 0.05em; 
+    }
     .text-shadow-heavy { text-shadow: 0 3px 0 #000; }
     .text-shadow-sm { text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
 
@@ -122,8 +134,7 @@
     // === ASSET SOURCE CONFIGURATION ===
     // =========================================
     
-    // FINAL: Using YOUR local assets folder on GitHub.
-    const ASSET_BASE_URL = "./assets/cards/";
+    const CARD_BASE_URL = "./assets/cards/";
     
     // =========================================
 
@@ -132,10 +143,9 @@
 
     const getCardUrl = (name) => {
         if (!name) return null;
-        // Converts "Mega Knight" -> "./assets/cards/mega-knight.png"
-        return `${ASSET_BASE_URL}${name.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png`;
+        return `${CARD_BASE_URL}${name.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png`;
     };
-
+    
     // Fuzzy matching logic
     const levenshteinDistance = (a, b) => {
         if (!a.length) return b.length; if (!b.length) return a.length;
