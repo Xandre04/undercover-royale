@@ -6,7 +6,7 @@ Clash Royale meets social deduction. Find the impostor in your clan\!
 
 ## [**🎮 PLAY NOW**](https://xandre04.github.io/undercover-royale/)
 
-\</div\>
+\
 
 ## **✨ Features**
 
