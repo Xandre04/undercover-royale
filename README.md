@@ -41,7 +41,7 @@ https://github.com/Xandre04/undercover-royale
 
 Because the entire game is a single HTML file, running it is trivial:
 
-1. Download the index.html file.  
+1. Download the Undercover Royale.html file.  
 2. Open it in any modern web browser (Chrome, Safari, Firefox).  
 3. That's it\!
 
