@@ -203,8 +203,9 @@
     const ROLES = { CIVILIAN: 'civilian', UNDERCOVER: 'undercover', MR_WHITE: 'mr_white' };
 
     // --- UI Components ---
+    // Updated container with more bottom padding to lift buttons
     const Container = ({ children, className = "" }) => (
-        <div className={`h-full flex flex-col p-4 sm:p-6 max-w-md mx-auto w-full ${className}`}>{children}</div>
+        <div className={`h-full flex flex-col px-4 pt-4 pb-10 sm:p-6 max-w-md mx-auto w-full ${className}`}>{children}</div>
     );
 
     const Card = ({ children, className = "", color = "blue" }) => {
@@ -318,11 +319,12 @@
           <Container className="overflow-y-auto animate-pop">
               <header className="text-center mb-6 mt-2 flex-shrink-0">
                   <h1 className="clash-font text-white text-shadow-heavy leading-none">
-                      <div className="flex items-center justify-center gap-2 text-3xl sm:text-5xl">
+                      {/* Slightly smaller title on mobile */}
+                      <div className="flex items-center justify-center gap-2 text-2xl sm:text-5xl">
                           <img src={CROWN_LOGO} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10" />
                           <span>UNDERCOVER</span>
                       </div>
-                      <div className="text-[#FFB900] text-3xl sm:text-5xl -mt-1 sm:-mt-2">ROYALE</div>
+                      <div className="text-[#FFB900] text-2xl sm:text-5xl -mt-1 sm:-mt-2">ROYALE</div>
                   </h1>
               </header>
               <Card className="space-y-6 mb-6 flex-1 overflow-y-auto min-h-0">
