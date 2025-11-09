@@ -4,8 +4,8 @@ Clash Royale meets social deduction. Find the impostor in your clan\!
 
 **Undercover Royale** is a local multiplayer party game inspired by the classic "Undercover," re-imagined with Clash Royale characters. Designed as a lightweight, single-file web application, it's perfect for playing with friends in the same room using just one phone.
 
-🎮 PLAY LIVE DEMO  
-https://github.com/Xandre04/undercover-royale
+🎮 [PLAY LIVE DEMO](https://xandre04.github.io/undercover-royale/)  
+
 
 ## **✨ Features**
 
