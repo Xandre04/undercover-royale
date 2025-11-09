@@ -4,88 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Undercover Royale</title>
-  
-  <!-- PWA & Mobile Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1c2c">
-  <meta name="apple-mobile-web-app-title" content="Undercover">
-  <meta name="application-name" content="Undercover Royale">
-
-  <!-- Icons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/?size=180&id=93NyEXRZ6Rk7&format=png">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=32&id=93NyEXRZ6Rk7&format=png">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/?size=16&id=93NyEXRZ6Rk7&format=png">
-
-  <!-- Inline Web App Manifest -->
   <link rel="manifest" href='data:application/manifest+json,{"name":"Undercover Royale","short_name":"Undercover","start_url":".","display":"standalone","background_color":"#1a1c2c","theme_color":"#1a1c2c","orientation":"portrait","icons":[{"src":"https://img.icons8.com/?size=192&id=93NyEXRZ6Rk7&format=png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://img.icons8.com/?size=512&id=93NyEXRZ6Rk7&format=png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
-
+  <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/?size=180&id=93NyEXRZ6Rk7&format=png">
+  <link rel="icon" type="image/png" href="https://img.icons8.com/?size=32&id=93NyEXRZ6Rk7&format=png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Fallback Font -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
-  
   <style>
-    @font-face {
-        font-family: 'Clash Regular';
-        src: url('./assets/fonts/Clash_Regular.otf') format('opentype');
-        font-weight: normal; font-style: normal;
-    }
-    :root { --clash-blue: #4176FF; --clash-yellow: #FFB900; --clash-red: #FF4141; --clash-green: #4CB050; }
+    @font-face { font-family: 'Clash Regular'; src: url('./assets/fonts/Clash_Regular.otf') format('opentype'); font-weight: normal; font-style: normal; }
+    :root { --clash-blue: #4176FF; --clash-yellow: #FFB900; --clash-red: #FF4141; --clash-green: #4CB050; --clash-purple: #B026FF; }
     * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
     input { user-select: text !important; }
     body {
-      font-family: 'Rubik', sans-serif; background-color: #1a1c2c;
-      background-image: url('https://github.com/Xandre04/undercover-royale/blob/main/assets/background.png?raw=true');
+      font-family: 'Clash Regular', 'Rubik', sans-serif; background-color: #1a1c2c;
+      background-image: url('./assets/background.png');
       background-repeat: repeat; background-size: 200px; background-position: center;
       touch-action: manipulation; color: white; overflow: hidden; height: 100dvh; width: 100vw; position: relative;
     }
     body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26, 28, 44, 0.75); z-index: -1; backdrop-filter: blur(1px); }
-    .clash-font { font-family: 'Clash Regular', 'Rubik', sans-serif; font-weight: 900; letter-spacing: 0.05em; }
+    .clash-font { font-weight: 900; letter-spacing: 0.05em; }
     .text-shadow-heavy { text-shadow: 0 3px 0 #000; }
-
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #1c1f3540; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #32365580; border-radius: 10px; }
-
-    /* --- Animations --- */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .animate-fade-in-up { animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-
-    @keyframes bounceIn {
-      0% { opacity: 0; transform: scale(0.3); }
-      50% { opacity: 1; transform: scale(1.05); }
-      70% { transform: scale(0.9); }
-      100% { transform: scale(1); }
-    }
-    .animate-bounce-in { animation: bounceIn 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards; }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
-    }
-    .animate-shake { animation: shake 0.2s ease-in-out 2; }
-
-    @keyframes pulse-slow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(0.95); }
-    }
-    .animate-pulse-slow { animation: pulse-slow 3s infinite ease-in-out; }
-
+    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .animate-pop { animation: popIn 0.2s ease-out forwards; }
     .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 11px; color: rgba(255, 255, 255, 0.3); z-index: 9999; font-weight: bold; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
   </style>
 </head>
 <body>
   <div id="root" class="h-full w-full"></div>
-  <div class="watermark">By Vale</div>
+  <div class="watermark">BY VALE</div>
   <script>
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));`], {type: 'text/javascript'}))).catch(()=>{}); }); }
   </script>
@@ -97,7 +52,7 @@
     const CROWN_LOGO = "https://img.icons8.com/?size=100&id=93NyEXRZ6Rk7&format=png&color=000000";
 
     const getCardUrl = (name) => name ? `${CARD_BASE_URL}${name.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png` : null;
-    const levenshteinDistance = (a, b) => { if(!a.length)return b.length;if(!b.length)return a.length;const m=Array(b.length+1).fill(null).map(()=>Array(a.length+1).fill(null));for(let i=0;i<=b.length;i++)m[i][0]=i;for(let j=0;j<=a.length;j++)m[0][j]=j;for(let i=1;i<=b.length;i++){for(let j=1;j<=a.length;j++){m[i][j]=b[i-1]===a[j-1]?m[i-1][j-1]:Math.min(m[i-1][j-1]+1,m[i-1][j-1]+1,m[i-1][j]+1)}}return m[b.length][a.length]; };
+    const levenshteinDistance=(s,t)=>{if(!s.length)return t.length;if(!t.length)return s.length;const arr=[];for(let i=0;i<=t.length;i++){arr[i]=[i];for(let j=1;j<=s.length;j++){arr[i][j]=i===0?j:Math.min(arr[i-1][j]+1,arr[i][j-1]+1,arr[i-1][j-1]+(s[j-1]===t[i-1]?0:1))}}return arr[t.length][s.length]};
     const isGuessCorrect = (g, a, t=0.75) => { const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();return !G?false:G===A?true:(1-levenshteinDistance(G,A)/Math.max(G.length,A.length))>=t; };
 
     const WORD_PAIRS = [
@@ -111,20 +66,21 @@
       { civilian: "Tombstone", undercover: "Furnace" }, { civilian: "Mega Minion", undercover: "Phoenix" }, { civilian: "Ice Spirit", undercover: "Electro Spirit" },
     ];
 
-    const ROLES = { CIVILIAN: 'civilian', UNDERCOVER: 'undercover', MR_WHITE: 'mr_white', JESTER: 'jester', BODYGUARD: 'bodyguard' };
+    const ROLES = { CIVILIAN: 'civilian', UNDERCOVER: 'undercover', MR_WHITE: 'mr_white', JESTER: 'jester', BODYGUARD: 'bodyguard', HUNTER: 'hunter', ELECTRO: 'electro' };
+    const MODES = { REGULAR: 'regular', CHAOS: 'chaos' };
 
     // --- UI Components ---
-    const Container = ({ children, className = "" }) => (<div className={`h-full flex flex-col px-4 pt-4 pb-10 sm:p-6 max-w-md mx-auto w-full animate-fade-in-up ${className}`}>{children}</div>);
+    const Container = ({ children, className = "" }) => (<div className={`h-full flex flex-col px-4 pt-4 pb-10 sm:p-6 max-w-md mx-auto w-full ${className}`}>{children}</div>);
     const Card = ({ children, className = "", color = "blue", noPadding=false }) => {
-        const bgColors = { blue: "bg-[#323655]/95 border-[#1c1f35]", red: "bg-[#553232]/95 border-[#2a1515]", gold: "bg-[#554b32]/95 border-[#2a2515]", gray: "bg-slate-700/95 border-slate-500", green: "bg-[#2e4a2e]/95 border-[#1e3a1e]" }
+        const bgColors = { blue: "bg-[#323655]/95 border-[#1c1f35]", red: "bg-[#553232]/95 border-[#2a1515]", gold: "bg-[#554b32]/95 border-[#2a2515]", gray: "bg-slate-700/95 border-slate-500", green: "bg-[#2e4a2e]/95 border-[#1e3a1e]", purple: "bg-[#4A2E75]/95 border-[#2E1A4A]" }
         return (<div className={`${bgColors[color]||bgColors.blue} border-4 rounded-3xl ${noPadding?'':'p-4 sm:p-6'} shadow-[0_6px_0_rgba(0,0,0,0.3)] backdrop-blur-md ${className}`}>{children}</div>);
     };
     const Button = ({ onClick, color="blue", children, full=false, disabled=false, size="xl", className="" }) => {
-      const s = { blue: "bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]", yellow: "bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black", red: "bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]", green: "bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]", gray: "bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50 cursor-not-allowed" };
+      const s = { blue: "bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]", yellow: "bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black", red: "bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]", green: "bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]", gray: "bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50 cursor-not-allowed", purple: "bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]" };
       return (<button onClick={disabled?null:onClick} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?s.gray:s[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
     };
     const Modal = ({ onClose, title, children }) => (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 animate-fade-in-up backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 animate-pop backdrop-blur-sm" onClick={onClose}>
             <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
                 <Card color="blue" className="max-h-[80vh] flex flex-col">
                     <header className="flex justify-between items-center mb-4 flex-shrink-0">
@@ -140,78 +96,86 @@
     // --- Main App ---
     const App = () => {
       const [gameState, setGameState] = useState('setup');
-      const [settings, setSettings] = useState({ total: 5, undercover: 1, mrWhite: 0, jester: 0, bodyguard: 0 });
+      const [gameMode, setGameMode] = useState(MODES.REGULAR);
+      const [settings, setSettings] = useState({ total: 5, undercover: 1, mrWhite: 0, jester: 0, bodyguard: 0, hunter: 0, electro: 0 });
       const [customNames, setCustomNames] = useState(Array(15).fill('').map((_, i) => `Player ${i + 1}`));
       const [players, setPlayers] = useState([]);
       const [currentRevealIndex, setCurrentRevealIndex] = useState(0);
       const [isRevealing, setIsRevealing] = useState(false);
       const [winnerData, setWinnerData] = useState({ team: null, reason: null });
       const [selectedPlayerId, setSelectedPlayerId] = useState(null);
-      const [justEliminated, setJustEliminated] = useState([]); // Changed to array to hold multiple eliminations
+      const [justEliminated, setJustEliminated] = useState([]);
       const [currentWords, setCurrentWords] = useState({ civilian: '', undercover: '' });
       const [mrWhiteGuess, setMrWhiteGuess] = useState('');
       const [showRules, setShowRules] = useState(false);
       const [showNames, setShowNames] = useState(false);
       const [timer, setTimer] = useState(180); 
-
       const timerRef = useRef(null);
 
       useEffect(() => {
           if (gameState === 'discussing') {
-              timerRef.current = setInterval(() => {
-                  setTimer(prev => {
-                    if (prev <= 1) { clearInterval(timerRef.current); return 0; }
-                    return prev - 1;
-                  });
-              }, 1000);
+              timerRef.current = setInterval(() => setTimer(p => { if(p<=1){clearInterval(timerRef.current);return 0;}return p-1; }), 1000);
           } else { clearInterval(timerRef.current); }
           return () => clearInterval(timerRef.current);
       }, [gameState]);
 
       const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-
       const updateSetting = (key, val) => setSettings(prev => {
           const next = { ...prev, [key]: parseInt(val) || 0 };
           if (key === 'total') next.total = Math.max(3, Math.min(15, next.total));
-          const totalSpecial = next.undercover + next.mrWhite + next.jester + next.bodyguard;
-          if (totalSpecial >= next.total) {
-               next.undercover = Math.max(0, next.total - 1 - next.mrWhite - next.jester - next.bodyguard);
-          }
+          const totalSpecial = next.undercover + next.mrWhite + next.jester + next.bodyguard + next.hunter + next.electro;
+          if (totalSpecial >= next.total) next.undercover = Math.max(0, next.total - 1 - (totalSpecial - next.undercover));
           return next;
       });
+      const updateName = (idx, name) => { const newNames = [...customNames]; newNames[idx] = name; setCustomNames(newNames); };
 
-      const updateName = (idx, name) => {
-          const newNames = [...customNames]; newNames[idx] = name; setCustomNames(newNames);
-      };
+      const assignSpecialAttributes = (playersList) => {
+          let updatedPlayers = [...playersList];
+          // 5% chance for King
+          if (Math.random() < 0.05) {
+              const idx = Math.floor(Math.random() * updatedPlayers.length);
+              updatedPlayers[idx].isKing = true;
+          }
+          // 5% chance for Mirror Match (if enough civilians)
+          const civs = updatedPlayers.filter(p => p.role === ROLES.CIVILIAN);
+          if (civs.length >= 2 && Math.random() < 0.05) {
+              const civ1 = civs[Math.floor(Math.random() * civs.length)];
+              let civs2 = civs.filter(c => c.id !== civ1.id);
+              const civ2 = civs2[Math.floor(Math.random() * civs2.length)];
+              updatedPlayers = updatedPlayers.map(p => {
+                  if (p.id === civ1.id) return { ...p, mirrorId: civ2.id, mirrorName: civ2.name };
+                  if (p.id === civ2.id) return { ...p, mirrorId: civ1.id, mirrorName: civ1.name };
+                  return p;
+              });
+          }
+          return updatedPlayers;
+      }
 
       const startGame = () => {
           const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
           const swap = Math.random() > 0.5;
-          const words = { [ROLES.CIVILIAN]: swap ? pair.undercover : pair.civilian, [ROLES.UNDERCOVER]: swap ? pair.civilian : pair.undercover, [ROLES.MR_WHITE]: null, [ROLES.JESTER]: 'Goblins', [ROLES.BODYGUARD]: swap ? pair.undercover : pair.civilian };
+          const words = { [ROLES.CIVILIAN]: swap ? pair.undercover : pair.civilian, [ROLES.UNDERCOVER]: swap ? pair.civilian : pair.undercover, [ROLES.MR_WHITE]: null, [ROLES.JESTER]: 'Goblins', [ROLES.BODYGUARD]: 'Royal Recruits', [ROLES.HUNTER]: 'Hunter', [ROLES.ELECTRO]: 'Electro Wizard' };
           setCurrentWords({ civilian: words[ROLES.CIVILIAN], undercover: words[ROLES.UNDERCOVER] });
           
-          let roles = [
-              ...Array(settings.undercover).fill(ROLES.UNDERCOVER),
-              ...Array(settings.mrWhite).fill(ROLES.MR_WHITE),
-              ...Array(settings.jester).fill(ROLES.JESTER),
-              ...Array(settings.bodyguard).fill(ROLES.BODYGUARD)
-          ];
+          let roles = [ ...Array(settings.undercover).fill(ROLES.UNDERCOVER), ...Array(settings.mrWhite).fill(ROLES.MR_WHITE) ];
+          if (gameMode === MODES.CHAOS) {
+             roles.push(...Array(settings.jester).fill(ROLES.JESTER), ...Array(settings.bodyguard).fill(ROLES.BODYGUARD), ...Array(settings.hunter).fill(ROLES.HUNTER), ...Array(settings.electro).fill(ROLES.ELECTRO));
+          }
           while(roles.length < settings.total) roles.push(ROLES.CIVILIAN);
           roles.sort(() => Math.random() - 0.5);
           const currentPlayNames = customNames.slice(0, settings.total).sort(() => Math.random() - 0.5);
 
-          const newPlayers = roles.map((role, i) => ({ 
-              id: i, name: currentPlayNames[i], role, word: words[role], isAlive: true, 
+          let newPlayers = roles.map((role, i) => ({ 
+              id: i, name: currentPlayNames[i], role, word: words[role], isAlive: true, isZapped: false, isKing: false,
               avatar: ['🧙‍♂️','🧝‍♀️','🤴','👸','🧛‍♂️','🧟‍♂️','🧞‍♂️','🧚‍♀️'][i % 8] 
           }));
+
+          if (gameMode === MODES.CHAOS) newPlayers = assignSpecialAttributes(newPlayers);
 
           const bodyguardPlayer = newPlayers.find(p => p.role === ROLES.BODYGUARD);
           if (bodyguardPlayer) {
               const potentialTargets = newPlayers.filter(p => p.id !== bodyguardPlayer.id);
-              if (potentialTargets.length > 0) {
-                  const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
-                  bodyguardPlayer.targetId = target.id;
-              }
+              if (potentialTargets.length > 0) bodyguardPlayer.targetId = potentialTargets[Math.floor(Math.random() * potentialTargets.length)].id;
           }
 
           setPlayers(newPlayers);
@@ -220,33 +184,32 @@
 
       const handleNextReveal = () => {
           setIsRevealing(false);
-          if (currentRevealIndex < players.length - 1) {
-              setCurrentRevealIndex(prev => prev + 1);
-          } else {
-              setGameState('discussing');
-          }
+          if (currentRevealIndex < players.length - 1) { setCurrentRevealIndex(prev => prev + 1); }
+          else { setGameState('discussing'); }
       };
+
+      const handleElectroZap = (targetId) => {
+           setPlayers(prev => prev.map(p => p.id === targetId ? { ...p, isZapped: true } : p));
+           handleNextReveal();
+      }
 
       const eliminatePlayer = () => {
           if (selectedPlayerId === null) return;
           const eliminated = players.find(p => p.id === selectedPlayerId);
           if (eliminated.role === ROLES.JESTER) { setJustEliminated([eliminated]); setWinnerData({ team: 'JESTER', reason: 'The Jester was voted out!' }); setGameState('game_over'); return; }
           if (eliminated.role === ROLES.MR_WHITE) { setJustEliminated([eliminated]); setGameState('mr_white_guess'); setSelectedPlayerId(null); return; }
-          finalizeElimination(eliminated);
+          if (eliminated.role === ROLES.HUNTER) { setJustEliminated([eliminated]); setGameState('hunter_revenge'); setSelectedPlayerId(null); return; }
+          finalizeElimination([eliminated]);
       };
 
-      const finalizeElimination = (primaryVictim) => {
-          const bodyguardsToDie = players.filter(p => p.isAlive && p.role === ROLES.BODYGUARD && p.targetId === primaryVictim.id);
-          const allEliminated = [primaryVictim, ...bodyguardsToDie];
-          
-          setJustEliminated(allEliminated);
-
-          const updatedPlayers = players.map(p => allEliminated.some(e => e.id === p.id) ? {...p, isAlive: false} : p);
+      const finalizeElimination = (eliminatedPlayers) => {
+          setJustEliminated(eliminatedPlayers);
+          const updatedPlayers = players.map(p => eliminatedPlayers.some(e => e.id === p.id) ? {...p, isAlive: false} : p);
           setPlayers(updatedPlayers);
 
           const alive = updatedPlayers.filter(pl => pl.isAlive);
-          const imps = alive.filter(pl => pl.role === ROLES.UNDERCOVER || pl.role === ROLES.MR_WHITE).length;
-          const civs = alive.filter(pl => pl.role === ROLES.CIVILIAN || pl.role === ROLES.BODYGUARD).length;
+          const imps = alive.filter(pl => pl.role === ROLES.UNDERCOVER || pl.role === ROLES.MR_WHITE || pl.role === ROLES.ELECTRO).length;
+          const civs = alive.filter(pl => pl.role === ROLES.CIVILIAN || pl.role === ROLES.BODYGUARD || pl.role === ROLES.HUNTER).length;
           
           setSelectedPlayerId(null);
           if (imps === 0) { setWinnerData({ team: 'CIVILIANS', reason: 'All impostors eliminated!' }); setGameState('game_over'); }
@@ -255,88 +218,110 @@
           } else { setGameState('round_summary'); }
       };
 
+      const handleHunterShot = (targetId) => {
+          const hunter = justEliminated[0];
+          const target = players.find(p => p.id === targetId);
+          finalizeElimination([hunter, target]);
+      }
+
       const handleMrWhiteGuess = () => {
           if (isGuessCorrect(mrWhiteGuess, currentWords.civilian)) { setWinnerData({ team: 'MR. WHITE', reason: `Guessed correctly: ${currentWords.civilian}!` }); setGameState('game_over'); }
-          else { finalizeElimination(justEliminated[0]); }
+          else { finalizeElimination(justEliminated); }
       }
 
       if (gameState === 'setup') {
-          const totalSpecial = settings.undercover + settings.mrWhite + settings.jester + settings.bodyguard;
+          const totalSpecial = settings.undercover + settings.mrWhite + settings.jester + settings.bodyguard + settings.hunter + settings.electro;
           const isValid = totalSpecial > 0 && totalSpecial < settings.total;
           return (
-          <Container className="overflow-y-auto">
+          <Container className="overflow-y-auto animate-pop">
               <header className="text-center mb-4 mt-2 flex-shrink-0 relative">
                   <h1 className="clash-font text-white text-shadow-heavy leading-none">
                       <div className="flex items-center justify-center gap-2 text-2xl sm:text-5xl"><img src={CROWN_LOGO} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10" /><span>UNDERCOVER</span></div>
                       <div className="text-[#FFB900] text-2xl sm:text-5xl -mt-1 sm:-mt-2">ROYALE</div>
                   </h1>
               </header>
+              <div className="flex bg-[#1c1f35]/50 p-1 rounded-xl mb-4 clash-font text-lg">
+                  <button onClick={()=>setGameMode(MODES.REGULAR)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.REGULAR ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>REGULAR</button>
+                  <button onClick={()=>setGameMode(MODES.CHAOS)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.CHAOS ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400'}`}>CHAOS</button>
+              </div>
               <Card className="space-y-4 mb-4 flex-1 flex flex-col overflow-y-auto min-h-0">
                   <div className="touch-pan-y"><div className="flex justify-between clash-font text-lg mb-1"><span className="text-blue-400 flex items-center gap-2">👥 Total Players</span><span>{settings.total}</span></div>
                   <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSetting('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]" /></div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-red-400">👺 Undercover</span><span>{settings.undercover}</span></div><input type="range" min={0} max={Math.floor((settings.total-1)/2)} value={settings.undercover} onChange={(e) => updateSetting('undercover', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-red-500" /></div>
                     <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-slate-300">⬜ Mr. White</span><span>{settings.mrWhite}</span></div><input type="range" min={0} max={Math.floor((settings.total-1)/3)} value={settings.mrWhite} onChange={(e) => updateSetting('mrWhite', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-slate-300" /></div>
-                    <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-green-400">🃏 Jester</span><span>{settings.jester}</span></div><input type="range" min={0} max={1} value={settings.jester} onChange={(e) => updateSetting('jester', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-green-500" /></div>
-                    <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-yellow-400">🛡️ Bodyguard</span><span>{settings.bodyguard}</span></div><input type="range" min={0} max={1} value={settings.bodyguard} onChange={(e) => updateSetting('bodyguard', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-yellow-500" /></div>
+                    {gameMode === MODES.CHAOS && <>
+                        <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-green-400">🃏 Jester</span><span>{settings.jester}</span></div><input type="range" min={0} max={1} value={settings.jester} onChange={(e) => updateSetting('jester', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-green-500" /></div>
+                        <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-yellow-400">🛡️ Bodyguard</span><span>{settings.bodyguard}</span></div><input type="range" min={0} max={1} value={settings.bodyguard} onChange={(e) => updateSetting('bodyguard', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-yellow-500" /></div>
+                        <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-orange-400">🤠 Hunter</span><span>{settings.hunter}</span></div><input type="range" min={0} max={1} value={settings.hunter} onChange={(e) => updateSetting('hunter', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-orange-500" /></div>
+                        <div className="touch-pan-y"><div className="flex justify-between clash-font text-sm mb-1"><span className="text-purple-400">⚡ Electro</span><span>{settings.electro}</span></div><input type="range" min={0} max={1} value={settings.electro} onChange={(e) => updateSetting('electro', e.target.value)} className="w-full h-4 bg-[#1c1f35]/50 rounded-full accent-purple-500" /></div>
+                    </>}
                   </div>
                   <div className="flex-1"></div>
-                  <div className="flex justify-center mt-2">
-                      <Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-8">EDIT NAMES ✍️</Button>
-                  </div>
+                  <div className="flex justify-center mt-2"><Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-8">EDIT NAMES ✍️</Button></div>
               </Card>
               <div className="flex-shrink-0 space-y-3">
                   <Button full color={isValid ? "yellow" : "gray"} disabled={!isValid} onClick={startGame}>{isValid ? "BATTLE! ⚔️" : "FIX ROLES!"}</Button>
                   <Button full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Button>
               </div>
-              {showRules && <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}><div className="space-y-4 text-sm opacity-90"><p><strong>Goal:</strong> Civilians must find all impostors. Impostors must survive until they outnumber civilians.</p><hr className="border-white/20"/><h3 className="clash-font text-[#4176FF]">ROLES</h3><ul className="list-disc pl-4 space-y-2"><li><strong className="text-[#4176FF]">Civilian:</strong> Gets standard card.</li><li><strong className="text-[#FF4141]">Undercover:</strong> Gets slightly different card.</li><li><strong>Mr. White:</strong> Gets NO card.</li><li><strong className="text-green-400">Jester:</strong> Wants to get voted out to WIN!</li><li><strong className="text-yellow-400">Bodyguard:</strong> Protects assigned player. Dies if they die!</li></ul></div></Modal>}
+              {showRules && <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}><div className="space-y-4 text-sm opacity-90"><p><strong>Goal:</strong> Civilians must find all impostors. Impostors must survive until they outnumber civilians.</p><hr className="border-white/20"/><h3 className="clash-font text-[#4176FF]">ROLES</h3><ul className="list-disc pl-4 space-y-2"><li><strong className="text-[#4176FF]">Civilian:</strong> Standard card.</li><li><strong className="text-[#FF4141]">Undercover:</strong> Different card. Blend in.</li><li><strong>Mr. White:</strong> NO card. Bluff & guess word if caught.</li><li><strong className="text-green-400">Jester:</strong> Get voted out to WIN!</li><li><strong className="text-yellow-400">Bodyguard:</strong> Protects assigned player.</li><li><strong className="text-orange-400">Hunter:</strong> If voted out, eliminates someone else too.</li><li><strong className="text-purple-400">Electro Wizard:</strong> Silences one player during round 1.</li></ul></div></Modal>}
               {showNames && <Modal title="PLAYER NAMES" onClose={() => setShowNames(false)}><div className="space-y-2">{Array(settings.total).fill(0).map((_, i) => (<div key={i} className="flex items-center gap-2"><span className="w-6 opacity-50">{i+1}.</span><input type="text" value={customNames[i]} onChange={(e) => updateName(i, e.target.value)} className="flex-1 bg-[#1a1c2c] border-2 border-[#323655] rounded-lg px-2 py-1 text-white focus:border-[#FFB900] outline-none" placeholder={`Player ${i+1}`} /></div>))}</div></Modal>}
           </Container>
       );}
 
       if (gameState === 'reveal') {
           const p = players[currentRevealIndex];
-          const isSpecial = [ROLES.MR_WHITE, ROLES.JESTER, ROLES.BODYGUARD].includes(p.role);
-          let roleText = "Memorize your card!", roleColor = "text-slate-400", cardContent = null;
+          const isSpecial = [ROLES.MR_WHITE, ROLES.JESTER, ROLES.BODYGUARD, ROLES.HUNTER, ROLES.ELECTRO].includes(p.role);
+          let roleText = "Memorize your card!", roleColor = "text-slate-400", cardContent = null, extraAction = null;
+
           if (p.role === ROLES.MR_WHITE) { roleText = "You are Mr. White!"; roleColor = "text-white"; cardContent = <div className="text-8xl mb-4">❔</div>; }
           else if (p.role === ROLES.JESTER) { roleText = "You are the Jester!"; roleColor = "text-green-400"; cardContent = <img src={getCardUrl('goblins')} className="w-32 h-auto drop-shadow-lg" />; }
+          else if (p.role === ROLES.HUNTER) { roleText = "You are the Hunter!"; roleColor = "text-orange-400"; cardContent = <img src={getCardUrl('hunter')} className="w-32 h-auto drop-shadow-lg" />; }
           else if (p.role === ROLES.BODYGUARD) { const targetName = players.find(pl => pl.id === p.targetId)?.name || "someone"; roleText = `Protect ${targetName} at all costs!`; roleColor = "text-yellow-400"; cardContent = <img src={getCardUrl('royal-recruits')} className="w-32 h-auto drop-shadow-lg" />; }
-          else { cardContent = <img src={getCardUrl(p.word)} className="w-32 sm:w-40 h-auto drop-shadow-lg" onError={(e)=>{e.target.style.display='none';e.target.nextSibling.style.display='block'}} />; }
+          else if (p.role === ROLES.ELECTRO) { 
+              roleText = "Choose a player to ZAP (Silence)!"; roleColor = "text-purple-400"; cardContent = <img src={getCardUrl('electro-wizard')} className="w-32 h-auto drop-shadow-lg" />;
+              extraAction = <div className="grid grid-cols-3 gap-2 mt-4 w-full max-h-[150px] overflow-y-auto">{players.filter(pl=>pl.id!==p.id).map(pl => (<button key={pl.id} onClick={()=>handleElectroZap(pl.id)} className="bg-purple-900/50 border-2 border-purple-500 rounded-lg p-2 text-xs truncate">{pl.name}</button>))}</div>;
+          }
+          else { 
+              cardContent = <img src={getCardUrl(p.word)} className="w-32 sm:w-40 h-auto drop-shadow-lg" onError={(e)=>{e.target.style.display='none';e.target.nextSibling.style.display='block'}} />;
+              if (p.mirrorId !== undefined) roleText = `You are a MIRROR! ${p.mirrorName} has the same word.`;
+          }
+
           return (
               <Container>
                   <h2 className="clash-font text-center text-xl text-[#FFB900] text-shadow-heavy mb-4 flex-shrink-0">REVEAL {currentRevealIndex + 1}/{players.length}</h2>
-                  {isRevealing ? (<Card color={p.role===ROLES.MR_WHITE?'gray':(p.role===ROLES.JESTER?'green':(p.role===ROLES.BODYGUARD?'gold':'blue'))} className="flex-1 flex flex-col items-center justify-center mb-6 min-h-0 animate-fade-in-up"><div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase flex-shrink-0">SECRET IDENTITY</div><div className="flex-1 flex flex-col items-center justify-center min-h-0">{cardContent}{!isSpecial&&<div className="clash-font text-2xl text-[#FFB900] text-shadow-heavy px-2 mt-4 break-words text-center leading-tight">{p.word}</div>}{isSpecial&&<div className="clash-font text-3xl text-white text-shadow-heavy mt-2">{p.role===ROLES.JESTER?'Jester':(p.role===ROLES.BODYGUARD?'Bodyguard':'???')}</div>}</div><div className={`mt-4 font-bold text-xl flex-shrink-0 ${roleColor} text-center px-2`}>{roleText}</div></Card>) : (<Card className="flex-1 flex flex-col items-center justify-center mb-6 relative min-h-0 animate-fade-in-up"><div className="absolute top-4 left-4 font-bold text-slate-500">#{p.id + 1}</div><div className="text-center"><div className="text-7xl sm:text-8xl mb-6 opacity-50">🤐</div><h3 className="text-2xl sm:text-3xl font-bold">Pass device to</h3><h1 className="clash-font text-4xl sm:text-5xl text-[#FFB900] text-shadow-heavy mt-2 truncate px-4 max-w-full">{p.name}</h1></div></Card>)}
-                  <div className="flex-shrink-0"><Button full color={!isRevealing?"blue":"yellow"} onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button></div>
+                  {isRevealing ? (<Card color={p.role===ROLES.MR_WHITE?'gray':(p.role===ROLES.JESTER?'green':(p.role===ROLES.BODYGUARD?'gold':(p.role===ROLES.ELECTRO?'purple':'blue')))} className="flex-1 flex flex-col items-center justify-center mb-6 min-h-0 animate-pop"><div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase flex-shrink-0">SECRET IDENTITY</div><div className="flex-1 flex flex-col items-center justify-center min-h-0">{cardContent}{!isSpecial&&<div className="clash-font text-2xl text-[#FFB900] text-shadow-heavy px-2 mt-4 break-words text-center leading-tight">{p.word}</div>}{isSpecial&&<div className="clash-font text-3xl text-white text-shadow-heavy mt-2">{p.role.replace('_',' ').toUpperCase()}</div>}</div><div className={`mt-4 font-bold text-xl flex-shrink-0 ${roleColor} text-center px-2`}>{roleText}</div>{extraAction}</Card>) : (<Card className="flex-1 flex flex-col items-center justify-center mb-6 relative min-h-0 animate-pop"><div className="absolute top-4 left-4 font-bold text-slate-500">#{p.id + 1}</div><div className="text-center"><div className="text-7xl sm:text-8xl mb-6 opacity-50">🤐</div><h3 className="text-2xl sm:text-3xl font-bold">Pass device to</h3><h1 className="clash-font text-4xl sm:text-5xl text-[#FFB900] text-shadow-heavy mt-2 truncate px-4 max-w-full">{p.name}</h1></div></Card>)}
+                  <div className="flex-shrink-0">{!extraAction && <Button full color={!isRevealing?"blue":"yellow"} onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button>}</div>
               </Container>
           );
       }
 
-      if (gameState === 'discussing' || gameState === 'voting') {
+      if (gameState === 'discussing' || gameState === 'voting' || gameState === 'hunter_revenge') {
+          const title = gameState === 'discussing' ? 'DISCUSSION' : (gameState === 'hunter_revenge' ? 'HUNTER REVENGE' : 'ELIMINATION');
           return (
               <Container>
-                  <header className="text-center mb-4 flex-shrink-0"><h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy leading-tight">{gameState === 'discussing' ? 'DISCUSSION' : 'ELIMINATION'}</h2>{gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {formatTime(timer)}</div>}{gameState === 'voting' && <p className="text-sm opacity-80">Tap a player to vote!</p>}</header>
-                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">{players.map(p => (<button key={p.id} disabled={!p.isAlive || gameState === 'discussing'} onClick={() => gameState === 'voting' && setSelectedPlayerId(p.id)} className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm ${!p.isAlive?'bg-slate-800/50 border-slate-900 opacity-30 grayscale':gameState==='voting'?(selectedPlayerId===p.id?'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_10px_rgba(255,185,0,0.5)]':'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95'):'bg-[#323655]/80 border-[#1c1f35]'}`}><div className="text-3xl mb-1">{p.avatar}</div><div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>{!p.isAlive && <div className="absolute inset-0 flex items-center justify-center"><div className="text-4xl opacity-80 animate-pulse-slow">💀</div></div>}</button>))}</div>
-                  <div className="mt-4 flex-shrink-0">{gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> : (selectedPlayerId !== null ? <Button full color="red" onClick={eliminatePlayer}>ELIMINATE {players.find(p=>p.id===selectedPlayerId)?.name} 💀</Button> : <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button>)}</div>
+                  <header className="text-center mb-4 flex-shrink-0"><h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy leading-tight">{title}</h2>{gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {formatTime(timer)}</div>}{gameState === 'voting' && <p className="text-sm opacity-80">Tap a player to vote!</p>}{gameState==='hunter_revenge'&&<p className="text-orange-400 font-bold">Hunter, choose your last target!</p>}</header>
+                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">{players.map(p => (<button key={p.id} disabled={!p.isAlive || gameState === 'discussing'} onClick={() => (gameState === 'voting' || gameState==='hunter_revenge') && setSelectedPlayerId(p.id)} className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm ${!p.isAlive?'bg-slate-800/50 border-slate-900 opacity-30 grayscale':(gameState==='voting'||gameState==='hunter_revenge')?(selectedPlayerId===p.id?'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_10px_rgba(255,185,0,0.5)]':'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95'):'bg-[#323655]/80 border-[#1c1f35]'}`}><div className="text-3xl mb-1 relative">{p.avatar}{p.isKing && gameState==='voting' && <span className="absolute -top-2 -right-2 text-xl">👑</span>}{p.isZapped && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}</div><div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>{!p.isAlive && <div className="absolute inset-0 flex items-center justify-center"><div className="text-4xl opacity-80">💀</div></div>}</button>))}</div>
+                  <div className="mt-4 flex-shrink-0">{gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> : (selectedPlayerId !== null ? (gameState==='hunter_revenge' ? <Button full color="orange" onClick={()=>handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : <Button full color="red" onClick={eliminatePlayer}>ELIMINATE {players.find(p=>p.id===selectedPlayerId)?.name} 💀</Button>) : (gameState==='voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null))}</div>
               </Container>
           );
       }
 
-      if (gameState === 'mr_white_guess') return (<Container><header className="text-center mb-8 mt-6 flex-shrink-0"><div className="text-6xl mb-4">❔</div><h1 className="clash-font text-3xl text-white text-shadow-heavy mb-2">LAST CHANCE!</h1><p className="font-bold opacity-90">{justEliminated[0]?.name} is Mr. White!</p></header><Card color="gray" className="flex-1 flex flex-col items-center justify-center mb-8 min-h-0"><h3 className="text-xl font-bold text-center mb-6">Guess the Civilian Card to steal the win!</h3><input type="text" value={mrWhiteGuess} onChange={(e)=>setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" /></Card><div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div></Container>);
+      if (gameState === 'mr_white_guess') return (<Container className="animate-pop"><header className="text-center mb-8 mt-6 flex-shrink-0"><div className="text-6xl mb-4">❔</div><h1 className="clash-font text-3xl text-white text-shadow-heavy mb-2">LAST CHANCE!</h1><p className="font-bold opacity-90">{justEliminated[0]?.name} is Mr. White!</p></header><Card color="gray" className="flex-1 flex flex-col items-center justify-center mb-8 min-h-0"><h3 className="text-xl font-bold text-center mb-6">Guess the Civilian Card to steal the win!</h3><input type="text" value={mrWhiteGuess} onChange={(e)=>setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" /></Card><div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div></Container>);
 
       if (gameState === 'round_summary') {
           return (
-              <Container>
+              <Container className="animate-pop">
                   <header className="text-center mb-4 mt-4 flex-shrink-0"><h1 className="clash-font text-3xl text-white text-shadow-heavy">ELIMINATED!</h1></header>
                   <div className="flex-1 overflow-y-auto space-y-4 min-h-0">
                       {justEliminated.map(p => {
-                          const isCiv = p.role === ROLES.CIVILIAN || p.role === ROLES.BODYGUARD;
-                          const isMrWhite = p.role === ROLES.MR_WHITE;
+                          const isCiv = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
                           return (
-                              <Card key={p.id} color={isCiv ? 'blue' : 'red'} className="flex flex-col items-center justify-center py-4 animate-fade-in-up">
+                              <Card key={p.id} color={isCiv ? 'blue' : 'red'} className="flex flex-col items-center justify-center py-4">
                                   <h2 className="clash-font text-2xl text-white text-shadow-heavy mb-2">{p.name}</h2>
-                                  <div className="flex justify-center w-full mb-2" style={{ minHeight: '100px' }}>{isCiv ? <img src={SAD_GOBLIN_GIF} className="w-24 h-auto object-contain drop-shadow-lg" onError={(e)=>{e.target.outerHTML='<div class="text-6xl">😭</div>'}}/> : <div className="text-7xl">{p.role === ROLES.MR_WHITE ? '❔' : (p.role === ROLES.JESTER ? '🃏' : '👺')}</div>}</div>
-                                  <div className={`clash-font text-xl text-shadow-heavy text-center ${isCiv ? 'text-[#4176FF]' : 'text-[#FF4141]'}`}>{p.role === ROLES.CIVILIAN ? 'A CIVILIAN' : (p.role === ROLES.BODYGUARD ? 'THE BODYGUARD' : (p.role === ROLES.MR_WHITE ? 'MR. WHITE' : (p.role === ROLES.JESTER ? 'THE JESTER' : 'UNDERCOVER')))}</div>
-                                  {p.role === ROLES.MR_WHITE && <div className="text-red-400 font-bold text-sm animate-shake">(Guess Failed)</div>}
+                                  <div className="flex justify-center w-full mb-2" style={{ minHeight: '100px' }}>{isCiv ? <img src={SAD_GOBLIN_GIF} className="w-24 h-auto object-contain drop-shadow-lg" onError={(e)=>{e.target.outerHTML='<div class="text-6xl">😭</div>'}}/> : <div className="text-7xl">{p.role === ROLES.MR_WHITE ? '❔' : (p.role === ROLES.JESTER ? '🃏' : (p.role === ROLES.ELECTRO ? '⚡' : '👺'))}</div>}</div>
+                                  <div className={`clash-font text-xl text-shadow-heavy text-center ${isCiv ? 'text-[#4176FF]' : 'text-[#FF4141]'}`}>{p.role.replace('_',' ').toUpperCase()}</div>
+                                  {p.role === ROLES.MR_WHITE && <div className="text-red-400 font-bold text-sm">(Guess Failed)</div>}
                               </Card>
                           )
                       })}
@@ -348,7 +333,7 @@
 
       if (gameState === 'game_over') {
           const isCivWin = winnerData.team === 'CIVILIANS', isJesterWin = winnerData.team === 'JESTER';
-          return (<Container><header className="text-center mb-4 mt-2 flex-shrink-0 animate-bounce-in"><div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div><h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${isCivWin ? 'text-[#4176FF]' : (isJesterWin ? 'text-green-400' : 'text-[#FF4141]')}`}>{winnerData.team} WIN!</h1><p className="font-bold opacity-90 text-sm">{winnerData.reason}</p></header><Card className={`flex-1 overflow-y-auto mb-4 min-h-0 animate-fade-in-up ${isCivWin ? 'bg-blue-900/30' : 'bg-red-900/30'}`} noPadding><div className="p-3 space-y-2">{players.map(p => (<div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e=>e.id===p.id)?'border-2 border-yellow-500':''}`}><div className="flex items-center gap-2 overflow-hidden"><span className="text-xl">{p.avatar}</span><span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span></div><div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${p.role===ROLES.CIVILIAN?'text-blue-300 bg-blue-900/50':(p.role===ROLES.UNDERCOVER?'text-red-300 bg-red-900/50':(p.role===ROLES.JESTER?'text-green-300 bg-green-900/50':(p.role===ROLES.BODYGUARD?'text-yellow-300 bg-yellow-900/50':'text-white bg-slate-700')))}`}>{p.role.replace('_', ' ').toUpperCase()} {![ROLES.MR_WHITE,ROLES.JESTER,ROLES.BODYGUARD].includes(p.role)?`(${p.word})`:''}</div></div>))}</div></Card><div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div></Container>);
+          return (<Container className="animate-pop"><header className="text-center mb-4 mt-2 flex-shrink-0"><div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div><h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${isCivWin ? 'text-[#4176FF]' : (isJesterWin ? 'text-green-400' : 'text-[#FF4141]')}`}>{winnerData.team} WIN!</h1><p className="font-bold opacity-90 text-sm">{winnerData.reason}</p></header><Card className={`flex-1 overflow-y-auto mb-4 min-h-0 ${isCivWin ? 'bg-blue-900/30' : 'bg-red-900/30'}`} noPadding><div className="p-3 space-y-2">{players.map(p => (<div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e=>e.id===p.id)?'border-2 border-yellow-500':''}`}><div className="flex items-center gap-2 overflow-hidden"><span className="text-xl">{p.avatar}</span><span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span></div><div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${[ROLES.CIVILIAN,ROLES.HUNTER].includes(p.role)?'text-blue-300 bg-blue-900/50':(p.role===ROLES.UNDERCOVER?'text-red-300 bg-red-900/50':(p.role===ROLES.JESTER?'text-green-300 bg-green-900/50':(p.role===ROLES.BODYGUARD?'text-yellow-300 bg-yellow-900/50':(p.role===ROLES.ELECTRO?'text-purple-300 bg-purple-900/50':'text-white bg-slate-700'))))}`}>{p.role.replace('_', ' ').toUpperCase()} {![ROLES.MR_WHITE,ROLES.JESTER,ROLES.BODYGUARD,ROLES.HUNTER,ROLES.ELECTRO].includes(p.role)?`(${p.word})`:''}</div></div>))}</div></Card><div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div></Container>);
       }
       return null;
     };
