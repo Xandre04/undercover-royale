@@ -115,23 +115,15 @@
     .stat-warm { background-color: var(--clash-yellow); color: black; }
     .stat-cold { background-color: var(--clash-red); }
     .sticky-col { position: sticky; left: 0; z-index: 10; }
-    /* Horizontal scrolling container for stat columns */
     .stat-scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    /* Ensures the row spans across both static and scrolling areas */
     .stat-row { display: grid; grid-template-columns: 100px 1fr; }
-    /* Defines the scrolling content area columns */
     .stat-data-grid { display: grid; grid-template-columns: repeat(7, 1fr); min-width: 420px; }
 
-    /* Role Badge Styling for Eliminated Players */
+    /* Role Badge for Eliminated Players */
     .role-badge { 
-        position: absolute; 
-        top: 2px; 
-        right: 2px; 
-        font-size: 14px;
-        line-height: 1;
-        padding: 2px 4px;
-        border-radius: 50%; 
-        box-shadow: 0 0 4px rgba(0,0,0,0.7);
+        position: absolute; top: 2px; right: 2px; 
+        font-size: 14px; line-height: 1; padding: 2px 4px;
+        border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
   </style>
 </head>
@@ -447,26 +439,6 @@
       };
 
       // --- Game Start Logic ---
-      const assignSpecialAttributes = (playersList) => {
-          let updatedPlayers = [...playersList];
-          if (Math.random() < 0.05) {
-              const kingIndex = Math.floor(Math.random() * updatedPlayers.length);
-              updatedPlayers[kingIndex].isKing = true;
-          }
-          const civs = updatedPlayers.filter(p => p.role === ROLES.CIVILIAN);
-          if (civs.length >= 2 && Math.random() < 0.05) {
-              const civ1 = civs[Math.floor(Math.random() * civs.length)];
-              let remainingCivs = civs.filter(c => c.id !== civ1.id);
-              const civ2 = remainingCivs[Math.floor(Math.random() * remainingCivs.length)];
-              updatedPlayers = updatedPlayers.map(p => {
-                  if (p.id === civ1.id) return { ...p, mirrorId: civ2.id, mirrorName: civ2.name };
-                  if (p.id === civ2.id) return { ...p, mirrorId: civ1.id, mirrorName: civ1.name };
-                  return p;
-              });
-          }
-          return updatedPlayers;
-      }
-
       const startGame = () => {
           if (gameMode === MODES.STAT_GUESS) {
               if (!cardData || cardData.length < 5) {
@@ -482,54 +454,91 @@
               return;
           }
 
-          const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
-          const swap = Math.random() > 0.5;
-          const gameWords = {
-              [ROLES.CIVILIAN]: swap ? selectedPair.undercover : selectedPair.civilian,
-              [ROLES.UNDERCOVER]: swap ? selectedPair.civilian : selectedPair.undercover,
-              [ROLES.MR_WHITE]: null,
-              [ROLES.JESTER]: 'Goblins',
-              [ROLES.BODYGUARD]: 'Royal Recruits',
-              [ROLES.HUNTER]: 'Hunter',
-              [ROLES.ELECTRO]: 'Electro Wizard'
-          };
-          setCurrentWords({ civilian: gameWords[ROLES.CIVILIAN], undercover: gameWords[ROLES.UNDERCOVER] });
-          
-          let roles = [];
-          roles.push(...Array(settings.undercover).fill(ROLES.UNDERCOVER));
-          roles.push(...Array(settings.mrWhite).fill(ROLES.MR_WHITE));
-          if (gameMode === MODES.CHAOS) {
-             roles.push(...Array(settings.jester).fill(ROLES.JESTER));
-             roles.push(...Array(settings.bodyguard).fill(ROLES.BODYGUARD));
-             roles.push(...Array(settings.hunter).fill(ROLES.HUNTER));
-             roles.push(...Array(settings.electro).fill(ROLES.ELECTRO));
+          try {
+              const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+              const swap = Math.random() > 0.5;
+              const gameWords = {
+                  [ROLES.CIVILIAN]: swap ? selectedPair.undercover : selectedPair.civilian,
+                  [ROLES.UNDERCOVER]: swap ? selectedPair.civilian : selectedPair.undercover,
+                  [ROLES.MR_WHITE]: null,
+                  [ROLES.JESTER]: 'Goblins',
+                  [ROLES.BODYGUARD]: 'Royal Recruits',
+                  [ROLES.HUNTER]: 'Hunter',
+                  [ROLES.ELECTRO]: 'Electro Wizard'
+              };
+              setCurrentWords({ civilian: gameWords[ROLES.CIVILIAN], undercover: gameWords[ROLES.UNDERCOVER] });
+              
+              let roles = [];
+              roles.push(...Array(settings.undercover).fill(ROLES.UNDERCOVER));
+              roles.push(...Array(settings.mrWhite).fill(ROLES.MR_WHITE));
+              if (gameMode === MODES.CHAOS) {
+                 roles.push(...Array(settings.jester).fill(ROLES.JESTER));
+                 roles.push(...Array(settings.bodyguard).fill(ROLES.BODYGUARD));
+                 roles.push(...Array(settings.hunter).fill(ROLES.HUNTER));
+                 roles.push(...Array(settings.electro).fill(ROLES.ELECTRO));
+              }
+              while (roles.length < settings.total) roles.push(ROLES.CIVILIAN);
+              
+              // Better shuffle
+              for (let i = roles.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [roles[i], roles[j]] = [roles[j], roles[i]];
+              }
+
+              const currentPlayNames = customNames.slice(0, settings.total);
+              // Shuffle names too if desired, or keep them mapped to input order. Keeping mapped for now.
+
+              let newPlayers = roles.map((role, index) => ({
+                  id: index, name: currentPlayNames[index], role: role, word: gameWords[role], isAlive: true, isZapped: false, isKing: false,
+                  avatar: ['🧙‍♂️','🧝‍♀️','🤴','👸','🧛‍♂️','🧟‍♂️','🧞‍♂️','🧚‍♀️'][index % 8]
+              }));
+
+              // Assign Special Attributes (Chaos Mode)
+              if (gameMode === MODES.CHAOS) {
+                  // King
+                  if (Math.random() < 0.05) {
+                      newPlayers[Math.floor(Math.random() * newPlayers.length)].isKing = true;
+                  }
+                  // Mirror Match
+                  const civs = newPlayers.filter(p => p.role === ROLES.CIVILIAN);
+                  if (civs.length >= 2 && Math.random() < 0.05) {
+                      const p1 = civs[Math.floor(Math.random() * civs.length)];
+                      const others = civs.filter(c => c.id !== p1.id);
+                      const p2 = others[Math.floor(Math.random() * others.length)];
+                      newPlayers = newPlayers.map(p => {
+                           if (p.id === p1.id) return {...p, mirrorId: p2.id, mirrorName: p2.name};
+                           if (p.id === p2.id) return {...p, mirrorId: p1.id, mirrorName: p1.name};
+                           return p;
+                      });
+                  }
+              }
+
+              // Robust Bodyguard Assignment
+              // Map over players to ensure we don't mutate state directly during setup
+              newPlayers = newPlayers.map(player => {
+                  if (player.role === ROLES.BODYGUARD) {
+                      // Can protect anyone except themselves
+                      const possibleTargets = newPlayers.filter(p => p.id !== player.id);
+                      if (possibleTargets.length > 0) {
+                          const target = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+                          return { ...player, targetId: target.id };
+                      }
+                  }
+                  return player;
+              });
+
+              setPlayers(newPlayers);
+              setCurrentRevealIndex(0);
+              setIsRevealing(false);
+              setGameState('reveal');
+              setSelectedPlayerId(null);
+              setMrWhiteGuess('');
+              setTimer(180);
+
+          } catch (e) {
+              console.error("Game start failed:", e);
+              alert("Error starting game. Please try again.");
           }
-          while (roles.length < settings.total) roles.push(ROLES.CIVILIAN);
-          roles = roles.sort(() => Math.random() - 0.5);
-          const currentPlayNames = customNames.slice(0, settings.total).sort(() => Math.random() - 0.5);
-
-          let newPlayers = roles.map((role, index) => ({
-              id: index, name: currentPlayNames[index], role: role, word: gameWords[role], isAlive: true, isZapped: false, isKing: false,
-              avatar: ['🧙‍♂️','🧝‍♀️','🤴','👸','🧛‍♂️','🧟‍♂️','🧞‍♂️','🧚‍♀️'][index % 8]
-          }));
-
-          if (gameMode === MODES.CHAOS) { newPlayers = assignSpecialAttributes(newPlayers); }
-
-          const bodyguards = newPlayers.filter(p => p.role === ROLES.BODYGUARD);
-          bodyguards.forEach(bg => {
-               const potentialTargets = newPlayers.filter(p => p.id !== bg.id);
-               if (potentialTargets.length > 0) {
-                   bg.targetId = potentialTargets[Math.floor(Math.random() * potentialTargets.length)].id;
-               }
-          });
-
-          setPlayers(newPlayers);
-          setCurrentRevealIndex(0);
-          setIsRevealing(false);
-          setGameState('reveal');
-          setSelectedPlayerId(null);
-          setMrWhiteGuess('');
-          setTimer(180);
       };
 
       // --- Gameplay Loop ---
