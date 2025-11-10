@@ -47,6 +47,18 @@
     .stat-row { display: grid; grid-template-columns: 100px 1fr; }
     /* Defines the scrolling content area columns */
     .stat-data-grid { display: grid; grid-template-columns: repeat(7, 1fr); min-width: 420px; }
+
+    /* Role Badge Styling for Eliminated Players */
+    .role-badge { 
+        position: absolute; 
+        top: 2px; 
+        right: 2px; 
+        font-size: 14px;
+        line-height: 1;
+        padding: 2px 4px;
+        border-radius: 50%; 
+        box-shadow: 0 0 4px rgba(0,0,0,0.7);
+    }
   </style>
 </head>
 <body>
@@ -107,6 +119,20 @@
 
     const ROLES = { CIVILIAN: 'civilian', UNDERCOVER: 'undercover', MR_WHITE: 'mr_white', JESTER: 'jester', BODYGUARD: 'bodyguard', HUNTER: 'hunter', ELECTRO: 'electro' };
     const MODES = { REGULAR: 'regular', CHAOS: 'chaos', STAT_GUESS: 'stat_guess' };
+
+    // Helper function to get role badge details
+    const getRoleBadge = (role) => {
+        const badgeMap = {
+            [ROLES.CIVILIAN]: { icon: '🛡️', color: 'bg-[#4176FF]' },
+            [ROLES.BODYGUARD]: { icon: '🛡️', color: 'bg-[#4176FF]' }, // Same team as Civilian
+            [ROLES.HUNTER]: { icon: '🛡️', color: 'bg-[#4176FF]' },     // Same team as Civilian
+            [ROLES.UNDERCOVER]: { icon: '👺', color: 'bg-[#FF4141]' },
+            [ROLES.MR_WHITE]: { icon: '⬜', color: 'bg-slate-500' },
+            [ROLES.JESTER]: { icon: '🃏', color: 'bg-[#4CB050]' },
+            [ROLES.ELECTRO]: { icon: '⚡', color: 'bg-[#1C598C]' },
+        };
+        return badgeMap[role] || { icon: '?', color: 'bg-gray-500' };
+    };
 
     // --- Card Data Fetching ---
     const CARD_DATA_URL = "./card_data.json";
@@ -275,8 +301,11 @@
 
       const handleNextReveal = () => {
           setIsRevealing(false);
-          if (currentRevealIndex < players.length - 1) { 
-              setCurrentRevealIndex(prev => prev + 1); 
+          
+          const nextIndex = currentRevealIndex + 1;
+
+          if (nextIndex < players.length) { 
+              setCurrentRevealIndex(nextIndex); 
           }
           else { 
               setGameState('discussing'); 
@@ -285,6 +314,8 @@
 
       const handleElectroZap = (targetId) => {
            setPlayers(prev => prev.map(p => p.id === targetId ? { ...p, isZapped: true } : p));
+           
+           // After zapping, immediately move to the next player's reveal screen
            handleNextReveal();
       }
 
@@ -333,12 +364,6 @@
       // --- Stat Guess Logic ---
 
       const handleStatGuess = () => {
-          if (guesses.length >= MAX_GUESSES) {
-             setWinnerData({ team: 'NO ONE', reason: `Failed to guess the card (${targetCard.name}) within ${MAX_GUESSES} tries.` });
-             setGameState('game_over');
-             return;
-          }
-          
           const guessCard = cardData.find(c => c.name.toLowerCase() === guessInput.trim().toLowerCase());
           if (!guessCard) { alert("Invalid card name!"); return; }
 
@@ -388,7 +413,7 @@
               setWinnerData({ team: 'GUESSERS', reason: `The card was ${targetCard.name}!` });
               setGameState('game_over');
           } else if (newGuesses.length >= MAX_GUESSES) {
-              setWinnerData({ team: 'NO ONE', reason: `Failed to guess the card (${targetCard.name}) within ${MAX_GUESSES} tries.` });
+              setWinnerData({ team: 'FAIL', reason: `Failed to guess the card within ${MAX_GUESSES} tries.` });
               setGameState('game_over');
           }
       };
@@ -473,7 +498,7 @@
                       <datalist id="card-list">
                           {uniqueCardNames.map(name => <option key={name} value={name} />)}
                       </datalist>
-                      <Button full color="yellow" onClick={handleStatGuess} disabled={!guessInput.trim()} className="mt-2">GUESS 🎯</Button>
+                      <Button full color="yellow" onClick={handleStatGuess} disabled={!guessInput.trim() || guesses.length >= MAX_GUESSES} className="mt-2">GUESS 🎯</Button>
                       <Button full color="red" size="sm" onClick={() => setGameState('setup')} className="mt-2 py-1">QUIT</Button>
                   </div>
               </Container>
@@ -549,7 +574,7 @@
                   </Button>
                   <Button full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Button>
               </div>
-              {showRules && <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}><div className="space-y-4 text-sm opacity-90"><p><strong>Goal:</strong> Civilians must find all impostors. Impostors must survive until they outnumber civilians.</p><hr className="border-white/20"/><h3 className="clash-font text-[#4176FF]">ROLES & ABILITIES</h3><ul className="list-disc pl-4 space-y-2"><li><strong className="text-[#4176FF]">Civilian:</strong> Standard card.</li><li><strong className="text-[#FF4141]">Undercover:</strong> Different card. Blend in.</li><li><strong>Mr. White:</strong> NO card. Can steal the win by guessing the Civilian card if caught.</li><li><strong className="text-green-400">Jester:</strong> Wins instantly if voted out.</li><li><strong className="text-yellow-400">Bodyguard:</strong> Protects one random player. Is eliminated if their target is eliminated.</li><li><strong className="text-purple-400">Hunter:</strong> If eliminated, gets a Last Shot to take someone down with them.</li><li><strong className="text-darkblue-400">Electro Wizard:</strong> Zaps (silences) one player for the first discussion round.</li><li><strong className="text-[#FFB900]">King (Trait):</strong> Counts as two votes.</li></ul><h3 className="clash-font text-green-400 mt-4">STAT GUESS MODE</h3><p>A single card is randomly chosen. Guess any card and the game gives you feedback on its core stats:</p><ul><li><strong className="text-green-400">Green:</strong> Correct Match.</li><li><strong className="text-yellow-400">Yellow:</strong> Close Match (e.g., Elixir off by 1).</li><li><strong className="text-red-400">Red + Arrow:</strong> Stat is incorrect, and the arrow shows if the target stat is higher (▲) or lower (▼) than your guess.</li><li><strong className="text-red-400">Max Tries:</strong> You have {MAX_GUESSES} tries to guess the card!</li></ul></div></Modal>}
+              {showRules && <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}><div className="space-y-4 text-sm opacity-90"><p><strong>Goal:</strong> Civilians must find all impostors. Impostors must survive until they outnumber civilians.</p><hr className="border-white/20"/><h3 className="clash-font text-[#4176FF]">ROLES & ABILITIES</h3><ul className="list-disc pl-4 space-y-2"><li><strong className="text-[#4176FF]">Civilian:</strong> Standard card.</li><li><strong className="text-[#FF4141]">Undercover:</strong> Different card. Blend in.</li><li><strong>Mr. White:</strong> NO card. Can steal the win by guessing the Civilian card if caught.</li></li><li><strong className="text-green-400">Jester:</strong> Wins instantly if voted out.</li><li><strong className="text-yellow-400">Bodyguard:</strong> Protects one random player. Is eliminated if their target is eliminated.</li><li><strong className="text-purple-400">Hunter:</strong> If eliminated, gets a Last Shot to take someone down with them.</li><li><strong className="text-darkblue-400">Electro Wizard:</strong> Zaps (silences) one player for the first discussion round.</li><li><strong className="text-[#FFB900]">King (Trait):</strong> Counts as two votes.</li></ul><h3 className="clash-font text-green-400 mt-4">STAT GUESS MODE</h3><p>A single card is randomly chosen. Guess any card and the game gives you feedback on its core stats:</p><ul><li><strong className="text-green-400">Green:</strong> Correct Match.</li><li><strong className="text-yellow-400">Yellow:</strong> Close Match (e.g., Elixir off by 1).</li><li><strong className="text-red-400">Red + Arrow:</strong> Stat is incorrect, and the arrow shows if the target stat is higher (▲) or lower (▼) than your guess.</li><li><strong className="text-red-400">Max Tries:</strong> You have {MAX_GUESSES} tries to guess the card!</li></ul></div></Modal>}
               {showNames && <Modal title="PLAYER NAMES" onClose={() => setShowNames(false)}><div className="space-y-2">{Array(settings.total).fill(0).map((_, i) => (<div key={i} className="flex items-center gap-2"><span className="w-6 opacity-50">{i+1}.</span><input type="text" value={customNames[i]} onChange={(e) => updateName(i, e.target.value)} className="flex-1 bg-[#1a1c2c] border-2 border-[#323655] rounded-lg px-2 py-1 text-white focus:border-[#FFB900] outline-none" placeholder={`Player ${i+1}`} /></div>))}</div></Modal>}
           </Container>
       );}
@@ -559,7 +584,9 @@
       if (gameState === 'reveal') {
           const p = players[currentRevealIndex];
           const isSpecial = [ROLES.MR_WHITE, ROLES.JESTER, ROLES.BODYGUARD, ROLES.HUNTER, ROLES.ELECTRO].includes(p.role);
-          const needsElectroZapAction = p.role === ROLES.ELECTRO && players.filter(pl => !pl.isZapped && pl.id !== p.id).length > 0;
+          // Determine if Electro Wizard needs to zap, filtering out players who are already zapped
+          const potentialZapTargets = players.filter(pl => !pl.isZapped && pl.id !== p.id);
+          const needsElectroZapAction = p.role === ROLES.ELECTRO && potentialZapTargets.length > 0;
           
           let roleText = "Memorize your card!", roleColor = "text-slate-400", cardColor = 'blue', cardContent = null, extraAction = null;
 
@@ -572,7 +599,7 @@
               if (needsElectroZapAction) extraAction = (<div className="flex flex-col items-center w-full mt-4">
                   <p className="text-sm font-bold mb-2">Target to Silence:</p>
                   <div className="grid grid-cols-3 gap-2 w-full max-h-[150px] overflow-y-auto pr-1">
-                      {players.filter(pl=>pl.id!==p.id && !pl.isZapped).map(pl => (<button key={pl.id} onClick={()=>handleElectroZap(pl.id)} className="bg-purple-900/50 border-2 border-purple-500 hover:border-yellow-500 rounded-lg p-2 text-xs truncate">{pl.name}</button>))}
+                      {potentialZapTargets.map(pl => (<button key={pl.id} onClick={()=>handleElectroZap(pl.id)} className="bg-purple-900/50 border-2 border-purple-500 hover:border-yellow-500 rounded-lg p-2 text-xs truncate">{pl.name}</button>))}
                   </div>
               </div>);
           }
@@ -587,8 +614,7 @@
                   {isRevealing ? (<Card color={cardColor} className="flex-1 flex flex-col items-center justify-center mb-6 min-h-0 animate-pop"><div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase flex-shrink-0">SECRET IDENTITY</div><div className="flex-1 flex flex-col items-center justify-center min-h-0">{cardContent}{!isSpecial&&<div className="clash-font text-2xl text-[#FFB900] text-shadow-heavy px-2 mt-4 break-words text-center leading-tight">{p.word}</div>}{isSpecial&&<div className="clash-font text-3xl text-white text-shadow-heavy mt-2">{p.role.replace('_',' ').toUpperCase()}</div>}</div><div className={`mt-4 font-bold text-xl flex-shrink-0 ${roleColor} text-center px-2`}>{roleText}</div>{extraAction}</Card>) : (<Card className="flex-1 flex flex-col items-center justify-center mb-6 relative min-h-0 animate-pop"><div className="absolute top-4 left-4 font-bold text-slate-500">#{p.id + 1}</div><div className="text-center"><div className="text-7xl sm:text-8xl mb-6 opacity-50">🤐</div><h3 className="text-2xl sm:text-3xl font-bold">Pass device to</h3><h1 className="clash-font text-4xl sm:text-5xl text-[#FFB900] text-shadow-heavy mt-2 truncate px-4 max-w-full">{p.name}</h1></div></Card>)}
                   <div className="flex-shrink-0">
                       {/* Button logic ensures 'GOT IT' appears unless the Electro Wizard needs to zap */}
-                      {(!needsElectroZapAction && p.role === ROLES.ELECTRO) && <Button full color="yellow" onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button>}
-                      {p.role !== ROLES.ELECTRO && <Button full color={!isRevealing?"blue":"yellow"} onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button>}
+                      {!needsElectroZapAction && <Button full color={!isRevealing?"blue":"yellow"} onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button>}
                   </div>
               </Container>
           );
@@ -599,7 +625,12 @@
           return (
               <Container>
                   <header className="text-center mb-4 flex-shrink-0"><h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy leading-tight">{title}</h2>{gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {formatTime(timer)}</div>}{gameState === 'voting' && <p className="text-sm opacity-80">Tap a player to vote!</p>}{gameState==='hunter_revenge'&&<p className="text-orange-400 font-bold">Hunter, choose your last target!</p>}</header>
-                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">{players.map(p => (<button key={p.id} disabled={!p.isAlive || gameState === 'discussing'} onClick={() => (gameState === 'voting' || gameState==='hunter_revenge') && setSelectedPlayerId(p.id)} className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm ${!p.isAlive?'bg-slate-800/50 border-slate-900 opacity-30 grayscale':(gameState==='voting'||gameState==='hunter_revenge')?(selectedPlayerId===p.id?'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_10px_rgba(255,185,0,0.5)]':'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95'):'bg-[#323655]/80 border-[#1c1f35]'}`}><div className="text-3xl mb-1 relative">{p.avatar}{p.isKing && gameState!=='hunter_revenge' && <span className="absolute -top-2 -right-2 text-xl">👑</span>}{p.isZapped && gameState==='discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}</div><div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>{!p.isAlive && <div className="absolute inset-0 flex items-center justify-center"><div className="text-4xl opacity-80">💀</div></div>}</button>))}</div>
+                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">{players.map(p => {
+                      const badge = getRoleBadge(p.role);
+                      const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
+                      const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
+
+                      return (<button key={p.id} disabled={!p.isAlive || gameState === 'discussing'} onClick={() => (gameState === 'voting' || gameState==='hunter_revenge') && setSelectedPlayerId(p.id)} className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm ${!p.isAlive?'bg-slate-800/50 border-slate-900 opacity-30 grayscale':(gameState==='voting'||gameState==='hunter_revenge')?(selectedPlayerId===p.id?'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_10px_rgba(255,185,0,0.5)]':'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95'):'bg-[#323655]/80 border-[#1c1f35]'}`}><div className="text-3xl mb-1 relative">{p.avatar}{p.isKing && gameState!=='hunter_revenge' && <span className="absolute -top-2 -right-2 text-xl">👑</span>}{p.isZapped && gameState==='discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}</div><div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>{!p.isAlive && <span className={`role-badge ${badgeColor}`}>{badge.icon}</span>}</button>)}</div>
                   <div className="mt-4 flex-shrink-0">{gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> : (selectedPlayerId !== null ? (gameState==='hunter_revenge' ? <Button full color="red" onClick={()=>handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : <Button full color="red" onClick={eliminatePlayer}>ELIMINATE {players.find(p=>p.id===selectedPlayerId)?.name} 💀</Button>) : (gameState==='voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null))}</div>
               </Container>
           );
@@ -643,8 +674,25 @@
           const isCivWin = winnerData.team === 'CIVILIANS', isJesterWin = winnerData.team === 'JESTER';
           const headerColor = isCivWin ? 'text-[#4176FF]' : (isJesterWin ? 'text-green-400' : 'text-[#FF4141]');
           const showCardDetails = gameMode !== MODES.STAT_GUESS;
+          
+          let statGuessCardReveal = null;
+          if (gameMode === MODES.STAT_GUESS && targetCard) {
+              statGuessCardReveal = (
+                  <div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl">
+                      <div className="text-[10px] font-bold mb-1 text-[#FFB900] uppercase">The Card Was:</div>
+                      <img src={getCardUrl(targetCard.name)} className="w-12 h-auto mx-auto" />
+                      <div className="text-[10px] font-bold mt-1 truncate">{targetCard.name}</div>
+                  </div>
+              );
+          }
 
-          return (<Container className="animate-pop"><header className="text-center mb-4 mt-2 flex-shrink-0"><div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div><h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${headerColor}`}>{winnerData.team} WIN!</h1><p className="font-bold opacity-90 text-sm">{winnerData.reason}</p></header><Card className={`flex-1 overflow-y-auto mb-4 min-h-0 ${isCivWin ? 'bg-blue-900/30' : 'bg-red-900/30'}`} noPadding><div className="p-3 space-y-2">{players.map(p => (<div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e=>e.id===p.id)?'border-2 border-yellow-500':''}`}><div className="flex items-center gap-2 overflow-hidden"><span className="text-xl">{p.avatar}</span><span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span></div><div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${p.role===ROLES.CIVILIAN?'text-blue-300 bg-blue-900/50':(p.role===ROLES.UNDERCOVER?'text-red-300 bg-red-900/50':(p.role===ROLES.JESTER?'text-green-300 bg-green-900/50':(p.role===ROLES.BODYGUARD?'text-yellow-300 bg-yellow-900/50':(p.role===ROLES.HUNTER?'text-purple-300 bg-purple-900/50':(p.role===ROLES.ELECTRO?'text-darkblue-300 bg-darkblue-900/50':'text-white bg-slate-700')))))}`}>{p.role.replace('_', ' ').toUpperCase()} {showCardDetails && ![ROLES.MR_WHITE,ROLES.JESTER,ROLES.BODYGUARD,ROLES.HUNTER,ROLES.ELECTRO].includes(p.role)?`(${p.word})`:''}</div></div>))}</div></Card>{showCardDetails&&<div className="flex gap-3 mb-4 flex-shrink-0"><div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#4176FF] uppercase">Civilian Card</div><img src={getCardUrl(currentWords.civilian)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.civilian}</div></div><div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#FF4141] uppercase">Undercover Card</div><img src={getCardUrl(currentWords.undercover)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.undercover}</div></div></div>}<div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div></Container>);
+
+          return (<Container className="animate-pop"><header className="text-center mb-4 mt-2 flex-shrink-0"><div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div><h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${headerColor}`}>{winnerData.team} WIN!</h1><p className="font-bold opacity-90 text-sm">{winnerData.reason}</p></header><Card className={`flex-1 overflow-y-auto mb-4 min-h-0 ${isCivWin ? 'bg-blue-900/30' : (showCardDetails ? 'bg-red-900/30' : 'bg-green-900/30')}`} noPadding><div className="p-3 space-y-2">{players.map(p => {
+              const badge = getRoleBadge(p.role);
+              const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
+              const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
+              
+              return (<div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e=>e.id===p.id)?'border-2 border-yellow-500':''}`}><div className="flex items-center gap-2 overflow-hidden"><span className="text-xl">{p.avatar}</span><span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span></div><div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${p.role===ROLES.CIVILIAN?'text-blue-300 bg-blue-900/50':(p.role===ROLES.UNDERCOVER?'text-red-300 bg-red-900/50':(p.role===ROLES.JESTER?'text-green-300 bg-green-900/50':(p.role===ROLES.BODYGUARD?'text-yellow-300 bg-yellow-900/50':(p.role===ROLES.HUNTER?'text-purple-300 bg-purple-900/50':(p.role===ROLES.ELECTRO?'text-darkblue-300 bg-darkblue-900/50':'text-white bg-slate-700')))))}`}>{p.role.replace('_', ' ').toUpperCase()} {showCardDetails && ![ROLES.MR_WHITE,ROLES.JESTER,ROLES.BODYGUARD,ROLES.HUNTER,ROLES.ELECTRO].includes(p.role)?`(${p.word})`:''}</div></div>)})}</div></Card>{showCardDetails&&<div className="flex gap-3 mb-4 flex-shrink-0">{statGuessCardReveal || <> <div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#4176FF] uppercase">Civilian Card</div><img src={getCardUrl(currentWords.civilian)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.civilian}</div></div><div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#FF4141] uppercase">Undercover Card</div><img src={getCardUrl(currentWords.undercover)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.undercover}</div></div></>}</div>}<div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div></Container>);
       }
       return null;
     };
