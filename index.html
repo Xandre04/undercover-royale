@@ -4,128 +4,243 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Undercover Royale</title>
+  
+  <!-- PWA & Mobile Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#1a1c2c">
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Undercover Royale","short_name":"Undercover","start_url":".","display":"standalone","background_color":"#1a1c2c","theme_color":"#1a1c2c","orientation":"portrait","icons":[{"src":"https://img.icons8.com/?size=192&id=93NyEXRZ6Rk7&format=png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://img.icons8.com/?size=512&id=93NyEXRZ6Rk7&format=png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+  <meta name="apple-mobile-web-app-title" content="Undercover">
+  <meta name="application-name" content="Undercover Royale">
+
+  <!-- Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/?size=180&id=93NyEXRZ6Rk7&format=png">
-  <link rel="icon" type="image/png" href="https://img.icons8.com/?size=32&id=93NyEXRZ6Rk7&format=png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=32&id=93NyEXRZ6Rk7&format=png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/?size=16&id=93NyEXRZ6Rk7&format=png">
+
+  <!-- Inline Web App Manifest -->
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Undercover Royale","short_name":"Undercover","start_url":".","display":"standalone","background_color":"#1a1c2c","theme_color":"#1a1c2c","orientation":"portrait","icons":[{"src":"https://img.icons8.com/?size=192&id=93NyEXRZ6Rk7&format=png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://img.icons8.com/?size=512&id=93NyEXRZ6Rk7&format=png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Rubik is loaded as a backup in case Clash_Regular doesn't load -->
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+  
   <style>
-    @font-face { font-family: 'Clash Regular'; src: url('./assets/fonts/Clash_Regular.otf') format('opentype'); font-weight: normal; font-style: normal; }
-    :root { --clash-blue: #4176FF; --clash-yellow: #FFB900; --clash-red: #FF4141; --clash-green: #4CB050; --clash-purple: #B026FF; --clash-darkblue: #1C598C; }
-    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
-    input { user-select: text !important; }
-    body {
-      font-family: 'Clash Regular', 'Rubik', sans-serif; background-color: #1a1c2c;
-      background-image: url('https://github.com/Xandre04/undercover-royale/blob/main/assets/background.png?raw=true');
-      background-repeat: repeat; background-size: 200px; background-position: center;
-      touch-action: manipulation; color: white; overflow: hidden; height: 100dvh; width: 100vw; position: relative;
+    /* PRODUCTION FONT LOADING */
+    @font-face {
+        font-family: 'Clash Regular';
+        src: url('./assets/fonts/Clash_Regular.otf') format('opentype');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
     }
-    body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26, 28, 44, 0.75); z-index: -1; backdrop-filter: blur(1px); }
-    .clash-font { font-weight: 900; letter-spacing: 0.05em; }
+    
+    :root {
+      --clash-blue: #4176FF;
+      --clash-yellow: #FFB900;
+      --clash-red: #FF4141;
+      --clash-green: #4CB050;
+      --clash-purple: #B026FF;
+      --clash-darkblue: #1C598C;
+    }
+    * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+    input {
+        user-select: text !important;
+    }
+    body {
+      font-family: 'Clash Regular', 'Rubik', sans-serif;
+      background-color: #1a1c2c;
+      /* Using local asset path for production */
+      background-image: url('./assets/background.png');
+      background-repeat: repeat;
+      background-size: 200px;
+      background-position: center;
+      touch-action: manipulation;
+      color: white;
+      overflow: hidden;
+      height: 100dvh;
+      width: 100vw;
+      position: relative;
+    }
+    /* Dark overlay to ensure text readability over the background pattern */
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(26, 28, 44, 0.75);
+        z-index: -1;
+        backdrop-filter: blur(1px);
+    }
+
+    .clash-font {
+        font-family: 'Clash Regular', 'Rubik', sans-serif;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+    }
     .text-shadow-heavy { text-shadow: 0 3px 0 #000; }
+    .text-shadow-sm { text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #1c1f3540; border-radius: 10px; }
     ::-webkit-scrollbar-thumb { background: #32365580; border-radius: 10px; }
-    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
     .animate-pop { animation: popIn 0.2s ease-out forwards; }
-    .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 11px; color: rgba(255, 255, 255, 0.3); z-index: 9999; font-weight: bold; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+    .watermark {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.3);
+        z-index: 9999;
+        font-weight: bold;
+        pointer-events: none;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
     /* STAT GUESS specific colors */
     .stat-correct { background-color: var(--clash-green); }
     .stat-warm { background-color: var(--clash-yellow); color: black; }
     .stat-cold { background-color: var(--clash-red); }
     .sticky-col { position: sticky; left: 0; z-index: 10; }
-    /* Horizontal scrolling container for stat columns */
     .stat-scroll-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    /* Ensures the row spans across both static and scrolling areas */
     .stat-row { display: grid; grid-template-columns: 100px 1fr; }
-    /* Defines the scrolling content area columns */
     .stat-data-grid { display: grid; grid-template-columns: repeat(7, 1fr); min-width: 420px; }
 
-    /* Role Badge Styling for Eliminated Players */
+    /* Role Badge for Eliminated Players */
     .role-badge { 
-        position: absolute; 
-        top: 2px; 
-        right: 2px; 
-        font-size: 14px;
-        line-height: 1;
-        padding: 2px 4px;
-        border-radius: 50%; 
-        box-shadow: 0 0 4px rgba(0,0,0,0.7);
+        position: absolute; top: 2px; right: 2px; 
+        font-size: 14px; line-height: 1; padding: 2px 4px;
+        border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.7);
     }
   </style>
 </head>
 <body>
   <div id="root" class="h-full w-full"></div>
   <div class="watermark">BY VALE</div>
+
+  <!-- Service Worker for PWA (enables "Add to Home Screen") -->
+  <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));`], {type: 'text/javascript'})))
+            .catch((err) => console.log('SW registration failed: ', err));
+        });
+    }
+  </script>
+
   <script type="text/babel">
     const { useState, useCallback, useEffect, useRef } = React;
 
-    // --- CONFIGURATION ---
-    const MAX_GUESSES = 10;
+    // --- ASSET CONFIGURATION ---
+    // Pointing to local assets for GitHub Pages hosting
+    const CARD_BASE_URL = "./assets/cards/";
+    const CARD_DATA_URL = "./card_data.json";
     
-    // For Preview:
-    const CARD_BASE_URL = "https://raw.githubusercontent.com/RoyaleAPI/cr-api-assets/master/cards-150/"; 
-    // For GitHub Pages (Uncomment this and comment the above):
-    // const CARD_BASE_URL = "./assets/cards/"; 
-
+    // External assets (more reliable to keep these external for now unless you download them too)
     const SAD_GOBLIN_GIF = "https://media1.tenor.com/m/d8gHX1wRaaRAAAAC/clash-royale-goblin.gif"; 
     const CROWN_LOGO = "https://img.icons8.com/?size=100&id=93NyEXRZ6Rk7&format=png&color=000000";
 
-    const getCardUrl = (name) => name ? `${CARD_BASE_URL}${name.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png` : null;
-    const levenshteinDistance=(s,t)=>{if(!s.length)return t.length;if(!t.length)return s.length;const arr=[];for(let i=0;i<=t.length;i++){arr[i]=[i];for(let j=1;j<=s.length;j++){arr[i][j]=i===0?j:Math.min(arr[i-1][j]+1,arr[i][j-1]+1,arr[i-1][j-1]+(s[j-1]===t[i-1]?0:1))}}return arr[t.length][s.length]};
-    const isGuessCorrect = (g, a, t=0.75) => { const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();return !G?false:G===A?true:(1-levenshteinDistance(G,A)/Math.max(G.length,A.length))>=t; };
+    // --- UTILITIES ---
+    const getCardUrl = (name) => {
+        if (!name) return null;
+        // Converts "Electro Giant" -> "./assets/cards/electro-giant.png"
+        return `${CARD_BASE_URL}${name.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png`;
+    };
 
-    // --- CARD PAIRS (CIVILIAN vs. UNDERCOVER) ---
+    // Levenshtein distance for fuzzy matching guesses
+    const levenshteinDistance = (s, t) => {
+        if (!s.length) return t.length;
+        if (!t.length) return s.length;
+        const arr = [];
+        for (let i = 0; i <= t.length; i++) {
+            arr[i] = [i];
+            for (let j = 1; j <= s.length; j++) {
+                arr[i][j] = i === 0 ? j
+                    : Math.min(arr[i - 1][j] + 1, arr[i][j - 1] + 1, arr[i - 1][j - 1] + (s[j - 1] === t[i - 1] ? 0 : 1));
+            }
+        }
+        return arr[t.length][s.length];
+    };
+
+    const isGuessCorrect = (guess, actual, threshold = 0.75) => {
+        const g = guess.trim().toLowerCase();
+        const a = actual.trim().toLowerCase();
+        if (!g) return false;
+        if (g === a) return true;
+        const maxLength = Math.max(g.length, a.length);
+        const similarity = 1 - (levenshteinDistance(g, a) / maxLength);
+        return similarity >= threshold;
+    };
+
+    // --- GAME DATA ---
     const WORD_PAIRS = [
-      { civilian: "Knight", undercover: "Mega Knight" }, 
-      { civilian: "Musketeer", undercover: "Archers" }, 
-      { civilian: "Giant", undercover: "Golem" }, 
+      { civilian: "Knight", undercover: "Mega Knight" },
+      { civilian: "Musketeer", undercover: "Archers" },
+      { civilian: "Giant", undercover: "Golem" },
       { civilian: "Wizard", undercover: "Ice Wizard" },
-      { civilian: "Baby Dragon", undercover: "Inferno Dragon" }, 
-      { civilian: "Skeleton Army", undercover: "Goblin Gang" }, 
-      { civilian: "Prince", undercover: "Dark Prince" }, 
+      { civilian: "Baby Dragon", undercover: "Inferno Dragon" },
+      { civilian: "Skeleton Army", undercover: "Goblin Gang" },
+      { civilian: "Prince", undercover: "Dark Prince" },
       { civilian: "Fireball", undercover: "Rocket" },
-      { civilian: "Tesla", undercover: "Inferno Tower" }, 
-      { civilian: "Minions", undercover: "Bats" }, 
-      { civilian: "Hog Rider", undercover: "Ram Rider" }, 
+      { civilian: "Tesla", undercover: "Inferno Tower" },
+      { civilian: "Minions", undercover: "Bats" },
+      { civilian: "Hog Rider", undercover: "Ram Rider" },
       { civilian: "P.E.K.K.A", undercover: "Mini P.E.K.K.A" },
-      { civilian: "Barbarians", undercover: "Elite Barbarians" }, 
-      { civilian: "Cannon", undercover: "Mortar" }, 
-      { civilian: "Princess", undercover: "Archer Queen" }, 
+      { civilian: "Barbarians", undercover: "Elite Barbarians" },
+      { civilian: "Cannon", undercover: "Mortar" },
+      { civilian: "Princess", undercover: "Archer Queen" },
       { civilian: "Goblins", undercover: "Spear Goblins" },
-      { civilian: "Balloon", undercover: "Skeleton Barrel" }, 
-      { civilian: "Valkyrie", undercover: "Executioner" }, 
-      { civilian: "Zap", undercover: "Lightning" }, 
+      { civilian: "Balloon", undercover: "Skeleton Barrel" },
+      { civilian: "Valkyrie", undercover: "Executioner" },
+      { civilian: "Zap", undercover: "Lightning" },
       { civilian: "Witch", undercover: "Night Witch" },
-      { civilian: "Miner", undercover: "Goblin Drill" }, 
-      { civilian: "Arrows", undercover: "The Log" }, 
-      { civilian: "Royal Giant", undercover: "Electro Giant" }, 
+      { civilian: "Miner", undercover: "Goblin Drill" },
+      { civilian: "Arrows", undercover: "The Log" },
+      { civilian: "Royal Giant", undercover: "Electro Giant" },
       { civilian: "Bandit", undercover: "Golden Knight" },
-      { civilian: "Electro Dragon", undercover: "Skeleton Dragons" }, 
-      { civilian: "Magic Archer", undercover: "Dart Goblin" }, 
-      { civilian: "Royal Hogs", undercover: "Battle Ram" }, 
+      { civilian: "Electro Dragon", undercover: "Skeleton Dragons" },
+      { civilian: "Magic Archer", undercover: "Dart Goblin" },
+      { civilian: "Royal Hogs", undercover: "Battle Ram" },
       { civilian: "Poison", undercover: "Earthquake" },
-      { civilian: "Tombstone", undercover: "Furnace" }, 
-      { civilian: "Mega Minion", undercover: "Phoenix" }, 
+      { civilian: "Tombstone", undercover: "Furnace" },
+      { civilian: "Mega Minion", undercover: "Phoenix" },
       { civilian: "Ice Spirit", undercover: "Electro Spirit" },
     ];
 
-    const ROLES = { CIVILIAN: 'civilian', UNDERCOVER: 'undercover', MR_WHITE: 'mr_white', JESTER: 'jester', BODYGUARD: 'bodyguard', HUNTER: 'hunter', ELECTRO: 'electro' };
-    const MODES = { REGULAR: 'regular', CHAOS: 'chaos', STAT_GUESS: 'stat_guess' };
+    const ROLES = {
+      CIVILIAN: 'civilian',
+      UNDERCOVER: 'undercover',
+      MR_WHITE: 'mr_white',
+      JESTER: 'jester',
+      BODYGUARD: 'bodyguard',
+      HUNTER: 'hunter',
+      ELECTRO: 'electro'
+    };
 
-    // Helper function to get role badge details
+    const MODES = {
+        REGULAR: 'regular',
+        CHAOS: 'chaos',
+        STAT_GUESS: 'stat_guess'
+    };
+
     const getRoleBadge = (role) => {
         const badgeMap = {
             [ROLES.CIVILIAN]: { icon: '🛡️', color: 'bg-[#4176FF]' },
-            [ROLES.BODYGUARD]: { icon: '🛡️', color: 'bg-[#4176FF]' }, // Same team as Civilian
-            [ROLES.HUNTER]: { icon: '🛡️', color: 'bg-[#4176FF]' },     // Same team as Civilian
+            [ROLES.BODYGUARD]: { icon: '🛡️', color: 'bg-[#4176FF]' },
+            [ROLES.HUNTER]: { icon: '🛡️', color: 'bg-[#4176FF]' },
             [ROLES.UNDERCOVER]: { icon: '👺', color: 'bg-[#FF4141]' },
             [ROLES.MR_WHITE]: { icon: '⬜', color: 'bg-slate-500' },
             [ROLES.JESTER]: { icon: '🃏', color: 'bg-[#4CB050]' },
@@ -134,48 +249,90 @@
         return badgeMap[role] || { icon: '?', color: 'bg-gray-500' };
     };
 
-    // --- Card Data Fetching ---
-    const CARD_DATA_URL = "./card_data.json";
+    // --- CUSTOM HOOKS ---
     const useCardData = () => {
         const [data, setData] = useState([]);
         useEffect(() => {
             fetch(CARD_DATA_URL)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error("JSON not found");
+                    return res.json();
+                })
                 .then(setData)
-                .catch(err => { console.error("Failed to load card data:", err); });
+                .catch(err => {
+                    console.warn("Card data load failed. Ensure 'card_data.json' is in the root folder on GitHub.", err);
+                });
         }, []);
         return data;
     };
-    
-    // --- UI Components ---
-    const Container = ({ children, className = "" }) => (<div className={`h-full flex flex-col px-4 pt-4 pb-10 sm:p-6 max-w-md mx-auto w-full ${className}`}>{children}</div>);
-    const Card = ({ children, className = "", color = "blue", noPadding=false }) => {
-        const bgColors = { 
-            blue: "bg-[#323655]/95 border-[#1c1f35]", red: "bg-[#553232]/95 border-[#2a1515]", gold: "bg-[#554b32]/95 border-[#2a1515]", gray: "bg-slate-700/95 border-slate-500", 
-            green: "bg-[#2e4a2e]/95 border-[#1e3a1e]", purple: "bg-[#4A2E75]/95 border-[#2E1A4A]", darkblue: "bg-[#1C598C]/95 border-[#144265]", 
-            stats: "bg-[#183918]/95 border-[#0d280d]", // For the Stat Guess mode
+
+    // --- REUSABLE COMPONENTS ---
+    const Container = ({ children, className = "" }) => (
+        <div className={`h-full flex flex-col px-4 pt-4 pb-10 sm:p-6 max-w-md mx-auto w-full ${className}`}>
+            {children}
+        </div>
+    );
+
+    const CardComp = ({ children, className = "", color = "blue", noPadding = false }) => {
+        const bgColors = {
+            blue: "bg-[#323655]/95 border-[#1c1f35]",
+            red: "bg-[#553232]/95 border-[#2a1515]",
+            gold: "bg-[#554b32]/95 border-[#2a2515]",
+            gray: "bg-slate-700/95 border-slate-500",
+            green: "bg-[#2e4a2e]/95 border-[#1e3a1e]",
+            purple: "bg-[#4A2E75]/95 border-[#2E1A4A]",
+            darkblue: "bg-[#1C598C]/95 border-[#144265]",
+            stats: "bg-[#183918]/95 border-[#0d280d]",
         }
-        return (<div className={`${bgColors[color]||bgColors.blue} border-4 rounded-3xl ${noPadding?'':'p-4 sm:p-6'} shadow-[0_6px_0_rgba(0,0,0,0.3)] backdrop-blur-md ${className}`}>{children}</div>);
+        return (
+            <div className={`${bgColors[color] || bgColors.blue} border-4 rounded-3xl ${noPadding ? '' : 'p-4 sm:p-6'} shadow-[0_6px_0_rgba(0,0,0,0.3)] backdrop-blur-md ${className}`}>
+                {children}
+            </div>
+        );
     };
-    const Button = ({ onClick, color="blue", children, full=false, disabled=false, size="xl", className="" }) => {
-      const s = { blue: "bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]", yellow: "bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black", red: "bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]", green: "bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]", gray: "bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50 cursor-not-allowed", purple: "bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]", darkblue: "bg-[#1C598C] border-[#144265] shadow-[0_4px_0_#0C2740]" };
-      return (<button onClick={disabled?null:onClick} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?s.gray:s[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
+
+    const Button = ({ onClick, color = "blue", children, full = false, disabled = false, size = "xl", className = "" }) => {
+        const s = {
+            blue: "bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]",
+            yellow: "bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black",
+            red: "bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]",
+            green: "bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]",
+            gray: "bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50 cursor-not-allowed",
+            purple: "bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]",
+            darkblue: "bg-[#1C598C] border-[#144265] shadow-[0_4px_0_#0C2740]"
+        };
+        return (
+            <button
+                onClick={disabled ? null : onClick}
+                className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 
+                active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1
+                transition-all duration-100 flex items-center justify-center gap-2 
+                text-${size} ${disabled ? s.gray : s[color]} ${full ? 'w-full' : ''} 
+                ${color === 'yellow' ? 'text-shadow-none' : 'text-shadow-sm'} ${className}`}
+                style={{ minHeight: '55px' }}
+            >
+                {children}
+            </button>
+        );
     };
+
     const Modal = ({ onClose, title, children }) => (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 animate-pop backdrop-blur-sm" onClick={onClose}>
             <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
-                <Card color="blue" className="max-h-[80vh] flex flex-col">
+                <CardComp color="blue" className="max-h-[80vh] flex flex-col">
                     <header className="flex justify-between items-center mb-4 flex-shrink-0">
                         <h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy">{title}</h2>
                         <button onClick={onClose} className="text-3xl opacity-70 hover:opacity-100">&times;</button>
                     </header>
-                    <div className="overflow-y-auto flex-1 pr-2">{children}</div>
-                </Card>
+                    <div className="overflow-y-auto flex-1 pr-2">
+                        {children}
+                    </div>
+                </CardComp>
             </div>
         </div>
     );
 
-    // --- Main App ---
+    // --- MAIN APP ---
     const App = () => {
       const cardData = useCardData();
       const [gameState, setGameState] = useState('setup');
@@ -200,54 +357,81 @@
       const [guesses, setGuesses] = useState([]);
       const [guessInput, setGuessInput] = useState('');
 
+      // --- Timer Logic ---
       useEffect(() => {
           if (gameState === 'discussing') {
-              timerRef.current = setInterval(() => setTimer(p => { if(p<=1){clearInterval(timerRef.current);return 0;}return p-1; }), 1000);
-          } else { clearInterval(timerRef.current); }
+              timerRef.current = setInterval(() => {
+                  setTimer(prev => {
+                      if (prev <= 1) { clearInterval(timerRef.current); return 0; }
+                      return prev - 1;
+                  });
+              }, 1000);
+          } else {
+              clearInterval(timerRef.current);
+          }
           return () => clearInterval(timerRef.current);
       }, [gameState]);
 
-      const formatTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
-      
-      const getMaxImpostors = (total, currentKey) => {
-          let max = Math.floor((total - 1) / 2);
-          if (currentKey === 'total') return max;
+      const formatTime = (seconds) => {
+          const m = Math.floor(seconds / 60);
+          const s = seconds % 60;
+          return `${m}:${s.toString().padStart(2, '0')}`;
+      };
+
+      // --- Setup Logic ---
+      const getMaxImpostors = (totalPlayers, currentKey) => {
+          // Base rule: Impostors must be less than half the total players
+          const absoluteMax = Math.floor((totalPlayers - 1) / 2);
+          if (currentKey === 'total') return absoluteMax;
           
-          let currentImpostors = settings.undercover + settings.mrWhite + settings.jester + settings.bodyguard + settings.hunter + settings.electro;
-          const existing = currentImpostors - settings[currentKey];
-          return Math.max(0, total - 1 - existing);
+          // Calculate how many OTHER special roles are already taken
+          let currentTotalSpecial = settings.undercover + settings.mrWhite + settings.jester + settings.bodyguard + settings.hunter + settings.electro;
+          const others = currentTotalSpecial - settings[currentKey];
+          
+          // The current role can take up whatever 'slots' are left, up to total-1 (must have at least 1 normal civilian ideally, but game allows 0 normal civs if specials exist)
+          return Math.max(0, totalPlayers - 1 - others);
       }
       
-      const updateSetting = (key, val) => setSettings(prev => {
-          const next = { ...prev, [key]: parseInt(val) || 0 };
-          
-          if (key === 'total') { next.total = Math.max(3, Math.min(15, next.total)); } 
-          else {
-              const maxAllowed = Math.max(0, getMaxImpostors(next.total, key));
-              if (next[key] > maxAllowed) {
-                  if (key === 'undercover' || key === 'mrWhite') next[key] = maxAllowed;
+      const updateSetting = (key, value) => {
+          setSettings(prev => {
+              const nextSettings = { ...prev, [key]: parseInt(value) || 0 };
+              
+              if (key === 'total') {
+                   nextSettings.total = Math.max(3, Math.min(15, nextSettings.total));
+                   // If total drops, we might need to clamp other roles, handled by UI constraints mostly, 
+                   // but a hard clamp here is safer if total drops drastically.
+              } else {
+                  // Ensure this individual setting doesn't exceed its allowed max based on OTHER settings
+                  const maxAllowed = Math.max(0, getMaxImpostors(nextSettings.total, key));
+                   if (nextSettings[key] > maxAllowed) {
+                       nextSettings[key] = maxAllowed;
+                   }
               }
-          }
-          return next;
-      });
+              return nextSettings;
+          });
+      };
       
-      const updateName = (idx, name) => { const newNames = [...customNames]; newNames[idx] = name; setCustomNames(newNames); };
+      const updateName = (index, name) => {
+          const newNames = [...customNames];
+          newNames[index] = name;
+          setCustomNames(newNames);
+      };
 
+      // --- Game Start Logic ---
       const assignSpecialAttributes = (playersList) => {
           let updatedPlayers = [...playersList];
-          
-          // 5% chance for King
+          // 5% chance for ONE King
           if (Math.random() < 0.05) {
-              const idx = Math.floor(Math.random() * updatedPlayers.length);
-              updatedPlayers[idx].isKing = true;
+              const kingIndex = Math.floor(Math.random() * updatedPlayers.length);
+              updatedPlayers[kingIndex].isKing = true;
           }
-          
-          // 5% chance for Mirror Match (if enough civilians)
+          // 5% chance for Mirror Match (needs at least 2 civilians to be meaningful)
           const civs = updatedPlayers.filter(p => p.role === ROLES.CIVILIAN);
           if (civs.length >= 2 && Math.random() < 0.05) {
               const civ1 = civs[Math.floor(Math.random() * civs.length)];
-              let civs2 = civs.filter(c => c.id !== civ1.id);
-              const civ2 = civs2[Math.floor(Math.random() * civs2.length)];
+              let remainingCivs = civs.filter(c => c.id !== civ1.id);
+              const civ2 = remainingCivs[Math.floor(Math.random() * remainingCivs.length)];
+              
               updatedPlayers = updatedPlayers.map(p => {
                   if (p.id === civ1.id) return { ...p, mirrorId: civ2.id, mirrorName: civ2.name };
                   if (p.id === civ2.id) return { ...p, mirrorId: civ1.id, mirrorName: civ1.name };
@@ -258,8 +442,13 @@
       }
 
       const startGame = () => {
+          // -- STAT GUESS MODE START --
           if (gameMode === MODES.STAT_GUESS) {
-              if (cardData.length < 5) { alert("Card data is loading or missing!"); return; }
+              if (!cardData || cardData.length < 5) {
+                  alert("Card data not loaded yet! Please wait a moment or check if 'card_data.json' is in your GitHub repository.");
+                  return;
+              }
+              // Filter out cards with variable stats that are hard to guess
               const eligibleCards = cardData.filter(c => c.elixir !== "Variable" && c.elixir !== "N/A");
               const target = eligibleCards[Math.floor(Math.random() * eligibleCards.length)];
               setTargetCard(target);
@@ -269,124 +458,229 @@
               return;
           }
 
-          const pair = WORD_PAIRS[Math.floor(Math.random() * WORD_PAIRS.length)];
+          // -- REGULAR / CHAOS MODE START --
+          const pairIndex = Math.floor(Math.random() * WORD_PAIRS.length);
+          const selectedPair = WORD_PAIRS[pairIndex];
           const swap = Math.random() > 0.5;
-          const words = { [ROLES.CIVILIAN]: swap ? pair.undercover : pair.civilian, [ROLES.UNDERCOVER]: swap ? pair.civilian : pair.undercover, [ROLES.MR_WHITE]: null, [ROLES.JESTER]: 'Goblins', [ROLES.BODYGUARD]: 'Royal Recruits', [ROLES.HUNTER]: 'Hunter', [ROLES.ELECTRO]: 'Electro Wizard' };
-          setCurrentWords({ civilian: words[ROLES.CIVILIAN], undercover: words[ROLES.UNDERCOVER] });
+          const gameWords = {
+              [ROLES.CIVILIAN]: swap ? selectedPair.undercover : selectedPair.civilian,
+              [ROLES.UNDERCOVER]: swap ? selectedPair.civilian : selectedPair.undercover,
+              [ROLES.MR_WHITE]: null,
+              // Special roles get specific cards as their "word"
+              [ROLES.JESTER]: 'Goblins',
+              [ROLES.BODYGUARD]: 'Royal Recruits',
+              [ROLES.HUNTER]: 'Hunter',
+              [ROLES.ELECTRO]: 'Electro Wizard'
+          };
+          setCurrentWords({ civilian: gameWords[ROLES.CIVILIAN], undercover: gameWords[ROLES.UNDERCOVER] });
           
-          let roles = [ ...Array(settings.undercover).fill(ROLES.UNDERCOVER), ...Array(settings.mrWhite).fill(ROLES.MR_WHITE) ];
+          // Build role deck
+          let roles = [];
+          roles.push(...Array(settings.undercover).fill(ROLES.UNDERCOVER));
+          roles.push(...Array(settings.mrWhite).fill(ROLES.MR_WHITE));
+          
           if (gameMode === MODES.CHAOS) {
-             roles.push(...Array(settings.jester).fill(ROLES.JESTER), ...Array(settings.bodyguard).fill(ROLES.BODYGUARD), ...Array(settings.hunter).fill(ROLES.HUNTER), ...Array(settings.electro).fill(ROLES.ELECTRO));
+             roles.push(...Array(settings.jester).fill(ROLES.JESTER));
+             roles.push(...Array(settings.bodyguard).fill(ROLES.BODYGUARD));
+             roles.push(...Array(settings.hunter).fill(ROLES.HUNTER));
+             roles.push(...Array(settings.electro).fill(ROLES.ELECTRO));
           }
-          while(roles.length < settings.total) roles.push(ROLES.CIVILIAN);
-          roles.sort(() => Math.random() - 0.5);
+          // Fill rest with Civilians
+          while (roles.length < settings.total) roles.push(ROLES.CIVILIAN);
+
+          // Shuffle roles & names
+          roles = roles.sort(() => Math.random() - 0.5);
           const currentPlayNames = customNames.slice(0, settings.total).sort(() => Math.random() - 0.5);
 
-          let newPlayers = roles.map((role, i) => ({ 
-              id: i, name: currentPlayNames[i], role, word: words[role], isAlive: true, isZapped: false, isKing: false,
-              avatar: ['🧙‍♂️','🧝‍♀️','🤴','👸','🧛‍♂️','🧟‍♂️','🧞‍♂️','🧚‍♀️'][i % 8] 
+          let newPlayers = roles.map((role, index) => ({
+              id: index,
+              name: currentPlayNames[index],
+              role: role,
+              word: gameWords[role],
+              isAlive: true,
+              isZapped: false,
+              isKing: false,
+              avatar: ['🧙‍♂️','🧝‍♀️','🤴','👸','🧛‍♂️','🧟‍♂️','🧞‍♂️','🧚‍♀️'][index % 8]
           }));
 
-          if (gameMode === MODES.CHAOS) newPlayers = assignSpecialAttributes(newPlayers);
-
-          const bodyguardPlayer = newPlayers.find(p => p.role === ROLES.BODYGUARD);
-          if (bodyguardPlayer) {
-              const potentialTargets = newPlayers.filter(p => p.id !== bodyguardPlayer.id);
-              if (potentialTargets.length > 0) bodyguardPlayer.targetId = potentialTargets[Math.floor(Math.random() * potentialTargets.length)].id;
+          if (gameMode === MODES.CHAOS) {
+              newPlayers = assignSpecialAttributes(newPlayers);
           }
+
+          // Assign Bodyguard targets (now robust for multiple bodyguards)
+          const bodyguards = newPlayers.filter(p => p.role === ROLES.BODYGUARD);
+          bodyguards.forEach(bg => {
+               // Bodyguard can protect anyone EXCEPT themselves.
+               const potentialTargets = newPlayers.filter(p => p.id !== bg.id);
+               if (potentialTargets.length > 0) {
+                   bg.targetId = potentialTargets[Math.floor(Math.random() * potentialTargets.length)].id;
+               }
+          });
 
           setPlayers(newPlayers);
-          setCurrentRevealIndex(0); setIsRevealing(false); setGameState('reveal'); setSelectedPlayerId(null); setMrWhiteGuess(''); setTimer(180);
+          setCurrentRevealIndex(0);
+          setIsRevealing(false);
+          setGameState('reveal');
+          setSelectedPlayerId(null);
+          setMrWhiteGuess('');
+          setTimer(180);
       };
 
+      // --- Gameplay Loop ---
       const handleNextReveal = () => {
           setIsRevealing(false);
-          
           const nextIndex = currentRevealIndex + 1;
-
-          if (nextIndex < players.length) { 
-              setCurrentRevealIndex(nextIndex); 
-          }
-          else { 
-              setGameState('discussing'); 
+          if (nextIndex < players.length) {
+              setCurrentRevealIndex(nextIndex);
+          } else {
+              setGameState('discussing');
           }
       };
 
       const handleElectroZap = (targetId) => {
+           // Apply zap
            setPlayers(prev => prev.map(p => p.id === targetId ? { ...p, isZapped: true } : p));
-           
-           // After zapping, immediately move to the next player's reveal screen
+           // Move to next immediately
            handleNextReveal();
       }
 
       const eliminatePlayer = () => {
           if (selectedPlayerId === null) return;
-          const eliminated = players.find(p => p.id === selectedPlayerId);
+          const eliminatedPlayer = players.find(p => p.id === selectedPlayerId);
           
-          if (eliminated.role === ROLES.JESTER) { setJustEliminated([eliminated]); setWinnerData({ team: 'JESTER', reason: 'The Jester was voted out!' }); setGameState('game_over'); return; }
-          if (eliminated.role === ROLES.MR_WHITE) { setJustEliminated([eliminated]); setGameState('mr_white_guess'); setSelectedPlayerId(null); return; }
-          if (eliminated.role === ROLES.HUNTER) { setJustEliminated([eliminated]); setGameState('hunter_revenge'); setSelectedPlayerId(null); return; }
+          // Special Elimination Triggers
+          if (eliminatedPlayer.role === ROLES.JESTER) {
+              setJustEliminated([eliminatedPlayer]);
+              setWinnerData({ team: 'JESTER', reason: 'The Jester tricked you all and was voted out!' });
+              setGameState('game_over');
+              return;
+          }
+          if (eliminatedPlayer.role === ROLES.MR_WHITE) {
+              setJustEliminated([eliminatedPlayer]);
+              setGameState('mr_white_guess');
+              setSelectedPlayerId(null);
+              return;
+          }
+           if (eliminatedPlayer.role === ROLES.HUNTER) {
+              setJustEliminated([eliminatedPlayer]);
+              setGameState('hunter_revenge');
+              setSelectedPlayerId(null);
+              return;
+          }
           
-          let eliminatedList = [eliminated];
-          const bodyguardProtector = players.find(p => p.role === ROLES.BODYGUARD && p.isAlive && p.targetId === eliminated.id);
-          if (bodyguardProtector) { eliminatedList.push(bodyguardProtector); }
+          // Standard elimination (checking for bodyguard cascades)
+          let playersToEliminate = [eliminatedPlayer];
+          // Find ANY bodyguards who were protecting this specific player
+          const failedBodyguards = players.filter(p => p.role === ROLES.BODYGUARD && p.isAlive && p.targetId === eliminatedPlayer.id);
+          if (failedBodyguards.length > 0) {
+              playersToEliminate.push(...failedBodyguards);
+          }
           
-          finalizeElimination(eliminatedList);
+          finalizeElimination(playersToEliminate);
       };
 
-      const finalizeElimination = (eliminatedPlayers) => {
-          setJustEliminated(eliminatedPlayers);
-          const updatedPlayers = players.map(p => eliminatedPlayers.some(e => e.id === p.id) ? {...p, isAlive: false} : p);
+      const finalizeElimination = (eliminatedPlayersList) => {
+          setJustEliminated(eliminatedPlayersList);
+          
+          // Mark them as dead
+          const updatedPlayers = players.map(p => 
+              eliminatedPlayersList.some(e => e.id === p.id) ? { ...p, isAlive: false } : p
+          );
           setPlayers(updatedPlayers);
 
-          const alive = updatedPlayers.filter(pl => pl.isAlive);
-          const imps = alive.filter(pl => [ROLES.UNDERCOVER, ROLES.MR_WHITE, ROLES.ELECTRO].includes(pl.role)).length;
-          const civs = alive.filter(pl => [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(pl.role)).length;
+          // Check Win Conditions
+          const alive = updatedPlayers.filter(p => p.isAlive);
+          // Impostor team includes Undercover, Mr. White, Electro Wizard
+          const impostorsAlive = alive.filter(p => [ROLES.UNDERCOVER, ROLES.MR_WHITE, ROLES.ELECTRO].includes(p.role)).length;
+          // Civilian team includes standard, Bodyguard, Hunter
+          const civiliansAlive = alive.filter(p => [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role)).length;
           
           setSelectedPlayerId(null);
-          if (imps === 0 && civs > 0) { setWinnerData({ team: 'CIVILIANS', reason: 'All impostors eliminated!' }); setGameState('game_over'); }
-          else if (imps >= civs) { setWinnerData({ team: 'IMPOSTORS', reason: 'Impostors have taken over!' }); setGameState('game_over'); } 
-          else if (civs === 0 && imps === 0) { setWinnerData({ team: 'NO ONE', reason: 'A total bloodbath. No one survived.' }); setGameState('game_over'); } 
-          else { setGameState('round_summary'); }
+
+          if (impostorsAlive === 0 && civiliansAlive > 0) {
+              setWinnerData({ team: 'CIVILIANS', reason: 'All impostors have been eliminated!' });
+              setGameState('game_over');
+          } else if (impostorsAlive >= civiliansAlive && impostorsAlive > 0) {
+              setWinnerData({ team: 'IMPOSTORS', reason: 'Impostors have taken over the arena!' });
+              setGameState('game_over');
+          } else if (civiliansAlive === 0 && impostorsAlive === 0) {
+               setWinnerData({ team: 'NO ONE', reason: 'Mutual destruction. Everyone is out!' });
+               setGameState('game_over');
+          } else {
+              setGameState('round_summary');
+          }
       };
 
       const handleHunterShot = (targetId) => {
           const hunter = justEliminated.find(p => p.role === ROLES.HUNTER);
           const target = players.find(p => p.id === targetId);
-          finalizeElimination([hunter, target]);
+          
+          // Hunter shot might also trigger a bodyguard cascade if they shoot someone protected
+          let playersToEliminate = [hunter, target];
+          const failedBodyguards = players.filter(p => p.role === ROLES.BODYGUARD && p.isAlive && p.targetId === target.id);
+          if (failedBodyguards.length > 0) {
+              playersToEliminate.push(...failedBodyguards);
+          }
+
+          finalizeElimination(playersToEliminate);
       }
 
       const handleMrWhiteGuess = () => {
-          if (isGuessCorrect(mrWhiteGuess, currentWords.civilian)) { setWinnerData({ team: 'MR. WHITE', reason: `Guessed correctly: ${currentWords.civilian}!` }); setGameState('game_over'); }
-          else { finalizeElimination(justEliminated); }
+          if (isGuessCorrect(mrWhiteGuess, currentWords.civilian)) {
+               setWinnerData({ team: 'MR. WHITE', reason: `Mr. White correctly guessed: ${currentWords.civilian}!` });
+               setGameState('game_over');
+          } else {
+               // Guess failed, proceed with standard elimination
+               finalizeElimination(justEliminated);
+          }
       }
       
-      // --- Stat Guess Logic ---
-
+      // --- STAT GUESS LOGIC ---
       const handleStatGuess = () => {
-          const guessCard = cardData.find(c => c.name.toLowerCase() === guessInput.trim().toLowerCase());
-          if (!guessCard) { alert("Invalid card name!"); return; }
+          const guessCardName = guessInput.trim().toLowerCase();
+          const guessCard = cardData.find(c => c.name.toLowerCase() === guessCardName);
+
+          if (!guessCard) {
+              alert("Invalid card name! Please select from the list.");
+              return;
+          }
 
           let feedback = {};
           let isWin = true;
           
-          const checkStat = (key, value) => {
+          // Helper to compare numeric or categorical stats
+          const checkStat = (key) => {
               const targetVal = targetCard[key];
               const guessVal = guessCard[key];
               
+              // Numeric comparisons for Elixir and Hit Speed
               if (key === 'elixir' || key === 'hit_speed') {
-                  const targetNum = parseFloat(targetVal);
-                  const guessNum = parseFloat(guessVal);
-                  if (guessNum === targetNum) {
+                  const tNum = parseFloat(targetVal);
+                  const gNum = parseFloat(guessVal);
+                  
+                  // Handle 'N/A' or non-numeric cases gracefully
+                  if (isNaN(tNum) || isNaN(gNum)) {
+                       if (targetVal === guessVal) {
+                            feedback[key] = { status: 'correct', value: guessVal };
+                       } else {
+                            feedback[key] = { status: 'cold', value: guessVal };
+                            isWin = false;
+                       }
+                       return;
+                  }
+
+                  if (gNum === tNum) {
                       feedback[key] = { status: 'correct', value: guessVal };
-                  } else if (Math.abs(guessNum - targetNum) <= 1) { // Warm: off by 1 or less
-                      feedback[key] = { status: 'warm', value: guessVal, direction: guessNum < targetNum ? '▲' : '▼' };
+                  } else if (Math.abs(gNum - tNum) <= 1.0) { // Warm if within 1.0
+                      feedback[key] = { status: 'warm', value: guessVal, direction: gNum < tNum ? '▲' : '▼' };
                       isWin = false;
                   } else { // Cold
-                      feedback[key] = { status: 'cold', value: guessVal, direction: guessNum < targetVal ? '▲' : '▼' };
+                      feedback[key] = { status: 'cold', value: guessVal, direction: gNum < tNum ? '▲' : '▼' };
                       isWin = false;
                   }
-              } else {
+              } 
+              // Direct string comparison for others
+              else {
                   if (guessVal === targetVal) {
                       feedback[key] = { status: 'correct', value: guessVal };
                   } else {
@@ -396,13 +690,7 @@
               }
           };
 
-          checkStat('elixir');
-          checkStat('rarity');
-          checkStat('type');
-          checkStat('targets');
-          checkStat('range_type');
-          checkStat('speed');
-          checkStat('hit_speed');
+          ['elixir', 'rarity', 'type', 'targets', 'range_type', 'speed', 'hit_speed'].forEach(key => checkStat(key));
 
           const newGuess = { cardName: guessCard.name, feedback, isWin };
           const newGuesses = [newGuess, ...guesses];
@@ -410,16 +698,18 @@
           setGuessInput('');
 
           if (isWin) {
-              setWinnerData({ team: 'GUESSERS', reason: `The card was ${targetCard.name}!` });
+              setWinnerData({ team: 'GUESSERS', reason: `Correct! The card was ${targetCard.name}!` });
               setGameState('game_over');
           } else if (newGuesses.length >= MAX_GUESSES) {
-              setWinnerData({ team: 'FAIL', reason: `Failed to guess the card within ${MAX_GUESSES} tries.` });
+              setWinnerData({ team: 'FAIL', reason: `Out of tries! The card was ${targetCard.name}.` });
               setGameState('game_over');
           }
       };
 
+      // --- RENDERS ---
+      
       const renderStatGuessGame = () => {
-          const uniqueCardNames = cardData.map(c => c.name);
+          const uniqueCardNames = cardData.map(c => c.name).sort();
           const remainingTries = MAX_GUESSES - guesses.length;
 
           const getStatusClass = (status) => {
@@ -428,6 +718,7 @@
               return 'stat-cold';
           };
           
+          // Sticky header + scrolling columns layout
           const ScrollingHeader = () => (
               <div className="stat-data-grid text-center clash-font text-[10px] sm:text-xs mb-1 border-b border-white/50 pb-1">
                   <div className="opacity-70">Elixir 💧</div>
@@ -435,20 +726,19 @@
                   <div className="opacity-70">Type</div>
                   <div className="opacity-70">Targets</div>
                   <div className="opacity-70">Range</div>
-                  <div className="opacity-70">Hit Spd</div>
                   <div className="opacity-70">Speed</div>
+                  <div className="opacity-70">Hit Spd</div>
               </div>
           );
 
           const ScrollingRow = ({ guess }) => (
               <div className="stat-data-grid text-center text-[10px] sm:text-xs font-bold gap-1">
-                  {['elixir', 'rarity', 'type', 'targets', 'range_type', 'hit_speed', 'speed'].map(key => {
-                      const feedback = guess.feedback[key];
-                      const direction = feedback?.direction || '';
+                  {['elixir', 'rarity', 'type', 'targets', 'range_type', 'speed', 'hit_speed'].map(key => {
+                      const f = guess.feedback[key];
                       return (
-                          <div key={key} className={`${getStatusClass(feedback?.status)} rounded-lg p-1 flex items-center justify-center h-full`}>
-                              <span className="truncate max-w-[90%]">{feedback?.value || '-'}</span>
-                              {feedback?.status !== 'correct' && direction && <span className="ml-0.5 text-[8px] sm:text-[10px]">{direction}</span>}
+                          <div key={key} className={`${getStatusClass(f?.status)} rounded-lg p-1 flex items-center justify-center h-full relative`}>
+                              <span className="truncate max-w-[85%]">{f?.value || '-'}</span>
+                              {f?.direction && <span className="absolute right-0.5 bottom-0.5 text-[8px] opacity-80">{f.direction}</span>}
                           </div>
                       );
                   })}
@@ -459,23 +749,23 @@
               <Container className="animate-pop">
                   <header className="text-center mb-4 flex-shrink-0">
                       <h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy">STAT GUESS WORDLE</h2>
-                      <p className="text-sm opacity-80">Tries remaining: <span className={`font-bold ${remainingTries <= 3 ? 'text-red-500 animate-pulse' : 'text-[#FFB900]'}`}>{remainingTries} / {MAX_GUESSES}</span></p>
+                      <p className="text-sm opacity-80">Tries: <span className={`font-bold ${remainingTries <= 3 ? 'text-red-500 animate-pulse' : 'text-[#FFB900]'}`}>{remainingTries} / {MAX_GUESSES}</span></p>
                   </header>
                   
-                  <Card color="stats" className="flex-1 flex flex-col overflow-y-hidden min-h-0">
-                      <div className="flex-shrink-0 text-white clash-font text-center text-sm p-1">GUESS HISTORY ({guesses.length})</div>
+                  <CardComp color="stats" className="flex-1 flex flex-col overflow-y-hidden min-h-0">
+                      <div className="flex-shrink-0 text-white clash-font text-center text-sm p-1 opacity-70">GUESS HISTORY ({guesses.length})</div>
 
                       <div className="stat-row border-b border-white/50 pb-1 flex-shrink-0">
-                           <div className="sticky-col text-center clash-font text-[10px] sm:text-xs opacity-70 bg-[#183918]/95 pt-1">Card Name</div>
+                           <div className="sticky-col text-center clash-font text-[10px] sm:text-xs opacity-70 bg-[#183918] pt-1 z-20">Card Name</div>
                            <div className="stat-scroll-container">
                                <ScrollingHeader />
                            </div>
                       </div>
 
                       <div className="flex-1 overflow-y-auto min-h-0">
-                          {guesses.slice().reverse().map((guess, index) => (
+                          {guesses.map((guess, index) => (
                               <div key={index} className="stat-row gap-1 border-b border-white/10 py-1">
-                                  <div className="sticky-col text-center font-bold text-[10px] sm:text-xs bg-[#183918]/95 flex items-center justify-center rounded-lg p-1 truncate">
+                                  <div className="sticky-col text-center font-bold text-[10px] sm:text-xs bg-[#183918] flex items-center justify-center rounded-lg p-1 truncate z-10 shadow-r-lg">
                                       {guess.cardName}
                                   </div>
                                   <div className="stat-scroll-container">
@@ -484,7 +774,7 @@
                               </div>
                           ))}
                       </div>
-                  </Card>
+                  </CardComp>
                   
                   <div className="flex-shrink-0 mt-4">
                       <input 
@@ -492,14 +782,16 @@
                           list="card-list"
                           value={guessInput}
                           onChange={(e) => setGuessInput(e.target.value)}
-                          placeholder="Guess a card name..."
+                          placeholder="Guess a card..."
                           className="w-full p-3 rounded-xl bg-[#1c1f35]/80 border-2 border-[#323655] text-white text-center text-lg clash-font outline-none focus:border-[#FFB900]"
                       />
                       <datalist id="card-list">
                           {uniqueCardNames.map(name => <option key={name} value={name} />)}
                       </datalist>
-                      <Button full color="yellow" onClick={handleStatGuess} disabled={!guessInput.trim() || guesses.length >= MAX_GUESSES} className="mt-2">GUESS 🎯</Button>
-                      <Button full color="red" size="sm" onClick={() => setGameState('setup')} className="mt-2 py-1">QUIT</Button>
+                      <div className="flex gap-2 mt-2">
+                          <Button full color="red" size="sm" onClick={() => setGameState('setup')} className="flex-1 py-2">QUIT</Button>
+                          <Button full color="yellow" onClick={handleStatGuess} disabled={!guessInput.trim() || guesses.length >= MAX_GUESSES} className="flex-[2] py-2">GUESS 🎯</Button>
+                      </div>
                   </div>
               </Container>
           );
@@ -507,9 +799,9 @@
 
 
       if (gameState === 'setup') {
+          // Calculate total enemies for validation
           const totalEnemies = settings.undercover + settings.mrWhite + settings.jester + settings.hunter + settings.electro;
           const isValid = settings.total > 2 && (totalEnemies > 0);
-          
           const battleColor = gameMode === MODES.CHAOS ? "purple" : (gameMode === MODES.STAT_GUESS ? "green" : "yellow");
           
           const renderRoleSlider = (key, label, color, min, max, icon) => (
@@ -530,17 +822,22 @@
                       <div className="text-[#FFB900] text-2xl sm:text-5xl -mt-1 sm:-mt-2">ROYALE</div>
                   </h1>
               </header>
-              <div className="flex bg-[#1c1f35]/50 p-1 rounded-xl mb-4 clash-font text-lg">
-                  <button onClick={()=>setGameMode(MODES.REGULAR)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.REGULAR ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>REGULAR</button>
-                  <button onClick={()=>setGameMode(MODES.CHAOS)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.CHAOS ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400'}`}>CHAOS</button>
-                  <button onClick={()=>setGameMode(MODES.STAT_GUESS)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.STAT_GUESS ? 'bg-green-600 text-white shadow-lg' : 'text-slate-400'}`}>STAT GUESS</button>
+              
+              {/* Mode Selection Tabs */}
+              <div className="flex bg-[#1c1f35]/50 p-1 rounded-xl mb-4 clash-font text-sm sm:text-base flex-shrink-0">
+                  <button onClick={()=>setGameMode(MODES.REGULAR)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.REGULAR ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>REGULAR</button>
+                  <button onClick={()=>setGameMode(MODES.CHAOS)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.CHAOS ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>CHAOS</button>
+                  <button onClick={()=>setGameMode(MODES.STAT_GUESS)} className={`flex-1 py-2 rounded-lg transition-all ${gameMode===MODES.STAT_GUESS ? 'bg-green-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>STAT GUESS</button>
               </div>
               
               {gameMode !== MODES.STAT_GUESS && (
-                  <Card className="space-y-4 mb-4 flex-1 flex flex-col overflow-y-auto min-h-0">
-                      <div className="touch-pan-y"><div className="flex justify-between clash-font text-lg mb-1"><span className="text-blue-400 flex items-center gap-2">👥 Total Players</span><span>{settings.total}</span></div>
-                      <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSetting('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]" /></div>
-                      <div className="grid grid-cols-2 gap-4">
+                  <CardComp className="space-y-4 mb-4 flex-1 flex flex-col overflow-y-auto min-h-0">
+                      <div className="touch-pan-y">
+                          <div className="flex justify-between clash-font text-lg mb-1"><span className="text-blue-400 flex items-center gap-2">👥 Total Players</span><span>{settings.total}</span></div>
+                          <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSetting('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]" />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                         {renderRoleSlider('undercover', 'Undercover', 'text-red-400', 0, getMaxImpostors(settings.total, 'undercover'), '👺')}
                         {renderRoleSlider('mrWhite', 'Mr. White', 'text-slate-300', 0, getMaxImpostors(settings.total, 'mrWhite'), '⬜')}
                         
@@ -548,24 +845,25 @@
                             {renderRoleSlider('jester', 'Jester', 'text-green-400', 0, 1, '🃏')}
                             {renderRoleSlider('bodyguard', 'Bodyguard', 'text-yellow-400', 0, 1, '🛡️')}
                             {renderRoleSlider('hunter', 'Hunter', 'text-purple-400', 0, 1, '🤠')}
-                            {renderRoleSlider('electro', 'Electro Wizard', 'text-darkblue-400', 0, 1, '⚡')}
+                            {renderRoleSlider('electro', 'E-Wizard', 'text-darkblue-400', 0, 1, '⚡')}
                         </>}
                       </div>
-                      <div className="flex justify-center pt-2">
-                          <Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-8">EDIT NAMES ✍️</Button>
+                      
+                      <div className="flex justify-center pt-2 mt-auto">
+                          <Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-6 text-base">EDIT NAMES ✍️</Button>
                       </div>
-                  </Card>
+                  </CardComp>
               )}
               
               {gameMode === MODES.STAT_GUESS && (
-                  <Card color="stats" className="space-y-4 mb-4 flex-1 flex flex-col items-center justify-center">
-                     <div className="text-center">
-                        <h3 className="clash-font text-2xl">CLASH WORDLE</h3>
-                        <p className="text-sm opacity-80">Guess the card in the fewest tries!</p>
-                        <p className="text-xs opacity-60 mt-2">(Uses {cardData.length} cards)</p>
-                        {cardData.length === 0 && <p className="text-red-400 mt-2">Loading card data...</p>}
+                  <CardComp color="stats" className="space-y-4 mb-4 flex-1 flex flex-col items-center justify-center text-center">
+                     <h3 className="clash-font text-3xl mb-2">CLASH WORDLE</h3>
+                     <div className="text-5xl mb-4">🤔</div>
+                     <p className="opacity-90 max-w-[80%]">Guess the mystery card by comparing its stats!</p>
+                     <div className="mt-4 p-2 bg-black/20 rounded-lg text-sm">
+                        {cardData.length > 0 ? <span className="text-green-400">✅ Loaded {cardData.length} cards</span> : <span className="text-red-400 animate-pulse">⌛ Loading data...</span>}
                      </div>
-                  </Card>
+                  </CardComp>
               )}
 
               <div className="flex-shrink-0 space-y-3">
@@ -574,18 +872,19 @@
                   </Button>
                   <Button full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Button>
               </div>
+
+              {/* Modals */}
               {showRules && <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}><div className="space-y-4 text-sm opacity-90"><p><strong>Goal:</strong> Civilians must find all impostors. Impostors must survive until they outnumber civilians.</p><hr className="border-white/20"/><h3 className="clash-font text-[#4176FF]">ROLES & ABILITIES</h3><ul className="list-disc pl-4 space-y-2"><li><strong className="text-[#4176FF]">Civilian:</strong> Standard card.</li><li><strong className="text-[#FF4141]">Undercover:</strong> Different card. Blend in.</li><li><strong>Mr. White:</strong> NO card. Can steal the win by guessing the Civilian card if caught.</li></li><li><strong className="text-green-400">Jester:</strong> Wins instantly if voted out.</li><li><strong className="text-yellow-400">Bodyguard:</strong> Protects one random player. Is eliminated if their target is eliminated.</li><li><strong className="text-purple-400">Hunter:</strong> If eliminated, gets a Last Shot to take someone down with them.</li><li><strong className="text-darkblue-400">Electro Wizard:</strong> Zaps (silences) one player for the first discussion round.</li><li><strong className="text-[#FFB900]">King (Trait):</strong> Counts as two votes.</li></ul><h3 className="clash-font text-green-400 mt-4">STAT GUESS MODE</h3><p>A single card is randomly chosen. Guess any card and the game gives you feedback on its core stats:</p><ul><li><strong className="text-green-400">Green:</strong> Correct Match.</li><li><strong className="text-yellow-400">Yellow:</strong> Close Match (e.g., Elixir off by 1).</li><li><strong className="text-red-400">Red + Arrow:</strong> Stat is incorrect, and the arrow shows if the target stat is higher (▲) or lower (▼) than your guess.</li><li><strong className="text-red-400">Max Tries:</strong> You have {MAX_GUESSES} tries to guess the card!</li></ul></div></Modal>}
               {showNames && <Modal title="PLAYER NAMES" onClose={() => setShowNames(false)}><div className="space-y-2">{Array(settings.total).fill(0).map((_, i) => (<div key={i} className="flex items-center gap-2"><span className="w-6 opacity-50">{i+1}.</span><input type="text" value={customNames[i]} onChange={(e) => updateName(i, e.target.value)} className="flex-1 bg-[#1a1c2c] border-2 border-[#323655] rounded-lg px-2 py-1 text-white focus:border-[#FFB900] outline-none" placeholder={`Player ${i+1}`} /></div>))}</div></Modal>}
           </Container>
       );}
       
-      if (gameState === 'stat_guess_game') return renderStatGuessGame();
-
       if (gameState === 'reveal') {
           const p = players[currentRevealIndex];
           const isSpecial = [ROLES.MR_WHITE, ROLES.JESTER, ROLES.BODYGUARD, ROLES.HUNTER, ROLES.ELECTRO].includes(p.role);
-          // Determine if Electro Wizard needs to zap, filtering out players who are already zapped
+          // Filter potential zap targets: must not be self, and must not already be zapped
           const potentialZapTargets = players.filter(pl => !pl.isZapped && pl.id !== p.id);
+          // Only show Zap UI if it's the Electro Wizard AND there are actually people left to zap
           const needsElectroZapAction = p.role === ROLES.ELECTRO && potentialZapTargets.length > 0;
           
           let roleText = "Memorize your card!", roleColor = "text-slate-400", cardColor = 'blue', cardContent = null, extraAction = null;
@@ -595,13 +894,8 @@
           else if (p.role === ROLES.HUNTER) { roleText = "You are the Hunter!"; roleColor = "text-purple-400"; cardColor = 'purple'; cardContent = <img src={getCardUrl('hunter')} className="w-32 h-auto drop-shadow-lg" />; }
           else if (p.role === ROLES.BODYGUARD) { const targetName = players.find(pl => pl.id === p.targetId)?.name || "someone"; roleText = `Protect ${targetName} at all costs!`; roleColor = "text-yellow-400"; cardColor = 'gold'; cardContent = <img src={getCardUrl('royal-recruits')} className="w-32 h-auto drop-shadow-lg" />; }
           else if (p.role === ROLES.ELECTRO) { 
-              roleText = needsElectroZapAction ? "Choose a player to ZAP (Silence)!" : "Your mission is complete!"; roleColor = "text-darkblue-400"; cardColor = 'darkblue'; cardContent = <img src={getCardUrl('electro-wizard')} className="w-32 h-auto drop-shadow-lg" />;
-              if (needsElectroZapAction) extraAction = (<div className="flex flex-col items-center w-full mt-4">
-                  <p className="text-sm font-bold mb-2">Target to Silence:</p>
-                  <div className="grid grid-cols-3 gap-2 w-full max-h-[150px] overflow-y-auto pr-1">
-                      {potentialZapTargets.map(pl => (<button key={pl.id} onClick={()=>handleElectroZap(pl.id)} className="bg-purple-900/50 border-2 border-purple-500 hover:border-yellow-500 rounded-lg p-2 text-xs truncate">{pl.name}</button>))}
-                  </div>
-              </div>);
+              roleText = needsElectroZapAction ? "Choose a player to ZAP (Silence)!" : "Your mission is complete."; roleColor = "text-darkblue-400"; cardColor = 'darkblue'; cardContent = <img src={getCardUrl('electro-wizard')} className="w-32 h-auto drop-shadow-lg" />;
+              if (needsElectroZapAction) extraAction = (<div className="flex flex-col items-center w-full mt-4 animate-pop"><p className="text-sm font-bold mb-2 text-blue-300">Tap to Silence for Round 1:</p><div className="grid grid-cols-3 gap-2 w-full max-h-[120px] overflow-y-auto pr-1">{potentialZapTargets.map(pl => (<button key={pl.id} onClick={()=>handleElectroZap(pl.id)} className="bg-[#1C598C] border-2 border-blue-400 active:scale-95 rounded-lg p-2 text-xs truncate font-bold shadow-sm">{pl.name}</button>))}</div></div>);
           }
           else { 
               cardContent = <img src={getCardUrl(p.word)} className="w-32 sm:w-40 h-auto drop-shadow-lg" onError={(e)=>{e.target.style.display='none';e.target.nextSibling.style.display='block'}} />;
@@ -611,10 +905,34 @@
           return (
               <Container>
                   <h2 className="clash-font text-center text-xl text-[#FFB900] text-shadow-heavy mb-4 flex-shrink-0">REVEAL {currentRevealIndex + 1}/{players.length}</h2>
-                  {isRevealing ? (<Card color={cardColor} className="flex-1 flex flex-col items-center justify-center mb-6 min-h-0 animate-pop"><div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase flex-shrink-0">SECRET IDENTITY</div><div className="flex-1 flex flex-col items-center justify-center min-h-0">{cardContent}{!isSpecial&&<div className="clash-font text-2xl text-[#FFB900] text-shadow-heavy px-2 mt-4 break-words text-center leading-tight">{p.word}</div>}{isSpecial&&<div className="clash-font text-3xl text-white text-shadow-heavy mt-2">{p.role.replace('_',' ').toUpperCase()}</div>}</div><div className={`mt-4 font-bold text-xl flex-shrink-0 ${roleColor} text-center px-2`}>{roleText}</div>{extraAction}</Card>) : (<Card className="flex-1 flex flex-col items-center justify-center mb-6 relative min-h-0 animate-pop"><div className="absolute top-4 left-4 font-bold text-slate-500">#{p.id + 1}</div><div className="text-center"><div className="text-7xl sm:text-8xl mb-6 opacity-50">🤐</div><h3 className="text-2xl sm:text-3xl font-bold">Pass device to</h3><h1 className="clash-font text-4xl sm:text-5xl text-[#FFB900] text-shadow-heavy mt-2 truncate px-4 max-w-full">{p.name}</h1></div></Card>)}
+                  {isRevealing ? (
+                      <CardComp color={cardColor} className="flex-1 flex flex-col items-center justify-center mb-6 min-h-0 animate-pop">
+                          <div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase flex-shrink-0">SECRET IDENTITY</div>
+                          <div className="flex-1 flex flex-col items-center justify-center min-h-0">
+                              {cardContent}
+                              {!isSpecial && <div className="clash-font text-2xl text-[#FFB900] text-shadow-heavy px-2 mt-4 break-words text-center leading-tight">{p.word}</div>}
+                              {isSpecial && <div className="clash-font text-3xl text-white text-shadow-heavy mt-2">{p.role.replace('_',' ').toUpperCase()}</div>}
+                          </div>
+                          <div className={`mt-4 font-bold text-xl flex-shrink-0 ${roleColor} text-center px-2`}>{roleText}</div>
+                          {extraAction}
+                      </CardComp>
+                  ) : (
+                      <CardComp className="flex-1 flex flex-col items-center justify-center mb-6 relative min-h-0 animate-pop">
+                          <div className="absolute top-4 left-4 font-bold text-slate-500">#{p.id + 1}</div>
+                          <div className="text-center">
+                              <div className="text-7xl sm:text-8xl mb-6 opacity-50">🤐</div>
+                              <h3 className="text-2xl sm:text-3xl font-bold">Pass device to</h3>
+                              <h1 className="clash-font text-4xl sm:text-5xl text-[#FFB900] text-shadow-heavy mt-2 truncate px-4 max-w-full">{p.name}</h1>
+                          </div>
+                      </CardComp>
+                  )}
                   <div className="flex-shrink-0">
-                      {/* Button logic ensures 'GOT IT' appears unless the Electro Wizard needs to zap */}
-                      {!needsElectroZapAction && <Button full color={!isRevealing?"blue":"yellow"} onClick={!isRevealing?()=>setIsRevealing(true):handleNextReveal}>{!isRevealing?"SHOW IDENTITY 👁️":"GOT IT! 👌"}</Button>}
+                      {/* Only show the 'GOT IT' button if no mandatory action (like Zapping) is required right now */}
+                      {!needsElectroZapAction && 
+                          <Button full color={!isRevealing ? "blue" : "yellow"} onClick={!isRevealing ? () => setIsRevealing(true) : handleNextReveal}>
+                              {!isRevealing ? "SHOW IDENTITY 👁️" : "GOT IT! 👌"}
+                          </Button>
+                      }
                   </div>
               </Container>
           );
@@ -624,19 +942,75 @@
           const title = gameState === 'discussing' ? 'DISCUSSION' : (gameState === 'hunter_revenge' ? 'HUNTER REVENGE' : 'ELIMINATION');
           return (
               <Container>
-                  <header className="text-center mb-4 flex-shrink-0"><h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy leading-tight">{title}</h2>{gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {formatTime(timer)}</div>}{gameState === 'voting' && <p className="text-sm opacity-80">Tap a player to vote!</p>}{gameState==='hunter_revenge'&&<p className="text-orange-400 font-bold">Hunter, choose your last target!</p>}</header>
-                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">{players.map(p => {
-                      const badge = getRoleBadge(p.role);
-                      const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
-                      const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
+                  <header className="text-center mb-4 flex-shrink-0">
+                      <h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy leading-tight">{title}</h2>
+                      {gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {formatTime(timer)}</div>}
+                      {gameState === 'voting' && <p className="text-sm opacity-80">Tap a player to vote!</p>}
+                      {gameState === 'hunter_revenge' && <p className="text-orange-400 font-bold animate-pulse">Hunter, choose your last target!</p>}
+                  </header>
+                  
+                  <div className="flex-1 overflow-y-auto min-h-0 grid grid-cols-3 gap-2 content-start pb-2">
+                      {players.map(p => {
+                          const badge = getRoleBadge(p.role);
+                          const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
+                          const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
 
-                      return (<button key={p.id} disabled={!p.isAlive || gameState === 'discussing'} onClick={() => (gameState === 'voting' || gameState==='hunter_revenge') && setSelectedPlayerId(p.id)} className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm ${!p.isAlive?'bg-slate-800/50 border-slate-900 opacity-30 grayscale':(gameState==='voting'||gameState==='hunter_revenge')?(selectedPlayerId===p.id?'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_10px_rgba(255,185,0,0.5)]':'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95'):'bg-[#323655]/80 border-[#1c1f35]'}`}><div className="text-3xl mb-1 relative">{p.avatar}{p.isKing && gameState!=='hunter_revenge' && <span className="absolute -top-2 -right-2 text-xl">👑</span>}{p.isZapped && gameState==='discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}</div><div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>{!p.isAlive && <span className={`role-badge ${badgeColor}`}>{badge.icon}</span>}</button>)}</div>
-                  <div className="mt-4 flex-shrink-0">{gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> : (selectedPlayerId !== null ? (gameState==='hunter_revenge' ? <Button full color="red" onClick={()=>handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : <Button full color="red" onClick={eliminatePlayer}>ELIMINATE {players.find(p=>p.id===selectedPlayerId)?.name} 💀</Button>) : (gameState==='voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null))}</div>
+                          return (
+                              <button key={p.id} 
+                                  disabled={!p.isAlive || gameState === 'discussing'} 
+                                  onClick={() => (gameState === 'voting' || gameState === 'hunter_revenge') && setSelectedPlayerId(p.id)} 
+                                  className={`relative p-1 rounded-xl border-2 transition-all flex flex-col items-center justify-center min-h-[90px] backdrop-blur-sm 
+                                      ${!p.isAlive ? 'bg-slate-800/50 border-slate-900 opacity-40 grayscale' : 
+                                      (gameState === 'voting' || gameState === 'hunter_revenge') ? 
+                                          (selectedPlayerId === p.id ? 'bg-[#323655]/90 border-[#FFB900] scale-105 z-10 shadow-[0_0_15px_rgba(255,185,0,0.6)]' : 'bg-[#323655]/80 border-[#FF4141] cursor-pointer active:scale-95') 
+                                          : 'bg-[#323655]/80 border-[#1c1f35]'}`}
+                              >
+                                  <div className="text-3xl mb-1 relative">
+                                      {p.avatar}
+                                      {/* Show King crown during voting ONLY */}
+                                      {p.isKing && gameState === 'voting' && <span className="absolute -top-3 -right-3 text-2xl drop-shadow-md filter">👑</span>}
+                                      {/* Show Zap during discussion ONLY */}
+                                      {p.isZapped && gameState === 'discussing' && <span className="absolute -bottom-1 -right-1 text-xl drop-shadow-md">⚡</span>}
+                                  </div>
+                                  <div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>
+                                  {/* Show role badge only when DEAD */}
+                                  {!p.isAlive && <div className="absolute inset-0 flex items-center justify-center"><div className="text-4xl opacity-50">💀</div></div>}
+                                  {!p.isAlive && <span className={`role-badge ${badgeColor}`}>{badge.icon}</span>}
+                              </button>
+                          )
+                      })}
+                  </div>
+                  
+                  <div className="mt-4 flex-shrink-0">
+                      {gameState === 'discussing' ? 
+                          <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> : 
+                          (selectedPlayerId !== null ? 
+                              (gameState === 'hunter_revenge' ? 
+                                  <Button full color="purple" onClick={() => handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : 
+                                  <Button full color="red" onClick={eliminatePlayer}>ELIMINATE {players.find(p => p.id === selectedPlayerId)?.name} 💀</Button>
+                              ) : 
+                              (gameState === 'voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null)
+                          )
+                      }
+                  </div>
               </Container>
           );
       }
 
-      if (gameState === 'mr_white_guess') return (<Container className="animate-pop"><header className="text-center mb-8 mt-6 flex-shrink-0"><div className="text-6xl mb-4">❔</div><h1 className="clash-font text-3xl text-white text-shadow-heavy mb-2">LAST CHANCE!</h1><p className="font-bold opacity-90">{justEliminated[0]?.name} is Mr. White!</p></header><Card color="gray" className="flex-1 flex flex-col items-center justify-center mb-8 min-h-0"><h3 className="text-xl font-bold text-center mb-6">Guess the Civilian Card to steal the win!</h3><input type="text" value={mrWhiteGuess} onChange={(e)=>setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" /></Card><div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div></Container>);
+      if (gameState === 'mr_white_guess') return (
+          <Container className="animate-pop">
+              <header className="text-center mb-8 mt-6 flex-shrink-0">
+                  <div className="text-6xl mb-4">❔</div>
+                  <h1 className="clash-font text-3xl text-white text-shadow-heavy mb-2">LAST CHANCE!</h1>
+                  <p className="font-bold opacity-90">{justEliminated[0]?.name} is Mr. White!</p>
+              </header>
+              <CardComp color="gray" className="flex-1 flex flex-col items-center justify-center mb-8 min-h-0">
+                  <h3 className="text-xl font-bold text-center mb-6">Guess the Civilian Card to steal the win!</h3>
+                  <input type="text" value={mrWhiteGuess} onChange={(e) => setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" />
+              </CardComp>
+              <div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div>
+          </Container>
+      );
 
       if (gameState === 'round_summary') {
           return (
@@ -649,7 +1023,7 @@
                           const color = isCiv ? 'blue' : (p.role === ROLES.MR_WHITE ? 'gray' : (p.role === ROLES.JESTER ? 'green' : (p.role === ROLES.HUNTER ? 'purple' : (p.role === ROLES.ELECTRO ? 'darkblue' : 'red'))));
                           
                           return (
-                              <Card key={p.id} color={color} className="flex flex-col items-center justify-center py-4">
+                              <CardComp key={p.id} color={color} className="flex flex-col items-center justify-center py-4">
                                   <h2 className="clash-font text-2xl text-white text-shadow-heavy mb-2">{p.name}</h2>
                                   <div className="flex justify-center w-full mb-2" style={{ minHeight: '100px' }}>
                                       {p.role === ROLES.CIVILIAN ? (
@@ -661,7 +1035,7 @@
                                   <div className={`clash-font text-xl text-shadow-heavy text-center ${color === 'blue' ? 'text-[#4176FF]' : 'text-white'}`}>{p.role.replace('_',' ').toUpperCase()}</div>
                                   {p.role === ROLES.MR_WHITE && <div className="text-red-400 font-bold text-sm">(Guess Failed)</div>}
                                   {p.role === ROLES.BODYGUARD && p.targetId !== undefined && <div className="text-white font-bold text-sm">Protected: {players.find(pl => pl.id === p.targetId)?.name}</div>}
-                              </Card>
+                              </CardComp>
                           )
                       })}
                   </div>
@@ -686,17 +1060,64 @@
               );
           }
 
-
-          return (<Container className="animate-pop"><header className="text-center mb-4 mt-2 flex-shrink-0"><div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div><h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${headerColor}`}>{winnerData.team} WIN!</h1><p className="font-bold opacity-90 text-sm">{winnerData.reason}</p></header><Card className={`flex-1 overflow-y-auto mb-4 min-h-0 ${isCivWin ? 'bg-blue-900/30' : (showCardDetails ? 'bg-red-900/30' : 'bg-green-900/30')}`} noPadding><div className="p-3 space-y-2">{players.map(p => {
-              const badge = getRoleBadge(p.role);
-              const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
-              const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
-              
-              return (<div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e=>e.id===p.id)?'border-2 border-yellow-500':''}`}><div className="flex items-center gap-2 overflow-hidden"><span className="text-xl">{p.avatar}</span><span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span></div><div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${p.role===ROLES.CIVILIAN?'text-blue-300 bg-blue-900/50':(p.role===ROLES.UNDERCOVER?'text-red-300 bg-red-900/50':(p.role===ROLES.JESTER?'text-green-300 bg-green-900/50':(p.role===ROLES.BODYGUARD?'text-yellow-300 bg-yellow-900/50':(p.role===ROLES.HUNTER?'text-purple-300 bg-purple-900/50':(p.role===ROLES.ELECTRO?'text-darkblue-300 bg-darkblue-900/50':'text-white bg-slate-700')))))}`}>{p.role.replace('_', ' ').toUpperCase()} {showCardDetails && ![ROLES.MR_WHITE,ROLES.JESTER,ROLES.BODYGUARD,ROLES.HUNTER,ROLES.ELECTRO].includes(p.role)?`(${p.word})`:''}</div></div>)})}</div></Card>{showCardDetails&&<div className="flex gap-3 mb-4 flex-shrink-0">{statGuessCardReveal || <> <div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#4176FF] uppercase">Civilian Card</div><img src={getCardUrl(currentWords.civilian)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.civilian}</div></div><div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl"><div className="text-[10px] font-bold mb-1 text-[#FF4141] uppercase">Undercover Card</div><img src={getCardUrl(currentWords.undercover)} className="w-12 h-auto mx-auto" /><div className="text-[10px] font-bold mt-1 truncate">{currentWords.undercover}</div></div></>}</div>}<div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div></Container>);
+          return (
+              <Container className="animate-pop">
+                  <header className="text-center mb-4 mt-2 flex-shrink-0">
+                      <div className="text-6xl mb-2">{isCivWin ? '🛡️' : (isJesterWin ? '🃏' : '🗡️')}</div>
+                      <h1 className={`clash-font text-3xl text-shadow-heavy mb-1 ${headerColor}`}>{winnerData.team} WIN!</h1>
+                      <p className="font-bold opacity-90 text-sm">{winnerData.reason}</p>
+                  </header>
+                  
+                  <CardComp className={`flex-1 overflow-y-auto mb-4 min-h-0 ${isCivWin ? 'bg-blue-900/30' : (showCardDetails ? 'bg-red-900/30' : 'bg-green-900/30')}`} noPadding>
+                      <div className="p-3 space-y-2">
+                          {players.map(p => {
+                              const badge = getRoleBadge(p.role);
+                              const isCivTeam = [ROLES.CIVILIAN, ROLES.BODYGUARD, ROLES.HUNTER].includes(p.role);
+                              const badgeColor = isCivTeam ? 'bg-[#4176FF]' : (p.role === ROLES.UNDERCOVER ? 'bg-[#FF4141]' : (p.role === ROLES.MR_WHITE ? 'bg-slate-500' : (p.role === ROLES.JESTER ? 'bg-[#4CB050]' : (p.role === ROLES.ELECTRO ? 'bg-[#1C598C]' : ''))));
+                              
+                              return (
+                                  <div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e => e.id === p.id) ? 'border-2 border-yellow-500' : ''}`}>
+                                      <div className="flex items-center gap-2 overflow-hidden">
+                                          <span className="text-xl">{p.avatar}</span>
+                                          <span className={`font-bold truncate ${!p.isAlive && 'line-through opacity-50'}`}>{p.name}</span>
+                                      </div>
+                                      <div className={`text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap ml-2 ${p.role === ROLES.CIVILIAN ? 'text-blue-300 bg-blue-900/50' : (p.role === ROLES.UNDERCOVER ? 'text-red-300 bg-red-900/50' : (p.role === ROLES.JESTER ? 'text-green-300 bg-green-900/50' : (p.role === ROLES.BODYGUARD ? 'text-yellow-300 bg-yellow-900/50' : (p.role === ROLES.HUNTER ? 'text-purple-300 bg-purple-900/50' : (p.role === ROLES.ELECTRO ? 'text-darkblue-300 bg-darkblue-900/50' : 'text-white bg-slate-700')))))}`}>
+                                          {p.role.replace('_', ' ').toUpperCase()} {showCardDetails && ![ROLES.MR_WHITE, ROLES.JESTER, ROLES.BODYGUARD, ROLES.HUNTER, ROLES.ELECTRO].includes(p.role) ? `(${p.word})` : ''}
+                                      </div>
+                                  </div>
+                              )
+                          })}
+                      </div>
+                  </CardComp>
+                  
+                  {showCardDetails && 
+                      <div className="flex gap-3 mb-4 flex-shrink-0">
+                          {statGuessCardReveal || 
+                              <> 
+                                  <div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl">
+                                      <div className="text-[10px] font-bold mb-1 text-[#4176FF] uppercase">Civilian Card</div>
+                                      <img src={getCardUrl(currentWords.civilian)} className="w-12 h-auto mx-auto" />
+                                      <div className="text-[10px] font-bold mt-1 truncate">{currentWords.civilian}</div>
+                                  </div>
+                                  <div className="flex-1 text-center opacity-80 bg-[#1c1f35]/30 p-2 rounded-xl">
+                                      <div className="text-[10px] font-bold mb-1 text-[#FF4141] uppercase">Undercover Card</div>
+                                      <img src={getCardUrl(currentWords.undercover)} className="w-12 h-auto mx-auto" />
+                                      <div className="text-[10px] font-bold mt-1 truncate">{currentWords.undercover}</div>
+                                  </div>
+                              </>
+                          }
+                      </div>
+                  }
+                  <div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div>
+              </Container>
+          );
       }
+
       return null;
     };
-    const root = ReactDOM.createRoot(document.getElementById('root')); root.render(<App />);
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
