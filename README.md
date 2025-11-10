@@ -4,9 +4,8 @@ Clash Royale meets social deduction. Find the impostor in your clan\!
 
 **Undercover Royale** is a local multiplayer party game that combines the bluffing of Undercover with Clash Royale characters and specialized roles. Designed as a polished, single-file Progressive Web App (PWA), it's perfect for playing with friends using just one device.
 
-## [**🎮 PLAY NOW**](https://www.google.com/search?q=https://xandre04.github.io/undercover-royale/)
+## [**🎮 PLAY NOW**](https://xandre04.github.io/undercover-royale/)
 
-*(Click to launch game)*
 
 ## **✨ Features**
 
