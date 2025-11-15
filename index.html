@@ -155,6 +155,72 @@
     const levenshtein=(s,t)=>{if(!s.length)return t.length;if(!t.length)return s.length;const d=[];for(let i=0;i<=t.length;i++){d[i]=[i];for(let j=1;j<=s.length;j++){d[i][j]=i===0?j:Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(s[j-1]===t[i-1]?0:1))}}return d[t.length][s.length]};
     const isCorrect=(g,a,t=0.75)=>{const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();return G===A||(1-levenshtein(G,A)/Math.max(G.length,A.length))>=t; };
 
+    // --- OPTIMIZED UI COMPONENTS (MOVED *OUTSIDE* APP) ---
+    const Container = memo(({children, className=""}) => (
+      <div className={`h-full flex flex-col px-4 pt-4 pb-8 sm:p-6 max-w-md sm:max-w-lg mx-auto w-full ${className}`}>
+        {children}
+      </div>
+    ));
+
+    const CardComponent = memo(({children, color="blue", className="", noPad=false}) => {
+      const colors = {blue:"bg-[#323655]/95 border-[#1c1f35]",red:"bg-[#553232]/95 border-[#2a1515]",gold:"bg-[#554b32]/95 border-[#2a2515]",gray:"bg-slate-700/95 border-slate-500",green:"bg-[#2e4a2e]/95 border-[#1e3a1e]",purple:"bg-[#4A2E75]/95 border-[#2E1A4A]",dark:"bg-[#1C598C]/95 border-[#144265]",stats:"bg-[#183918]/95 border-[#0d280d]"};
+      return (<div className={`${colors[color]||colors.blue} border-4 rounded-3xl ${noPad?'':'p-4 sm:p-6'} shadow-md backdrop-blur-md will-change-transform ${className}`}>{children}</div>);
+    });
+
+    const Button = memo(({onClick, color="blue", children, full=false, disabled=false, size="xl", className=""}) => {
+      const styles = {blue:"bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]",yellow:"bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black",red:"bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]",green:"bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]",gray:"bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50",purple:"bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]",dark:"bg-[#1C598C] border-[#144265] shadow-[0_4px_0_#0C2740]"};
+      return (<button onClick={disabled?null:onClick} disabled={disabled} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?styles.gray:styles[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
+    });
+    
+    const StatHeader = memo(() => (
+      <div className="stat-data-grid text-center clash-font text-[10px] sm:text-xs mb-1 border-b border-white/50 pb-1">
+        <div className="opacity-70">Elixir</div><div className="opacity-70">Rarity</div><div className="opacity-70">Type</div>
+        <div className="opacity-70">Targets</div><div className="opacity-70">Range</div><div className="opacity-70">Speed</div>
+        <div className="opacity-70">Hit Spd</div>
+      </div>
+    ));
+
+    const StatRow = memo(({guess}) => (
+      <div className="stat-data-grid text-center text-[10px] sm:text-xs font-bold gap-1">
+        {['elixir','rarity','type','targets','range_type','speed','hit_speed'].map(key => {
+          const feedback = guess.feedback[key];
+          const colorClass = feedback?.status === 'correct' ? 'stat-correct' : (feedback?.status === 'warm' ? 'stat-warm' : 'stat-cold');
+          return (
+            <div key={key} className={`${colorClass} rounded-lg p-1 flex items-center justify-center h-full relative`}>
+              <span className="truncate max-w-[90%]">{feedback?.value || '-'}</span>
+              {feedback?.direction && <span className="absolute right-0.5 bottom-0.5 text-[8px] opacity-80">{feedback.direction}</span>}
+            </div>
+          );
+        })}
+      </div>
+    ));
+
+    const PlayerGrid = memo(({ players, gameState, selectedPlayerId, onSelect }) => (
+      <div className="flex-1 overflow-y-auto grid grid-cols-3 gap-2 content-start pb-2">
+        {players.map(p => (
+          <button 
+            key={p.id} 
+            disabled={!p.isAlive || gameState === 'discussing'} 
+            onClick={() => (gameState === 'voting' || gameState === 'hnt_rev') && onSelect(p.id)} 
+            className={`relative p-1 rounded-xl border-2 flex flex-col items-center justify-center min-h-[100px] backdrop-blur-sm transition-transform ${
+              !p.isAlive ? 'bg-slate-800/50 border-slate-900 opacity-40 grayscale' : 
+              (gameState === 'voting' || gameState === 'hnt_rev') ? 
+                (selectedPlayerId === p.id ? 'bg-[#323655]/90 border-[#FFB900] scale-105 z-10' : 'bg-[#323655]/80 border-[#FF4141] active:scale-95') : 
+              'bg-[#323655]/80 border-[#1c1f35]'
+            }`}
+          >
+            <div className="w-12 h-12 mb-1 relative flex items-center justify-center">
+              <img src={BADGE_BASE_URL + p.avatar} alt="Badge" className="w-full h-full object-contain drop-shadow-md"/>
+              {p.isZapped && gameState === 'discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}
+            </div>
+            <div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>
+            {!p.isAlive && <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-50">💀</div>}
+            {!p.isAlive && <span className={`role-badge ${BADGES[p.role]?.c || 'bg-gray-500'}`}>{BADGES[p.role]?.i || '?'}</span>}
+          </button>
+        ))}
+      </div>
+    ));
+
     // --- MAIN APP ---
     const App = () => {
       // --- STATE ---
@@ -204,82 +270,38 @@
         return () => clearInterval(timerRef.current);
       }, [gameState]);
 
-      // --- UI COMPONENTS (Defined inside App to access state) ---
-      const Container = memo(({children, className=""}) => (
-        <div className={`h-full flex flex-col px-4 pt-4 pb-8 sm:p-6 max-w-md sm:max-w-lg mx-auto w-full ${className}`}>
-          {children}
-        </div>
-      ));
-
-      const CardComponent = memo(({children, color="blue", className="", noPad=false}) => {
-        const colors = {blue:"bg-[#323655]/95 border-[#1c1f35]",red:"bg-[#553232]/95 border-[#2a1515]",gold:"bg-[#554b32]/95 border-[#2a2515]",gray:"bg-slate-700/95 border-slate-500",green:"bg-[#2e4a2e]/95 border-[#1e3a1e]",purple:"bg-[#4A2E75]/95 border-[#2E1A4A]",dark:"bg-[#1C598C]/95 border-[#144265]",stats:"bg-[#183918]/95 border-[#0d280d]"};
-        return (<div className={`${colors[color]||colors.blue} border-4 rounded-3xl ${noPad?'':'p-4 sm:p-6'} shadow-md backdrop-blur-md will-change-transform ${className}`}>{children}</div>);
-      });
-
-      const Button = memo(({onClick, color="blue", children, full=false, disabled=false, size="xl", className=""}) => {
-        const styles = {blue:"bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]",yellow:"bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black",red:"bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]",green:"bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]",gray:"bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50",purple:"bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]",dark:"bg-[#1C598C] border-[#144265] shadow-[0_4px_0_#0C2740]"};
-        return (<button onClick={disabled?null:onClick} disabled={disabled} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?styles.gray:styles[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
-      });
-      
-      const StatHeader = memo(() => (
-        <div className="stat-data-grid text-center clash-font text-[10px] sm:text-xs mb-1 border-b border-white/50 pb-1">
-          <div className="opacity-70">Elixir</div><div className="opacity-70">Rarity</div><div className="opacity-70">Type</div>
-          <div className="opacity-70">Targets</div><div className="opacity-70">Range</div><div className="opacity-70">Speed</div>
-          <div className="opacity-70">Hit Spd</div>
-        </div>
-      ));
-
-      const StatRow = memo(({guess}) => (
-        <div className="stat-data-grid text-center text-[10px] sm:text-xs font-bold gap-1">
-          {['elixir','rarity','type','targets','range_type','speed','hit_speed'].map(key => {
-            const feedback = guess.feedback[key];
-            const colorClass = feedback?.status === 'correct' ? 'stat-correct' : (feedback?.status === 'warm' ? 'stat-warm' : 'stat-cold');
-            return (
-              <div key={key} className={`${colorClass} rounded-lg p-1 flex items-center justify-center h-full relative`}>
-                <span className="truncate max-w-[90%]">{feedback?.value || '-'}</span>
-                {feedback?.direction && <span className="absolute right-0.5 bottom-0.5 text-[8px] opacity-80">{feedback.direction}</span>}
-              </div>
-            );
-          })}
-        </div>
-      ));
-
-      const PlayerGrid = memo(({ players, gameState, selectedPlayerId, onSelect }) => (
-        <div className="flex-1 overflow-y-auto grid grid-cols-3 gap-2 content-start pb-2">
-          {players.map(p => (
-            <button 
-              key={p.id} 
-              disabled={!p.isAlive || gameState === 'discussing'} 
-              onClick={() => (gameState === 'voting' || gameState === 'hnt_rev') && onSelect(p.id)} 
-              className={`relative p-1 rounded-xl border-2 flex flex-col items-center justify-center min-h-[100px] backdrop-blur-sm transition-transform ${
-                !p.isAlive ? 'bg-slate-800/50 border-slate-900 opacity-40 grayscale' : 
-                (gameState === 'voting' || gameState === 'hnt_rev') ? 
-                  (selectedPlayerId === p.id ? 'bg-[#323655]/90 border-[#FFB900] scale-105 z-10' : 'bg-[#323655]/80 border-[#FF4141] active:scale-95') : 
-                'bg-[#323655]/80 border-[#1c1f35]'
-              }`}
-            >
-              <div className="w-12 h-12 mb-1 relative flex items-center justify-center">
-                <img src={BADGE_BASE_URL + p.avatar} alt="Badge" className="w-full h-full object-contain drop-shadow-md"/>
-                {p.isZapped && gameState === 'discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}
-              </div>
-              <div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>
-              {!p.isAlive && <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-50">💀</div>}
-              {!p.isAlive && <span className={`role-badge ${BADGES[p.role]?.c || 'bg-gray-500'}`}>{BADGES[p.role]?.i || '?'}</span>}
-            </button>
-          ))}
-        </div>
-      ));
-
       // --- GAME FUNCTIONS ---
+      const maxImpossible = (total, key) => {
+        if (key === 'total') return Math.floor((total - 1) / 2);
+        const otherSpecials = (settings.und + settings.wht + settings.jes + settings.bg + settings.hnt + settings.ewz) - settings[key];
+        return Math.max(0, total - 1 - otherSpecials);
+      };
+
       const updateSettings = (key, value) => {
         setSettings(prev => {
           const newSettings = { ...prev, [key]: parseInt(value) || 0 };
-          if (key === 'total') newSettings.total = Math.max(3, Math.min(15, newSettings.total));
-          const maxSpecial = newSettings.total - 1;
-          let specialSum = newSettings.und + newSettings.wht + newSettings.jes + newSettings.bg + newSettings.hnt + newSettings.ewz;
-          if (specialSum > maxSpecial) {
-             const keyToReduce = key === 'total' ? 'und' : key;
-             newSettings[keyToReduce] = Math.max(0, newSettings[keyToReduce] - (specialSum - maxSpecial));
+          if (key === 'total') {
+            newSettings.total = Math.max(3, Math.min(15, newSettings.total));
+            // Adjust other roles if total is reduced
+            const maxSpecial = newSettings.total - 1;
+            let specialSum = newSettings.und + newSettings.wht + newSettings.jes + newSettings.bg + newSettings.hnt + newSettings.ewz;
+            if (specialSum > maxSpecial) {
+              // Reduce roles, starting with ewz, hnt, etc.
+              const rolesToAdjust = ['ewz', 'hnt', 'bg', 'jes', 'wht', 'und'];
+              for (const roleKey of rolesToAdjust) {
+                if (newSettings[roleKey] > 0) {
+                  const diff = specialSum - maxSpecial;
+                  const reduction = Math.min(newSettings[roleKey], diff);
+                  newSettings[roleKey] -= reduction;
+                  specialSum -= reduction;
+                  if (specialSum <= maxSpecial) break;
+                }
+              }
+            }
+          } else {
+            // Ensure new value doesn't exceed max
+            const max = maxImpossible(newSettings.total, key);
+            if (newSettings[key] > max) newSettings[key] = max;
           }
           return newSettings;
         });
@@ -527,9 +549,9 @@
             </header>
 
             <div className="flex bg-[#1c1f35]/50 p-1 rounded-xl mb-4 clash-font text-xs sm:text-base flex-shrink-0">
-              <button onClick={() => setGameMode(MODES.REG)} className={`flex-1 py-2 rounded-lg transition-colors ${gameMode === MODES.REG ? 'bg-blue-600 text-white' : 'text-slate-400'}`}>REGULAR</button>
-              <button onClick={() => setGameMode(MODES.CHS)} className={`flex-1 py-2 rounded-lg transition-colors ${gameMode === MODES.CHS ? 'bg-purple-600 text-white' : 'text-slate-400'}`}>CHAOS</button>
-              <button onClick={() => setGameMode(MODES.STAT)} className={`flex-1 py-2 rounded-lg transition-colors ${gameMode === MODES.STAT ? 'bg-green-600 text-white' : 'text-slate-400'}`}>STAT GUESS</button>
+              <Button onClick={() => setGameMode(MODES.REG)} color={gameMode === MODES.REG ? 'blue' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.REG && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>REGULAR</Button>
+              <Button onClick={() => setGameMode(MODES.CHS)} color={gameMode === MODES.CHS ? 'purple' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.CHS && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>CHAOS</Button>
+              <Button onClick={() => setGameMode(MODES.STAT)} color={gameMode === MODES.STAT ? 'green' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.STAT && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>STAT GUESS</Button>
             </div>
 
             {gameMode !== MODES.STAT ? (
@@ -542,19 +564,19 @@
                   <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSettings('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]"/>
                 </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <Slider k='und' l='Undercover' c='text-red-400' m={updateSettings.total - 1} i='👺'/>
-                  <Slider k='wht' l='Mr. White' c='text-slate-300' m={updateSettings.total - 1} i='⬜'/>
+                  <Slider k='und' l='Undercover' c='text-red-400' m={maxImpossible(settings.total, 'und')} i='👺'/>
+                  <Slider k='wht' l='Mr. White' c='text-slate-300' m={maxImpossible(settings.total, 'wht')} i='⬜'/>
                   {gameMode === MODES.CHS && (
                     <>
-                      <Slider k='jes' l='Jester' c='text-green-400' m={1} i='🃏'/>
-                      <Slider k='bg' l='Bodyguard' c='text-yellow-400' m={1} i='🛡️'/>
-                      <Slider k='hnt' l='Hunter' c='text-purple-400' m={1} i='🤠'/>
-                      <Slider k='ewz' l='E-Wizard' c='text-darkblue-400' m={1} i='⚡'/>
+                      <Slider k='jes' l='Jester' c='text-green-400' m={maxImpossible(settings.total, 'jes')} i='🃏'/>
+                      <Slider k='bg' l='Bodyguard' c='text-yellow-400' m={maxImpossible(settings.total, 'bg')} i='🛡️'/>
+                      <Slider k='hnt' l='Hunter' c='text-purple-400' m={maxImpossible(settings.total, 'hnt')} i='🤠'/>
+                      <Slider k='ewz' l='E-Wizard' c='text-darkblue-400' m={maxImpossible(settings.total, 'ewz')} i='⚡'/>
                     </>
                   )}
                 </div>
                 <div className="flex justify-center pt-2 mt-auto">
-                  <Btn color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-6 text-base">EDIT NAMES ✍️</Btn>
+                  <Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-6 text-base">EDIT NAMES ✍️</Button>
                 </div>
               </CardComponent>
             ) : (
@@ -568,10 +590,10 @@
             )}
 
             <div className="flex-shrink-0 space-y-3">
-              <Btn full color={isValidGame || gameMode === MODES.STAT ? buttonColor : "gray"} disabled={gameMode !== MODES.STAT && !isValidGame} onClick={startGame}>
+              <Button full color={isValidGame || gameMode === MODES.STAT ? buttonColor : "gray"} disabled={gameMode !== MODES.STAT && !isValidGame} onClick={startGame}>
                 {gameMode === MODES.STAT ? "START GUESSING! 🎯" : (isValidGame ? "BATTLE! ⚔️" : "AT LEAST 1 ENEMY REQUIRED!")}
-              </Btn>
-              <Btn full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Btn>
+              </Button>
+              <Button full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Button>
             </div>
 
             {showRules && (
@@ -681,7 +703,7 @@
               </CardComponent>
             )}
             <div className="flex-shrink-0">
-              {(!isRevealing || !needsToZap) && <Btn full color={!isRevealing ? "blue" : "yellow"} onClick={!isRevealing ? () => setIsRevealing(true) : handleNextReveal}>{!isRevealing ? "SHOW IDENTITY 👁️" : "GOT IT! 👌"}</Btn>}
+              {(!isRevealing || !needsToZap) && <Button full color={!isRevealing ? "blue" : "yellow"} onClick={!isRevealing ? () => setIsRevealing(true) : handleNextReveal}>{!isRevealing ? "SHOW IDENTITY 👁️" : "GOT IT! 👌"}</Button>}
             </div>
           </Container>
         );
@@ -698,10 +720,10 @@
             </header>
             <PlayerGrid players={players} gameState={gameState} selectedPlayerId={selectedPlayerId} onSelect={setSelectedPlayerId} />
             <div className="mt-4">
-              {gameState === 'discussing' ? <Btn full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Btn> :
+              {gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> :
               (selectedPlayerId !== null ? 
-                (gameState === 'hnt_rev' ? <Btn full color="purple" onClick={() => handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Btn> : <Btn full color="red" onClick={handleElimination}>ELIMINATE {players.find(p => p.id === selectedPlayerId)?.name} 💀</Btn>) :
-                (gameState === 'voting' ? <Btn full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Btn> : null)
+                (gameState === 'hnt_rev' ? <Button full color="purple" onClick={() => handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : <Button full color="red" onClick={handleElimination}>ELIMINATE {players.find(p => p.id === selectedPlayerId)?.name} 💀</Button>) :
+                (gameState === 'voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null)
               )}
             </div>
           </Container>
@@ -717,7 +739,7 @@
               <h3 className="text-xl font-bold text-center mb-6">Guess Civilian Card to win!</h3>
               <input type="text" value={mrWhiteGuess} onChange={(e) => setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" />
             </CardComponent>
-            <div className="flex-shrink-0"><Btn full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Btn></div>
+            <div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div>
           </Container>
         );
       }
@@ -738,7 +760,7 @@
                 </CardComponent>
               ))}
             </div>
-            <div className="mt-4"><Btn full color="yellow" onClick={() => setGameState('discussing')}>NEXT ROUND ⏩</Btn></div>
+            <div className="mt-4"><Button full color="yellow" onClick={() => setGameState('discussing')}>NEXT ROUND ⏩</Button></div>
           </Container>
         );
       }
@@ -769,8 +791,8 @@
               <input type="text" list="c-l" value={statGuessInput} onChange={(e) => setStatGuessInput(e.target.value)} placeholder="Guess..." className="w-full p-3 rounded-xl bg-[#1c1f35]/80 border-2 border-[#323655] text-white text-center text-lg clash-font outline-none focus:border-[#FFB900]" />
               <datalist id="c-l">{cardData.map(c => <option key={c.name} value={c.name} />)}</datalist>
               <div className="flex gap-2 mt-2">
-                <Btn full color="red" size="sm" onClick={() => setGameState('setup')} className="flex-1 py-2">QUIT</Btn>
-                <Btn full color="yellow" onClick={handleStatGuess} disabled={!statGuessInput.trim() || statGuesses.length >= MAX_GUESSES} className="flex-[2] py-2">GUESS 🎯</Btn>
+                <Button full color="red" size="sm" onClick={() => setGameState('setup')} className="flex-1 py-2">QUIT</Button>
+                <Button full color="yellow" onClick={handleStatGuess} disabled={!statGuessInput.trim() || statGuesses.length >= MAX_GUESSES} className="flex-[2] py-2">GUESS 🎯</Button>
               </div>
             </div>
           </Container>
@@ -791,7 +813,7 @@
                 <img src={getCardUrl(statGuessTarget.name)} className="w-40 h-auto drop-shadow-2xl mb-4" />
                 <div className="clash-font text-3xl">{statGuessTarget.name}</div>
               </CardComponent>
-              <div className="flex-shrink-0"><Btn full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Btn></div>
+              <div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div>
             </Container>
           );
         }
@@ -819,7 +841,7 @@
                 ))}
               </div>
             </CardComponent>
-            <div className="flex-shrink-0"><Btn full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Btn></div>
+            <div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div>
           </Container>
         );
       }
