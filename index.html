@@ -155,7 +155,7 @@
     const levenshtein=(s,t)=>{if(!s.length)return t.length;if(!t.length)return s.length;const d=[];for(let i=0;i<=t.length;i++){d[i]=[i];for(let j=1;j<=s.length;j++){d[i][j]=i===0?j:Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(s[j-1]===t[i-1]?0:1))}}return d[t.length][s.length]};
     const isCorrect=(g,a,t=0.75)=>{const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();return G===A||(1-levenshtein(G,A)/Math.max(G.length,A.length))>=t; };
 
-    // --- OPTIMIZED UI COMPONENTS (MOVED *OUTSIDE* APP) ---
+    // --- OPTIMIZED UI COMPONENTS (MOVED OUTSIDE APP) ---
     const Container = memo(({children, className=""}) => (
       <div className={`h-full flex flex-col px-4 pt-4 pb-8 sm:p-6 max-w-md sm:max-w-lg mx-auto w-full ${className}`}>
         {children}
@@ -172,6 +172,19 @@
       return (<button onClick={disabled?null:onClick} disabled={disabled} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?styles.gray:styles[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
     });
     
+    const RoleSlider = memo(({ k, l, c, m, i, val, onUpdate }) => (
+      <div className="touch-pan-y">
+        <div className="flex justify-between clash-font text-sm mb-1">
+          <span className={`${c} flex items-center gap-1`}>{i} {l}</span>
+          <span>{val}</span>
+        </div>
+        <input type="range" min={0} max={m} value={val}
+          onChange={(e) => onUpdate(k, e.target.value)}
+          className={`w-full h-4 bg-[#1c1f35]/50 rounded-full accent-${c.split('-')[0]}-500`}
+        />
+      </div>
+    ));
+
     const StatHeader = memo(() => (
       <div className="stat-data-grid text-center clash-font text-[10px] sm:text-xs mb-1 border-b border-white/50 pb-1">
         <div className="opacity-70">Elixir</div><div className="opacity-70">Rarity</div><div className="opacity-70">Type</div>
@@ -249,7 +262,7 @@
       useEffect(() => {
         fetch(CARD_DATA_URL)
           .then(r => r.ok ? r.json() : [])
-          .then(setCData)
+          .then(setCardData) // Fixed from setCData to setCardData
           .catch(() => {});
       }, []);
 
@@ -282,11 +295,9 @@
           const newSettings = { ...prev, [key]: parseInt(value) || 0 };
           if (key === 'total') {
             newSettings.total = Math.max(3, Math.min(15, newSettings.total));
-            // Adjust other roles if total is reduced
             const maxSpecial = newSettings.total - 1;
             let specialSum = newSettings.und + newSettings.wht + newSettings.jes + newSettings.bg + newSettings.hnt + newSettings.ewz;
             if (specialSum > maxSpecial) {
-              // Reduce roles, starting with ewz, hnt, etc.
               const rolesToAdjust = ['ewz', 'hnt', 'bg', 'jes', 'wht', 'und'];
               for (const roleKey of rolesToAdjust) {
                 if (newSettings[roleKey] > 0) {
@@ -299,7 +310,6 @@
               }
             }
           } else {
-            // Ensure new value doesn't exceed max
             const max = maxImpossible(newSettings.total, key);
             if (newSettings[key] > max) newSettings[key] = max;
           }
@@ -333,7 +343,6 @@
         }
         while (roleDeck.length < settings.total) roleDeck.push(ROLES.CIV);
         
-        // Fisher-Yates Shuffle
         for (let i = roleDeck.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [roleDeck[i], roleDeck[j]] = [roleDeck[j], roleDeck[i]];
@@ -342,7 +351,6 @@
         let newPlayers = roleDeck.map((role, i) => ({ id: i, name: playerNames[i], role, word: words[role], isAlive: true, isZapped: false, avatar: AVATAR_BADGES[i % AVATAR_BADGES.length] }));
 
         if (gameMode === MODES.CHS) {
-          // Mirror Match
           const civilians = newPlayers.filter(p => p.role === ROLES.CIV);
           if (civilians.length >= 2 && Math.random() < 0.05) {
             const p1 = civilians[Math.floor(Math.random() * civilians.length)];
@@ -354,7 +362,6 @@
               );
             }
           }
-          // Bodyguard Target
           const bodyguards = newPlayers.filter(p => p.role === ROLES.BG);
           bodyguards.forEach(bg => {
             const potentialTargets = newPlayers.filter(p => p.id !== bg.id && !p.isTarget);
@@ -519,25 +526,11 @@
 
       // --- RENDER ---
       
-      // Setup Screen
       if (gameState === 'setup') {
         const totalEnemies = settings.und + settings.wht + (gameMode === MODES.CHS ? (settings.jes + settings.ewz) : 0);
         const isValidGame = settings.total > 2 && totalEnemies > 0;
         const buttonColor = gameMode === MODES.CHS ? "purple" : (gameMode === MODES.STAT ? "green" : "yellow");
         
-        const Slider = memo(({ k, l, c, m, i }) => (
-          <div className="touch-pan-y">
-            <div className="flex justify-between clash-font text-sm mb-1">
-              <span className={`${c} flex items-center gap-1`}>{i} {l}</span>
-              <span>{settings[k]}</span>
-            </div>
-            <input type="range" min={0} max={m} value={settings[k]}
-              onChange={(e) => updateSettings(k, e.target.value)}
-              className={`w-full h-4 bg-[#1c1f35]/50 rounded-full accent-${c.split('-')[0]}-500`}
-            />
-          </div>
-        ));
-
         return (
           <Container className="overflow-y-auto animate-pop">
             <header className="text-center mb-4 mt-2 flex-shrink-0">
@@ -564,14 +557,14 @@
                   <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSettings('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]"/>
                 </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <Slider k='und' l='Undercover' c='text-red-400' m={maxImpossible(settings.total, 'und')} i='👺'/>
-                  <Slider k='wht' l='Mr. White' c='text-slate-300' m={maxImpossible(settings.total, 'wht')} i='⬜'/>
+                  <RoleSlider k='und' l='Undercover' c='text-red-400' m={maxImpossible(settings.total, 'und')} i='👺' val={settings.und} onUpdate={updateSettings} />
+                  <RoleSlider k='wht' l='Mr. White' c='text-slate-300' m={maxImpossible(settings.total, 'wht')} i='⬜' val={settings.wht} onUpdate={updateSettings} />
                   {gameMode === MODES.CHS && (
                     <>
-                      <Slider k='jes' l='Jester' c='text-green-400' m={maxImpossible(settings.total, 'jes')} i='🃏'/>
-                      <Slider k='bg' l='Bodyguard' c='text-yellow-400' m={maxImpossible(settings.total, 'bg')} i='🛡️'/>
-                      <Slider k='hnt' l='Hunter' c='text-purple-400' m={maxImpossible(settings.total, 'hnt')} i='🤠'/>
-                      <Slider k='ewz' l='E-Wizard' c='text-darkblue-400' m={maxImpossible(settings.total, 'ewz')} i='⚡'/>
+                      <RoleSlider k='jes' l='Jester' c='text-green-400' m={maxImpossible(settings.total, 'jes')} i='🃏' val={settings.jes} onUpdate={updateSettings} />
+                      <RoleSlider k='bg' l='Bodyguard' c='text-yellow-400' m={maxImpossible(settings.total, 'bg')} i='🛡️' val={settings.bg} onUpdate={updateSettings} />
+                      <RoleSlider k='hnt' l='Hunter' c='text-purple-400' m={maxImpossible(settings.total, 'hnt')} i='🤠' val={settings.hnt} onUpdate={updateSettings} />
+                      <RoleSlider k='ewz' l='E-Wizard' c='text-darkblue-400' m={maxImpossible(settings.total, 'ewz')} i='⚡' val={settings.ewz} onUpdate={updateSettings} />
                     </>
                   )}
                 </div>
@@ -611,7 +604,7 @@
                         <li className="text-[#FF4141]"><strong>Undercover:</strong> Impostor. You get a slightly different word. Blend in!</li>
                         <li className="text-slate-300"><strong>Mr. White:</strong> Impostor. NO word. Bluff, and guess the word if caught to win!</li>
                         <li className="text-[#4CB050]"><strong>Jester:</strong> Neutral. Wants to get voted out. Wins INSTANTLY if eliminated!</li>
-                        <li className="text-[#FFB900]"><strong>Bodyguard:</strong> Civilian team. Protects one player. Dies if they die!</li>
+                        <li className="text-[#FFB900]"><strong>Bodyguard:</strong> Civilian team. Protects one random player. Dies if they die!</li>
                         <li className="text-[#B026FF]"><strong>Hunter:</strong> Civilian team. If voted out, shoots one last player!</li>
                         <li className="text-[#1C598C]"><strong>E-Wizard:</strong> Impostor. Silences one player during the first round.</li>
                       </ul>
@@ -654,7 +647,6 @@
         );
       }
 
-      // Reveal Screen
       if (gameState === 'reveal') {
         const player = players[revealIndex];
         const isSpecial = [ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ].includes(player.role);
@@ -709,7 +701,6 @@
         );
       }
       
-      // Discussion/Voting Screens
       if (gameState === 'discussing' || gameState === 'voting' || gameState === 'hnt_rev') {
         return (
           <Container>
@@ -730,7 +721,6 @@
         );
       }
       
-      // Mr. White Guess Screen
       if (gameState === 'wht_guess') {
         return (
           <Container className="animate-pop">
@@ -744,7 +734,6 @@
         );
       }
       
-      // Round Summary Screen
       if (gameState === 'summary') {
         return (
           <Container className="animate-pop">
@@ -765,7 +754,6 @@
         );
       }
       
-      // Stat Guess Game Screen
       if (gameState === 'stat_game') {
         return (
           <Container className="animate-pop">
@@ -799,7 +787,6 @@
         );
       }
       
-      // Game Over Screen
       if (gameState === 'over') {
         if (gameMode === MODES.STAT) {
           return (
