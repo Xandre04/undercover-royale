@@ -262,7 +262,7 @@
       useEffect(() => {
         fetch(CARD_DATA_URL)
           .then(r => r.ok ? r.json() : [])
-          .then(setCardData) // Fixed from setCData to setCardData
+          .then(setCardData)
           .catch(() => {});
       }, []);
 
@@ -343,14 +343,19 @@
         }
         while (roleDeck.length < settings.total) roleDeck.push(ROLES.CIV);
         
+        // Shuffle roles
         for (let i = roleDeck.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [roleDeck[i], roleDeck[j]] = [roleDeck[j], roleDeck[i]];
         }
         
-        let newPlayers = roleDeck.map((role, i) => ({ id: i, name: playerNames[i], role, word: words[role], isAlive: true, isZapped: false, avatar: AVATAR_BADGES[i % AVATAR_BADGES.length] }));
+        // Shuffle player names order
+        const currentPlayNames = playerNames.slice(0, settings.total).sort(() => Math.random() - 0.5);
+
+        let newPlayers = roleDeck.map((role, i) => ({ id: i, name: currentPlayNames[i], role, word: words[role], isAlive: true, isZapped: false, avatar: AVATAR_BADGES[i % AVATAR_BADGES.length] }));
 
         if (gameMode === MODES.CHS) {
+          // Mirror Match
           const civilians = newPlayers.filter(p => p.role === ROLES.CIV);
           if (civilians.length >= 2 && Math.random() < 0.05) {
             const p1 = civilians[Math.floor(Math.random() * civilians.length)];
@@ -526,6 +531,7 @@
 
       // --- RENDER ---
       
+      // Setup Screen
       if (gameState === 'setup') {
         const totalEnemies = settings.und + settings.wht + (gameMode === MODES.CHS ? (settings.jes + settings.ewz) : 0);
         const isValidGame = settings.total > 2 && totalEnemies > 0;
@@ -647,6 +653,7 @@
         );
       }
 
+      // Reveal Screen
       if (gameState === 'reveal') {
         const player = players[revealIndex];
         const isSpecial = [ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ].includes(player.role);
@@ -701,6 +708,7 @@
         );
       }
       
+      // Discussion/Voting Screens
       if (gameState === 'discussing' || gameState === 'voting' || gameState === 'hnt_rev') {
         return (
           <Container>
@@ -721,6 +729,7 @@
         );
       }
       
+      // Mr. White Guess Screen
       if (gameState === 'wht_guess') {
         return (
           <Container className="animate-pop">
@@ -734,6 +743,7 @@
         );
       }
       
+      // Round Summary Screen
       if (gameState === 'summary') {
         return (
           <Container className="animate-pop">
@@ -754,6 +764,7 @@
         );
       }
       
+      // Stat Guess Game Screen
       if (gameState === 'stat_game') {
         return (
           <Container className="animate-pop">
@@ -787,6 +798,7 @@
         );
       }
       
+      // Game Over Screen
       if (gameState === 'over') {
         if (gameMode === MODES.STAT) {
           return (
