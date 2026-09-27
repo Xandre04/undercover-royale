@@ -44,10 +44,11 @@ A solo or collaborative analytical game where players must guess a hidden Clash 
 
 1. **Goal:** Guess the randomly selected hidden card.  
 2. **Guessing:** Enter a card name and submit.  
-3. **Feedback:** Receive feedback on core stats (Elixir, Rarity, Type, etc.):  
-   * **Green:** Correct Match.  
-   * **Yellow:** Close Match (e.g., Elixir cost is off by 1).  
-   * **Red \+ Arrow:** Stat is incorrect, and the arrow shows if the target stat is **Higher (▲)** or **Lower (▼)** than your guess.
+3. **Feedback:** Each guess shows 7 stats (Elixir, Rarity, Speed, Hit Speed, Type, Targets, Range):  
+   * **Green:** Exact match.  
+   * **Yellow:** Close. Elixir within 1, Hit Speed within 0.3s, Rarity or Speed one step away, or a partly matching Type/Targets/Range.  
+   * **Red \+ Arrow:** Wrong. The arrow shows whether the hidden card's value is **higher (▲)** or **lower (▼)**.  
+4. **Limit:** You have 10 tries.
 
 ## **📄 Disclaimer**
 
