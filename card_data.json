@@ -671,7 +671,7 @@
     "release_date": "2016-01-04"
   },
   {
-    "name": "Golems",
+    "name": "Golem",
     "elixir": 8,
     "rarity": "Epic",
     "type": "Troop",
@@ -869,28 +869,6 @@
     "release_date": "2018-05-21"
   },
   {
-    "name": "Grave Guard",
-    "elixir": 4,
-    "rarity": "Legendary",
-    "type": "Troop",
-    "targets": "Ground",
-    "range_type": "Melee",
-    "hit_speed": 1.0,
-    "speed": "Fast",
-    "release_date": "2024-06-19"
-  },
-  {
-    "name": "Tidal Wave",
-    "elixir": 4,
-    "rarity": "Epic",
-    "type": "Spell",
-    "targets": "Area",
-    "range_type": "Lane",
-    "hit_speed": 0,
-    "speed": "N/A",
-    "release_date": "2024-06-19"
-  },
-  {
     "name": "Minion Horde",
     "elixir": 5,
     "rarity": "Common",
@@ -900,17 +878,6 @@
     "hit_speed": 1.0,
     "speed": "Fast",
     "release_date": "2016-01-04"
-  },
-  {
-    "name": "E-Barbs",
-    "elixir": 6,
-    "rarity": "Common",
-    "type": "Troop",
-    "targets": "Ground",
-    "range_type": "Melee",
-    "hit_speed": 1.5,
-    "speed": "Very Fast",
-    "release_date": "2016-11-14"
   },
   {
     "name": "Goblin Giant",
@@ -968,40 +935,7 @@
     "release_date": "2016-10-14"
   },
   {
-    "name": "Ice Spirit",
-    "elixir": 1,
-    "rarity": "Common",
-    "type": "Troop",
-    "targets": "Air & Ground (freeze)",
-    "range_type": "Jump",
-    "hit_speed": 1.5,
-    "speed": "Very Fast",
-    "release_date": "2016-07-04"
-  },
-  {
-    "name": "Ice Wizard",
-    "elixir": 3,
-    "rarity": "Legendary",
-    "type": "Troop",
-    "targets": "Air & Ground (slow)",
-    "range_type": "Ranged",
-    "hit_speed": 1.5,
-    "speed": "Medium",
-    "release_date": "2016-03-24"
-  },
-  {
-    "name": "Bomber",
-    "elixir": 3,
-    "rarity": "Common",
-    "type": "Troop",
-    "targets": "Ground (splash)",
-    "range_type": "Ranged",
-    "hit_speed": 1.9,
-    "speed": "Medium",
-    "release_date": "2016-01-04"
-  },
-  {
-    "name": "Bomber Tower",
+    "name": "Bomb Tower",
     "elixir": 4,
     "rarity": "Rare",
     "type": "Building",
@@ -1045,17 +979,6 @@
     "release_date": "2016-01-04"
   },
   {
-    "name": "Electro Dragon",
-    "elixir": 5,
-    "rarity": "Epic",
-    "type": "Troop",
-    "targets": "Air & Ground (chain)",
-    "range_type": "Ranged",
-    "hit_speed": 2.1,
-    "speed": "Medium",
-    "release_date": "2018-12-19"
-  },
-  {
     "name": "Skeleton Dragons",
     "elixir": 4,
     "rarity": "Common",
@@ -1089,17 +1012,6 @@
     "release_date": "2016-12-09"
   },
   {
-    "name": "Ice Golem",
-    "elixir": 2,
-    "rarity": "Rare",
-    "type": "Troop",
-    "targets": "Buildings",
-    "range_type": "Melee (death slow)",
-    "hit_speed": 2.5,
-    "speed": "Slow",
-    "release_date": "2016-10-14"
-  },
-  {
     "name": "Poison",
     "elixir": 4,
     "rarity": "Epic",
@@ -1121,4 +1033,4 @@
     "speed": "N/A",
     "release_date": "2019-04-24"
   }
-]
+]

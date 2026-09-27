@@ -4,104 +4,306 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Undercover Royale</title>
-  
+  <meta name="description" content="Clash Royale themed party game: find the impostor in your clan, or guess the hidden card from its stats.">
+
   <!-- PWA & Mobile Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#1a1c2c">
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Undercover Royale","short_name":"Undercover","start_url":".","display":"standalone","background_color":"#1a1c2c","theme_color":"#1a1c2c","orientation":"portrait","icons":[{"src":"https://img.icons8.com/?size=192&id=93NyEXRZ6Rk7&format=png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://img.icons8.com/?size=512&id=93NyEXRZ6Rk7&format=png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+  <meta name="theme-color" content="#0a1733">
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Undercover Royale","short_name":"Undercover","start_url":".","display":"standalone","background_color":"#0a1733","theme_color":"#0a1733","orientation":"portrait","icons":[{"src":"https://img.icons8.com/?size=192&id=93NyEXRZ6Rk7&format=png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://img.icons8.com/?size=512&id=93NyEXRZ6Rk7&format=png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
   <link rel="apple-touch-icon" sizes="180x180" href="https://img.icons8.com/?size=180&id=93NyEXRZ6Rk7&format=png">
   <link rel="icon" type="image/png" sizes="32x32" href="https://img.icons8.com/?size=32&id=93NyEXRZ6Rk7&format=png">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://img.icons8.com/?size=16&id=93NyEXRZ6Rk7&format=png">
-  
+  <link rel="preload" href="./assets/fonts/Clash_Regular.otf" as="font" type="font/otf" crossorigin>
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  
-  <!-- Fallback Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
-  
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+
   <style>
-    /* PRODUCTION FONT LOADING */
-    @font-face { font-family: 'Clash Regular'; src: url('./assets/fonts/Clash_Regular.otf') format('opentype'); font-weight: normal; font-style: normal; font-display: swap; }
-    
-    :root { --clash-blue: #4176FF; --clash-yellow: #FFB900; --clash-red: #FF4141; --clash-green: #4CB050; --clash-purple: #B026FF; --clash-darkblue: #1C598C; }
-    
-    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+    @font-face { font-family: 'Clash Regular'; src: url('./assets/fonts/Clash_Regular.otf') format('opentype'); font-display: swap; }
+
+    /*
+      Design tokens. Modeled on the Clash Royale in-game UI: outlined type,
+      beveled blue panels, glossy push buttons with a dark lip.
+      Radius scale: panels 18px, buttons 14px, tiles/wells 12px, pills full.
+    */
+    :root {
+      --ink: #0a1733;
+      --ink-2: #13264d;
+      --panel-top: #3a5fa6;
+      --panel-bot: #26437e;
+      --well: #162b57;
+      --well-hi: #1f3a70;
+      --text: #f4f8ff;
+      --muted: #b4c6ea;
+      --gold: #ffd23f;
+      --gold-deep: #f0a10c;
+
+      --blue-1: #5cb6ff;  --blue-2: #2b7ff0;  --blue-lip: #1a4fa8;
+      --gold-1: #ffe066;  --gold-2: #f6a91a;  --gold-lip: #b56b00;
+      --red-1: #ff7a6b;   --red-2: #e8392f;   --red-lip: #9b1d17;
+      --green-1: #8fe356; --green-2: #45ad22; --green-lip: #276b10;
+      --purple-1: #d08bff;--purple-2: #9537e6;--purple-lip: #5a1a99;
+      --slate-1: #a3b1c9; --slate-2: #6d7c98; --slate-lip: #414d66;
+      --elixir-1: #f36cf0;--elixir-2: #b02fc9;
+
+      --civ: #4fa3ff; --und: #ff5a4e; --wht: #d9e1ef; --jes: #6fd13f;
+      --bg: #ffc53d; --hnt: #c07bff; --ewz: #3fd0ff;
+    }
+
+    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; box-sizing: border-box; }
     input { user-select: text !important; }
-    
-    body { 
-      font-family: 'Clash Regular', 'Rubik', sans-serif; 
-      background-color: #1a1c2c; 
-      background-image: url('./assets/background.png'); 
-      background-repeat: repeat; 
-      background-size: 200px; 
-      background-position: center; 
-      touch-action: manipulation; 
-      color: white; 
-      overflow: hidden; 
-      height: 100dvh; 
-      width: 100vw; 
-      position: relative; 
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: 'Clash Regular', 'Rubik', system-ui, sans-serif;
+      color: var(--text);
+      background-color: var(--ink);
+      background-image:
+        radial-gradient(120% 70% at 50% 0%, rgba(90,160,255,.28), transparent 60%),
+        linear-gradient(180deg, rgba(10,23,51,.35) 0%, rgba(10,23,51,.78) 100%),
+        url('./assets/background.png');
+      background-size: auto, auto, 150px;
+      background-attachment: fixed;
+      touch-action: manipulation;
+      overflow: hidden;
+      height: 100dvh;
+      width: 100vw;
+      -webkit-font-smoothing: antialiased;
     }
-    body::before { 
-      content: ""; 
-      position: absolute; 
-      top: 0; left: 0; right: 0; bottom: 0; 
-      background: rgba(26, 28, 44, 0.75); 
-      z-index: -1; 
-      backdrop-filter: blur(1px); 
+
+    .display { font-family: 'Clash Regular', 'Rubik', sans-serif; font-weight: 900; letter-spacing: .02em; line-height: 1.05; }
+    .body-font { font-family: 'Rubik', system-ui, sans-serif; font-weight: 500; }
+
+    /* Outlined type, the signature Clash look. */
+    .stroke { text-shadow:
+      0 3px 0 var(--ink), 2px 0 0 var(--ink), -2px 0 0 var(--ink), 0 -2px 0 var(--ink),
+      2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), -2px -2px 0 var(--ink); }
+    .stroke-sm { text-shadow:
+      0 2px 0 var(--ink), 1px 0 0 var(--ink), -1px 0 0 var(--ink), 0 -1px 0 var(--ink),
+      1px 1px 0 var(--ink), -1px 1px 0 var(--ink), 1px -1px 0 var(--ink), -1px -1px 0 var(--ink); }
+    .text-gold { color: var(--gold); }
+    .text-muted { color: var(--muted); }
+
+    /* Surfaces */
+    .panel {
+      position: relative;
+      background: linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.22), inset 0 -3px 0 rgba(0,0,0,.22), 0 5px 0 rgba(5,12,30,.6);
     }
-    
-    .clash-font { font-weight: 900; letter-spacing: 0.05em; }
-    .text-shadow-heavy { text-shadow: 0 3px 0 #000; }
-    .text-shadow-sm { text-shadow: 0 2px 0 rgba(0,0,0,0.5); }
-    
+    .well {
+      background: var(--well);
+      border-radius: 12px;
+      box-shadow: inset 0 3px 0 rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.12);
+    }
+    .ribbon {
+      display: inline-block;
+      padding: 4px 16px 6px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+      box-shadow: inset 0 -3px 0 var(--gold-lip), 0 3px 0 var(--ink);
+    }
+
+    /* Buttons */
+    .btn {
+      --c1: var(--blue-1); --c2: var(--blue-2); --lip: var(--blue-lip);
+      position: relative; isolation: isolate;
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      min-height: 56px; padding: .55rem 1.1rem .75rem;
+      border: 3px solid var(--ink); border-radius: 14px;
+      background: linear-gradient(180deg, var(--c1), var(--c2));
+      box-shadow: inset 0 -5px 0 var(--lip), 0 4px 0 var(--ink);
+      color: #fff; font-family: 'Clash Regular', 'Rubik', sans-serif; font-weight: 900;
+      font-size: 1.2rem; letter-spacing: .03em; text-transform: uppercase; white-space: nowrap;
+      transition: transform .08s ease-out, box-shadow .08s ease-out, filter .15s;
+      cursor: pointer;
+    }
+    .btn::before {
+      content: ""; position: absolute; z-index: -1; left: 4px; right: 4px; top: 3px; height: 42%;
+      border-radius: 10px 10px 8px 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.08));
+      pointer-events: none;
+    }
+    .btn:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -2px 0 var(--lip), 0 1px 0 var(--ink); }
+    .btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .btn:disabled { --c1: var(--slate-1); --c2: var(--slate-2); --lip: var(--slate-lip); cursor: not-allowed; filter: saturate(.6); }
+    .btn-gold   { --c1: var(--gold-1);   --c2: var(--gold-2);   --lip: var(--gold-lip); }
+    .btn-red    { --c1: var(--red-1);    --c2: var(--red-2);    --lip: var(--red-lip); }
+    .btn-green  { --c1: var(--green-1);  --c2: var(--green-2);  --lip: var(--green-lip); }
+    .btn-purple { --c1: var(--purple-1); --c2: var(--purple-2); --lip: var(--purple-lip); }
+    .btn-slate  { --c1: var(--slate-1);  --c2: var(--slate-2);  --lip: var(--slate-lip); }
+    .btn-sm { min-height: 44px; font-size: .95rem; padding: .35rem .8rem .55rem; border-radius: 12px; }
+    .btn-icon { min-height: 44px; width: 44px; padding: 0 0 3px; border-radius: 12px; font-size: 1.35rem; }
+    .btn-xl { min-height: 64px; font-size: 1.55rem; }
+
+    /* Mode tabs */
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      min-height: 52px; border-radius: 10px; border: 3px solid transparent;
+      color: var(--muted); font-family: 'Clash Regular', 'Rubik', sans-serif; font-weight: 900; font-size: .8rem; letter-spacing: .03em;
+      transition: transform .12s, background .12s;
+    }
+    .tab i { font-size: 1.15rem; }
+    .tab[aria-selected="true"] {
+      color: #fff; border-color: var(--ink);
+      background: linear-gradient(180deg, var(--c1), var(--c2));
+      box-shadow: inset 0 -4px 0 var(--lip), 0 3px 0 var(--ink);
+    }
+    .tab:active { transform: scale(.97); }
+
+    /* Player tile */
+    .ptile {
+      position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 4px 8px; border-radius: 12px;
+      background: linear-gradient(180deg, var(--well-hi), var(--well));
+      border: 3px solid var(--ink);
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 3px 0 rgba(5,12,30,.6);
+      transition: transform .15s cubic-bezier(.2,.9,.3,1.3), border-color .15s, box-shadow .15s;
+    }
+    .ptile img.badge { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); }
+    .ptile .pname { width: 100%; text-align: center; font-size: .78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+    .ptile.is-target { border-color: var(--red-2); box-shadow: 0 0 0 2px rgba(232,57,47,.35), 0 3px 0 rgba(5,12,30,.6); }
+    .ptile.is-target:active { transform: scale(.95); }
+    .ptile.is-selected { border-color: var(--gold); transform: scale(1.06); z-index: 1; box-shadow: 0 0 0 3px rgba(255,210,63,.45), 0 6px 0 rgba(5,12,30,.6); }
+    .ptile.is-dead { filter: grayscale(1) brightness(.7); opacity: .6; }
+    .ptile.is-first { border-color: var(--gold); }
+    .ptile .tag {
+      position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+      padding: 1px 8px 2px; border-radius: 999px; border: 2px solid var(--ink);
+      font-size: .62rem; white-space: nowrap; letter-spacing: .04em;
+    }
+
+    /* Stepper */
+    .step-btn {
+      width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+      border: 3px solid var(--ink); color: #fff; font-size: 1rem;
+      background: linear-gradient(180deg, var(--blue-1), var(--blue-2)); box-shadow: inset 0 -3px 0 var(--blue-lip), 0 2px 0 var(--ink);
+      transition: transform .08s;
+    }
+    .step-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--blue-lip); }
+    .step-btn:disabled { background: linear-gradient(180deg, var(--slate-1), var(--slate-2)); box-shadow: inset 0 -3px 0 var(--slate-lip), 0 2px 0 var(--ink); opacity: .55; }
+
+    /* Chip */
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 5px; border-radius: 999px;
+      background: rgba(10,23,51,.55); border: 2px solid rgba(255,255,255,.12); font-size: .78rem;
+    }
+
+    /* Inputs */
+    .field {
+      width: 100%; padding: 12px 14px; border-radius: 12px; outline: none;
+      background: #0f2148; color: var(--text); border: 3px solid var(--ink);
+      box-shadow: inset 0 3px 0 rgba(0,0,0,.35);
+      font-family: 'Rubik', system-ui, sans-serif; font-weight: 700; font-size: 1rem;
+    }
+    .field::placeholder { color: #8ea4cf; }
+    .field:focus { border-color: var(--gold); }
+
+    /* Elixir timer bar */
+    .elixir {
+      position: relative; height: 26px; border-radius: 999px; overflow: hidden;
+      background: #1a0e2e; border: 3px solid var(--ink); box-shadow: inset 0 3px 0 rgba(0,0,0,.45);
+    }
+    .elixir-fill {
+      position: absolute; inset: 0; transform-origin: left center;
+      background: linear-gradient(180deg, var(--elixir-1), var(--elixir-2));
+      box-shadow: inset 0 3px 0 rgba(255,255,255,.35);
+      transition: transform 1s linear;
+    }
+    .elixir-ticks { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(10, 1fr); pointer-events: none; }
+    .elixir-ticks span + span { border-left: 2px solid rgba(10,23,51,.55); }
+
+    /* Stat tiles */
+    .stile {
+      position: relative; border-radius: 10px; border: 2px solid var(--ink);
+      padding: 4px 4px 5px; min-height: 48px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.2), inset 0 2px 0 rgba(255,255,255,.25);
+    }
+    .stile .lbl { font-size: .56rem; letter-spacing: .06em; text-transform: uppercase; opacity: .85; font-family: 'Rubik', sans-serif; font-weight: 700; }
+    .stile .val { font-size: .74rem; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .stile .dir { position: absolute; right: 3px; top: 2px; font-size: .75rem; }
+    .s-correct { background: linear-gradient(180deg, var(--green-1), var(--green-2)); }
+    .s-warm    { background: linear-gradient(180deg, var(--gold-1), var(--gold-2)); }
+    .s-cold    { background: linear-gradient(180deg, var(--red-1), var(--red-2)); }
+
+    /* Card flip for the secret reveal */
+    .flip { perspective: 1200px; }
+    .flip-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+    .flip.is-flipped .flip-inner { transform: rotateY(180deg); }
+    .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .face-back { transform: rotateY(180deg); }
+
+    .cardback {
+      border: 4px solid var(--ink); border-radius: 22px; overflow: hidden;
+      background:
+        radial-gradient(60% 45% at 50% 45%, rgba(120,190,255,.55), transparent 70%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 14px, transparent 14px 28px),
+        linear-gradient(180deg, #3c73d6, #1d3f8c);
+      box-shadow: inset 0 0 0 5px var(--gold-2), inset 0 0 0 8px var(--ink), 0 8px 0 rgba(5,12,30,.6);
+    }
+
+    /* Motion */
+    @keyframes popIn { from { transform: scale(.94) translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes rise { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes tileIn { from { transform: rotateX(90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes pulseRed { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    @keyframes bannerDrop { 0% { transform: translateY(-40px) scale(.8); opacity: 0; } 60% { transform: translateY(4px) scale(1.04); opacity: 1; } 100% { transform: none; } }
+    @keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .anim-pop { animation: popIn .22s cubic-bezier(.2,.8,.2,1) both; }
+    .anim-rise { animation: rise .35s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+    .anim-bob { animation: bob 3.2s ease-in-out infinite; }
+    .anim-tile { animation: tileIn .38s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+    .anim-pulse { animation: pulseRed .9s ease-in-out infinite; }
+    .anim-banner { animation: bannerDrop .55s cubic-bezier(.2,.8,.2,1) both; }
+    .anim-shake { animation: shake .3s ease-in-out; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    }
+
     ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: #1c1f3540; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #32365580; border-radius: 10px; }
-    
-    @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-    .animate-pop { animation: popIn 0.2s ease-out forwards; }
-    
-    .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 11px; color: rgba(255, 255, 255, 0.3); z-index: 9999; font-weight: bold; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-    
-    .stat-correct { background-color: var(--clash-green) !important; }
-    .stat-warm { background-color: var(--clash-yellow) !important; color: black !important; }
-    .stat-cold { background-color: var(--clash-red) !important; }
-    
-    .sticky-col { position: sticky; left: 0; z-index: 10; }
-    .stat-row { display: grid; grid-template-columns: 100px 1fr; }
-    .stat-data-grid { display: grid; grid-template-columns: repeat(7, 1fr); min-width: 450px; }
-    
-    .role-badge { position: absolute; top: 2px; right: 2px; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.7); }
-    .will-change-transform { will-change: transform; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 10px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    .safe-top { padding-top: max(12px, env(safe-area-inset-top)); }
+    .safe-bottom { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   </style>
 </head>
 <body>
   <div id="root" class="h-full w-full"></div>
-  <div class="watermark">BY VALE</div>
-  
-  <script type="text/babel">
-    const { useState, useCallback, useEffect, useRef, memo, useMemo } = React;
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, memo, useMemo, useCallback } = React;
 
     // --- CONFIG ---
     const CARD_BASE_URL = "./assets/cards/";
     const BADGE_BASE_URL = "./assets/badges/";
-    const CARD_DATA_URL = "./card_data.json";
-    const SAD_GOBLIN_GIF = "https://media1.tenor.com/m/d8gHX1wRaaRAAAAC/clash-royale-goblin.gif"; 
-    const CROWN_LOGO = "https://img.icons8.com/?size=100&id=93NyEXRZ6Rk7&format=png&color=000000";
+    const ARENA_BASE_URL = "./assets/arenas/";
+    const CARD_DATA_URL = "./card_data.json?v=2";
+    const UNKNOWN_CARD = CARD_BASE_URL + "card-legendary-unknown.png";
+    const SAD_GOBLIN_GIF = "https://media1.tenor.com/m/d8gHX1wRaaRAAAAC/clash-royale-goblin.gif";
     const MAX_GUESSES = 10;
-    
-    // --- ASSET LISTS ---
+    const STORAGE_KEY = "undercover-royale:v2";
+
+    // One distinct badge per seat, so each player keeps the same avatar all game.
     const AVATAR_BADGES = [
-      'A_Char_King_01.png', 'A_Char_Knight_01.png', 'A_Char_Goblin_01.png', 'A_Char_Pekka_01.png', 
-      'A_Char_Prince_01.png', 'A_Char_MiniPekka_01.png', 'Crown_01.png', 'Bolt_01.png', 
-      'Elixir_01.png', 'A_Char_Barbarian_01.png'
+      'A_Char_King_01.png', 'A_Char_Knight_01.png', 'A_Char_Goblin_01.png', 'A_Char_Pekka_01.png',
+      'A_Char_Prince_01.png', 'A_Char_MiniPekka_01.png', 'A_Char_Barbarian_01.png', 'A_Char_DarkPrince_01.png',
+      'A_Char_Bomb_01.png', 'A_Char_Hammer_01.png', 'A_Char_Rocket_01.png', 'Crown_01.png',
+      'Bolt_01.png', 'Elixir_01.png', 'Diamond_01.png'
     ];
-    
+
     const PAIRS = [
       {civilian:"Knight",undercover:"Mega Knight"},
       {civilian:"Musketeer",undercover:"Archers"},
@@ -135,200 +337,293 @@
       {civilian:"Mega Minion",undercover:"Phoenix"},
       {civilian:"Ice Spirit",undercover:"Electro Spirit"}
     ];
-    
+
     // --- CONSTANTS ---
     const ROLES = { CIV:'civilian', UND:'undercover', WHT:'mr_white', JES:'jester', BG:'bodyguard', HNT:'hunter', EWIZ:'electro' };
     const MODES = { REG:'regular', CHS:'chaos', STAT:'stat_guess' };
-    const BADGES = {
-      [ROLES.CIV]:{i:'🛡️',c:'bg-[#4176FF]'},
-      [ROLES.BG]:{i:'🛡️',c:'bg-[#FFB900]'},
-      [ROLES.HNT]:{i:'🤠',c:'bg-[#B026FF]'},
-      [ROLES.UND]:{i:'👺',c:'bg-[#FF4141]'},
-      [ROLES.WHT]:{i:'⬜',c:'bg-slate-500'},
-      [ROLES.JES]:{i:'🃏',c:'bg-[#4CB050]'},
-      [ROLES.EWIZ]:{i:'⚡',c:'bg-[#1C598C]'}
+    const IMPOSTOR_ROLES = [ROLES.UND, ROLES.WHT, ROLES.EWIZ];
+    const CIVILIAN_ROLES = [ROLES.CIV, ROLES.BG, ROLES.HNT];
+    const SPECIAL_ROLES = [ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ];
+
+    // Role presentation: name, accent color, team, card art, short blurb.
+    const ROLE_INFO = {
+      [ROLES.CIV]:  { name:'Civilian',       color:'var(--civ)', team:'Civilians', art:'knight',          icon:'ph-shield',        blurb:'Gets the common card. Find the impostors.' },
+      [ROLES.UND]:  { name:'Undercover',     color:'var(--und)', team:'Impostors', art:'royal-ghost',     icon:'ph-mask-happy',    blurb:'Gets a similar card. Blend in.' },
+      [ROLES.WHT]:  { name:'Mr. White',      color:'var(--wht)', team:'Impostors', art:null,              icon:'ph-question',      blurb:'No card at all. If caught, guess the civilian card to steal the win.' },
+      [ROLES.JES]:  { name:'Jester',         color:'var(--jes)', team:'Neutral',   art:'goblins',         icon:'ph-smiley-wink',   blurb:'Wins alone the moment they are voted out.' },
+      [ROLES.BG]:   { name:'Bodyguard',      color:'var(--bg)',  team:'Civilians', art:'royal-recruits',  icon:'ph-shield-star',   blurb:'Protects one player. Falls with them if they are eliminated.' },
+      [ROLES.HNT]:  { name:'Hunter',         color:'var(--hnt)', team:'Civilians', art:'hunter',          icon:'ph-crosshair',     blurb:'When voted out, takes one last shot at another player.' },
+      [ROLES.EWIZ]: { name:'Electro Wizard', color:'var(--ewz)', team:'Impostors', art:'electro-wizard',  icon:'ph-lightning',     blurb:'Silences one player for the first discussion round.' },
     };
-    const getRoleColor = (r) => r===ROLES.CIV?'blue':(r===ROLES.BG?'gold':(r===ROLES.HNT?'purple':(r===ROLES.UND?'red':(r===ROLES.WHT?'gray':(r===ROLES.JES?'green':'dark')))));
+
+    const ROLE_SETTINGS = [
+      { k:'und', role:ROLES.UND,  chaosOnly:false },
+      { k:'wht', role:ROLES.WHT,  chaosOnly:false },
+      { k:'ewz', role:ROLES.EWIZ, chaosOnly:true },
+      { k:'jes', role:ROLES.JES,  chaosOnly:true },
+      { k:'bg',  role:ROLES.BG,   chaosOnly:true },
+      { k:'hnt', role:ROLES.HNT,  chaosOnly:true },
+    ];
+    const IMPOSTOR_KEYS = ['und','wht','ewz'];
+
+    const MODE_INFO = {
+      [MODES.REG]:  { label:'Regular',    icon:'ph-users-three', btn:'btn-gold',   tab:['var(--blue-1)','var(--blue-2)','var(--blue-lip)'],       arena:'arena7.png',  blurb:'Civilians, Undercover and Mr. White. Say one word, find the fake.' },
+      [MODES.CHS]:  { label:'Chaos',      icon:'ph-skull',       btn:'btn-purple', tab:['var(--purple-1)','var(--purple-2)','var(--purple-lip)'], arena:'arena12.png', blurb:'Adds the Jester, Bodyguard, Hunter and Electro Wizard.' },
+      [MODES.STAT]: { label:'Stat Guess', icon:'ph-target',      btn:'btn-green',  tab:['var(--green-1)','var(--green-2)','var(--green-lip)'],    arena:'arena20.png', blurb:'Guess the hidden card from its stats in 10 tries.' },
+    };
+
+    const TIMER_OPTIONS = [60, 120, 180, 300];
+    const DEFAULT_SETTINGS = { total:5, und:1, wht:0, jes:0, bg:0, hnt:0, ewz:0, timer:180 };
 
     // --- UTILS ---
-    const getCardUrl = (n) => n ? `${CARD_BASE_URL}${n.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png` : null;
+    const getCardUrl = (n) => n ? `${CARD_BASE_URL}${n.toLowerCase().replace(/\./g, '').replace(/\s+/g, '-')}.png` : UNKNOWN_CARD;
+    const roleArtUrl = (role) => ROLE_INFO[role]?.art ? getCardUrl(ROLE_INFO[role].art) : UNKNOWN_CARD;
+    const onImgError = (e) => { if (!e.currentTarget.dataset.fallback) { e.currentTarget.dataset.fallback = '1'; e.currentTarget.src = UNKNOWN_CARD; } };
     const levenshtein=(s,t)=>{if(!s.length)return t.length;if(!t.length)return s.length;const d=[];for(let i=0;i<=t.length;i++){d[i]=[i];for(let j=1;j<=s.length;j++){d[i][j]=i===0?j:Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(s[j-1]===t[i-1]?0:1))}}return d[t.length][s.length]};
-    const isCorrect=(g,a,t=0.75)=>{const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();return G===A||(1-levenshtein(G,A)/Math.max(G.length,A.length))>=t; };
+    const isCorrect=(g,a,t=0.75)=>{const G=g.trim().toLowerCase(),A=a.trim().toLowerCase();if(!G)return false;return G===A||(1-levenshtein(G,A)/Math.max(G.length,A.length))>=t; };
+    const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const fmtTime = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+    const buzz = (p = 12) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+    const loadSaved = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) { return {}; } };
+    const defaultName = (i) => `Player ${i + 1}`;
 
-    // --- OPTIMIZED UI COMPONENTS (MOVED OUTSIDE APP) ---
-    const Container = memo(({children, className=""}) => (
-      <div className={`h-full flex flex-col px-4 pt-4 pb-8 sm:p-6 max-w-md sm:max-w-lg mx-auto w-full ${className}`}>
-        {children}
+    // Settings validity: at least one civilian, and impostors must start outnumbered.
+    const activeKeys = (mode) => ROLE_SETTINGS.filter(r => mode === MODES.CHS || !r.chaosOnly).map(r => r.k);
+    const countOf = (s, keys) => keys.reduce((n, k) => n + (s[k] || 0), 0);
+    const isValidSettings = (s, mode) => {
+      const keys = activeKeys(mode);
+      const specials = countOf(s, keys);
+      const impostors = countOf(s, keys.filter(k => IMPOSTOR_KEYS.includes(k)));
+      return specials <= s.total - 1 && impostors <= Math.floor((s.total - 1) / 2);
+    };
+    const clampSettings = (s, mode) => {
+      const next = { ...s };
+      const order = ['hnt','bg','jes','ewz','wht','und'];
+      let guard = 50;
+      while (!isValidSettings(next, mode) && guard-- > 0) {
+        const k = order.find(key => next[key] > 0 && activeKeys(mode).includes(key));
+        if (!k) break;
+        next[k] -= 1;
+      }
+      return next;
+    };
+
+    // Stat Guess comparison
+    const RARITY_ORDER = ['Common','Rare','Epic','Legendary','Champion'];
+    const SPEED_ORDER = ['Slow','Medium','Fast','Very Fast'];
+    const baseOf = (v) => String(v ?? '').split(' (')[0].trim();
+    const partsOf = (v) => baseOf(v).split(/\s*[\/&]\s*/).filter(Boolean);
+    const compareStat = (key, g, t) => {
+      if (key === 'elixir' || key === 'hit_speed') {
+        const G = parseFloat(g), T = parseFloat(t);
+        if (isNaN(G) || isNaN(T)) return { status: String(g) === String(t) ? 'correct' : 'cold', value: g };
+        if (G === T) return { status: 'correct', value: g };
+        const close = key === 'elixir' ? Math.abs(G - T) <= 1 : Math.abs(G - T) <= 0.3;
+        return { status: close ? 'warm' : 'cold', value: g, dir: G < T ? 'up' : 'down' };
+      }
+      if (String(g) === String(t)) return { status: 'correct', value: g };
+      if (key === 'rarity' || key === 'speed') {
+        const order = key === 'rarity' ? RARITY_ORDER : SPEED_ORDER;
+        const gi = order.indexOf(baseOf(g)), ti = order.indexOf(baseOf(t));
+        if (gi === ti && gi >= 0) return { status: 'warm', value: g };
+        if (gi < 0 || ti < 0) return { status: 'cold', value: g };
+        return { status: Math.abs(gi - ti) === 1 ? 'warm' : 'cold', value: g, dir: gi < ti ? 'up' : 'down' };
+      }
+      const gp = partsOf(g), tp = partsOf(t);
+      const overlap = gp.some(p => tp.includes(p));
+      return { status: overlap ? 'warm' : 'cold', value: g };
+    };
+    const STAT_ROW_1 = [['elixir','Elixir'],['rarity','Rarity'],['speed','Speed'],['hit_speed','Hit spd']];
+    const STAT_ROW_2 = [['type','Type'],['targets','Targets'],['range_type','Range']];
+
+    // --- UI PRIMITIVES ---
+    const Icon = ({ name, fill = false, className = '' }) => <i className={`${fill ? 'ph-fill' : 'ph-bold'} ${name} ${className}`} aria-hidden="true"></i>;
+
+    const Screen = ({ children, className = '' }) => (
+      <div className={`h-full w-full max-w-[460px] mx-auto flex flex-col safe-top safe-bottom px-4 ${className}`}>{children}</div>
+    );
+
+    const TopBar = ({ left, title, right }) => (
+      <div className="flex items-center gap-3 mb-3 flex-shrink-0 min-h-[48px]">
+        <div className="w-11 flex-shrink-0">{left}</div>
+        <div className="flex-1 text-center display stroke text-2xl truncate">{title}</div>
+        <div className="w-11 flex-shrink-0 flex justify-end">{right}</div>
       </div>
-    ));
+    );
 
-    const CardComponent = memo(({children, color="blue", className="", noPad=false}) => {
-      const colors = {blue:"bg-[#323655]/95 border-[#1c1f35]",red:"bg-[#553232]/95 border-[#2a1515]",gold:"bg-[#554b32]/95 border-[#2a2515]",gray:"bg-slate-700/95 border-slate-500",green:"bg-[#2e4a2e]/95 border-[#1e3a1e]",purple:"bg-[#4A2E75]/95 border-[#2E1A4A]",dark:"bg-[#1C598C]/95 border-[#144265]",stats:"bg-[#183918]/95 border-[#0d280d]"};
-      return (<div className={`${colors[color]||colors.blue} border-4 rounded-3xl ${noPad?'':'p-4 sm:p-6'} shadow-md backdrop-blur-md will-change-transform ${className}`}>{children}</div>);
-    });
-
-    const Button = memo(({onClick, color="blue", children, full=false, disabled=false, size="xl", className=""}) => {
-      const styles = {blue:"bg-[#4176FF] border-[#3565E0] shadow-[0_4px_0_#2448A8]",yellow:"bg-[#FFB900] border-[#E5A800] shadow-[0_4px_0_#B38300] text-black",red:"bg-[#FF4141] border-[#E03535] shadow-[0_4px_0_#A82424]",green:"bg-[#4CB050] border-[#388E3C] shadow-[0_4px_0_#1B5E20]",gray:"bg-slate-600 border-slate-700 shadow-[0_4px_0_#334155] opacity-50",purple:"bg-[#B026FF] border-[#8A1DC7] shadow-[0_4px_0_#57127F]",dark:"bg-[#1C598C] border-[#144265] shadow-[0_4px_0_#0C2740]"};
-      return (<button onClick={disabled?null:onClick} disabled={disabled} className={`clash-font uppercase tracking-wider py-3 px-4 rounded-xl border-b-4 active:translate-y-1 active:border-b-0 active:shadow-none active:mt-1 transition-all duration-100 flex items-center justify-center gap-2 text-${size} ${disabled?styles.gray:styles[color]} ${full?'w-full':''} ${color==='yellow'?'text-shadow-none':'text-shadow-sm'} ${className}`} style={{minHeight:'55px'}}>{children}</button>);
-    });
-    
-    const RoleSlider = memo(({ k, l, c, m, i, val, onUpdate }) => (
-      <div className="touch-pan-y">
-        <div className="flex justify-between clash-font text-sm mb-1">
-          <span className={`${c} flex items-center gap-1`}>{i} {l}</span>
-          <span>{val}</span>
+    const Modal = ({ onClose, title, children, footer }) => {
+      useEffect(() => {
+        const onKey = (e) => e.key === 'Escape' && onClose();
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [onClose]);
+      return (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 bg-[rgba(5,12,30,.72)] backdrop-blur-[2px] anim-pop" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
+          <div className="panel w-full max-w-[440px] max-h-[86dvh] flex flex-col p-4 safe-bottom" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3 flex-shrink-0">
+              <h2 className="display stroke text-2xl text-gold">{title}</h2>
+              <button className="btn btn-red btn-icon" onClick={onClose} aria-label="Close"><Icon name="ph-x" /></button>
+            </div>
+            <div className="overflow-y-auto flex-1 min-h-0 pr-1">{children}</div>
+            {footer && <div className="flex-shrink-0 pt-3">{footer}</div>}
+          </div>
         </div>
-        <input type="range" min={0} max={m} value={val}
-          onChange={(e) => onUpdate(k, e.target.value)}
-          className={`w-full h-4 bg-[#1c1f35]/50 rounded-full accent-${c.split('-')[0]}-500`}
-        />
-      </div>
-    ));
+      );
+    };
 
-    const StatHeader = memo(() => (
-      <div className="stat-data-grid text-center clash-font text-[10px] sm:text-xs mb-1 border-b border-white/50 pb-1">
-        <div className="opacity-70">Elixir</div><div className="opacity-70">Rarity</div><div className="opacity-70">Type</div>
-        <div className="opacity-70">Targets</div><div className="opacity-70">Range</div><div className="opacity-70">Speed</div>
-        <div className="opacity-70">Hit Spd</div>
+    const Stepper = ({ value, onDec, onInc, canDec, canInc, label }) => (
+      <div className="flex items-center gap-2">
+        <button className="step-btn" onClick={onDec} disabled={!canDec} aria-label={`Fewer ${label}`}><Icon name="ph-minus" /></button>
+        <span className="display stroke text-xl w-7 text-center tabular-nums">{value}</span>
+        <button className="step-btn" onClick={onInc} disabled={!canInc} aria-label={`More ${label}`}><Icon name="ph-plus" /></button>
       </div>
-    ));
+    );
 
-    const StatRow = memo(({guess}) => (
-      <div className="stat-data-grid text-center text-[10px] sm:text-xs font-bold gap-1">
-        {['elixir','rarity','type','targets','range_type','speed','hit_speed'].map(key => {
-          const feedback = guess.feedback[key];
-          const colorClass = feedback?.status === 'correct' ? 'stat-correct' : (feedback?.status === 'warm' ? 'stat-warm' : 'stat-cold');
-          return (
-            <div key={key} className={`${colorClass} rounded-lg p-1 flex items-center justify-center h-full relative`}>
-              <span className="truncate max-w-[90%]">{feedback?.value || '-'}</span>
-              {feedback?.direction && <span className="absolute right-0.5 bottom-0.5 text-[8px] opacity-80">{feedback.direction}</span>}
-            </div>
-          );
-        })}
-      </div>
-    ));
+    const RoleArt = ({ role, className = 'w-10' }) => (
+      <img src={roleArtUrl(role)} onError={onImgError} alt="" className={`${className} h-auto drop-shadow-[0_2px_0_rgba(0,0,0,.4)]`} draggable="false" />
+    );
 
-    const PlayerGrid = memo(({ players, gameState, selectedPlayerId, onSelect }) => (
-      <div className="flex-1 overflow-y-auto grid grid-cols-3 gap-2 content-start pb-2">
-        {players.map(p => (
-          <button 
-            key={p.id} 
-            disabled={!p.isAlive || gameState === 'discussing'} 
-            onClick={() => (gameState === 'voting' || gameState === 'hnt_rev') && onSelect(p.id)} 
-            className={`relative p-1 rounded-xl border-2 flex flex-col items-center justify-center min-h-[100px] backdrop-blur-sm transition-transform ${
-              !p.isAlive ? 'bg-slate-800/50 border-slate-900 opacity-40 grayscale' : 
-              (gameState === 'voting' || gameState === 'hnt_rev') ? 
-                (selectedPlayerId === p.id ? 'bg-[#323655]/90 border-[#FFB900] scale-105 z-10' : 'bg-[#323655]/80 border-[#FF4141] active:scale-95') : 
-              'bg-[#323655]/80 border-[#1c1f35]'
-            }`}
-          >
-            <div className="w-12 h-12 mb-1 relative flex items-center justify-center">
-              <img src={BADGE_BASE_URL + p.avatar} alt="Badge" className="w-full h-full object-contain drop-shadow-md"/>
-              {p.isZapped && gameState === 'discussing' && <span className="absolute -bottom-1 -right-1 text-xl">⚡</span>}
-            </div>
-            <div className="clash-font text-[10px] sm:text-xs truncate w-full text-center px-1">{p.name}</div>
-            {!p.isAlive && <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-50">💀</div>}
-            {!p.isAlive && <span className={`role-badge ${BADGES[p.role]?.c || 'bg-gray-500'}`}>{BADGES[p.role]?.i || '?'}</span>}
-          </button>
-        ))}
-      </div>
-    ));
+    const RolePill = ({ role, children }) => (
+      <span className="display stroke-sm text-[11px] px-2 py-[3px] rounded-full border-2 border-[var(--ink)] whitespace-nowrap"
+        style={{ background: ROLE_INFO[role]?.color, color: '#fff' }}>
+        {children || ROLE_INFO[role]?.name}
+      </span>
+    );
+
+    const PlayerTile = memo(({ p, mode, selected, isFirst, onSelect, disabled, showZap, index }) => {
+      const selectable = !!onSelect && !disabled && p.isAlive;
+      const cls = ['ptile anim-rise',
+        !p.isAlive && 'is-dead',
+        selectable && !selected && 'is-target',
+        selected && 'is-selected',
+        isFirst && p.isAlive && !selectable && 'is-first',
+      ].filter(Boolean).join(' ');
+      return (
+        <button className={cls} style={{ '--i': index }} disabled={!selectable} onClick={() => { buzz(8); onSelect(p.id); }}
+          aria-pressed={selected} aria-label={`${p.name}${!p.isAlive ? ', eliminated' : ''}`}>
+          {isFirst && p.isAlive && !selectable && <span className="tag display stroke-sm" style={{ background: 'var(--gold-2)' }}>STARTS</span>}
+          {showZap && p.isZapped && p.isAlive && <span className="tag display stroke-sm" style={{ background: 'var(--ewz)' }}><Icon name="ph-lightning" fill /> SILENCED</span>}
+          <img className="badge" src={BADGE_BASE_URL + p.avatar} alt="" draggable="false" />
+          <div className="pname display stroke-sm">{p.name}</div>
+          {!p.isAlive && (
+            <>
+              <div className="absolute inset-0 grid place-items-center text-4xl text-white/80"><Icon name="ph-skull" fill /></div>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2"><RolePill role={p.role} /></div>
+            </>
+          )}
+        </button>
+      );
+    });
 
     // --- MAIN APP ---
     const App = () => {
-      // --- STATE ---
+      const saved = useMemo(loadSaved, []);
       const [cardData, setCardData] = useState([]);
+      const [cardDataError, setCardDataError] = useState(false);
       const [gameState, setGameState] = useState('setup');
-      const [gameMode, setGameMode] = useState(MODES.REG);
-      const [settings, setSettings] = useState({total:5,und:1,wht:0,jes:0,bg:0,hnt:0,ewz:0});
-      const [playerNames, setPlayerNames] = useState(Array(15).fill('').map((_,i)=>`Player ${i+1}`));
+      const [gameMode, setGameMode] = useState(saved.gameMode && Object.values(MODES).includes(saved.gameMode) ? saved.gameMode : MODES.REG);
+      const [settings, setSettings] = useState({ ...DEFAULT_SETTINGS, ...(saved.settings || {}) });
+      const [playerNames, setPlayerNames] = useState(() => {
+        const base = Array(15).fill('').map((_, i) => defaultName(i));
+        (saved.playerNames || []).slice(0, 15).forEach((n, i) => { if (typeof n === 'string') base[i] = n; });
+        return base;
+      });
       const [players, setPlayers] = useState([]);
       const [revealIndex, setRevealIndex] = useState(0);
       const [isRevealing, setIsRevealing] = useState(false);
-      const [winner, setWinner] = useState({team:null,reason:null});
+      const [winner, setWinner] = useState({ team: null, reason: null });
       const [selectedPlayerId, setSelectedPlayerId] = useState(null);
       const [justEliminated, setJustEliminated] = useState([]);
-      const [currentWords, setCurrentWords] = useState({civilian:'',undercover:''});
+      const [currentWords, setCurrentWords] = useState({ civilian: '', undercover: '' });
       const [mrWhiteGuess, setMrWhiteGuess] = useState('');
+      const [lastWhiteGuess, setLastWhiteGuess] = useState(null);
       const [showRules, setShowRules] = useState(false);
       const [showNames, setShowNames] = useState(false);
-      const [timer, setTimer] = useState(180);
+      const [showQuit, setShowQuit] = useState(false);
+      const [timer, setTimer] = useState(settings.timer);
+      const [paused, setPaused] = useState(false);
+      const [round, setRound] = useState(1);
+      const [firstSpeaker, setFirstSpeaker] = useState(null);
       const timerRef = useRef(null);
       const [statGuessTarget, setStatGuessTarget] = useState(null);
       const [statGuesses, setStatGuesses] = useState([]);
       const [statGuessInput, setStatGuessInput] = useState('');
+      const [statError, setStatError] = useState('');
+      const [suggestOpen, setSuggestOpen] = useState(false);
 
       // --- EFFECTS ---
       useEffect(() => {
         fetch(CARD_DATA_URL)
-          .then(r => r.ok ? r.json() : [])
-          .then(setCardData)
-          .catch(() => {});
+          .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+          .then(list => setCardData(list.filter((c, i, a) => c && c.name && a.findIndex(x => x.name === c.name) === i)))
+          .catch(() => setCardDataError(true));
       }, []);
 
       useEffect(() => {
-        if (gameState === 'discussing') {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ gameMode, settings, playerNames })); } catch (e) {}
+      }, [gameMode, settings, playerNames]);
+
+      useEffect(() => {
+        if (gameState === 'discussing' && !paused) {
           timerRef.current = setInterval(() => {
             setTimer(prev => {
-              if (prev <= 1) {
-                clearInterval(timerRef.current);
-                return 0;
-              }
+              if (prev <= 1) { clearInterval(timerRef.current); buzz([200, 100, 200]); return 0; }
               return prev - 1;
             });
           }, 1000);
-        } else {
-          clearInterval(timerRef.current);
         }
         return () => clearInterval(timerRef.current);
-      }, [gameState]);
+      }, [gameState, paused]);
 
-      // --- GAME FUNCTIONS ---
-      const maxImpossible = (total, key) => {
-        if (key === 'total') return Math.floor((total - 1) / 2);
-        const otherSpecials = (settings.und + settings.wht + settings.jes + settings.bg + settings.hnt + settings.ewz) - settings[key];
-        return Math.max(0, total - 1 - otherSpecials);
+      // --- SETTINGS ---
+      const changeSetting = (key, delta) => {
+        buzz(6);
+        setSettings(prev => {
+          if (key === 'total') {
+            const total = Math.max(3, Math.min(15, prev.total + delta));
+            return clampSettings({ ...prev, total }, gameMode);
+          }
+          const next = { ...prev, [key]: Math.max(0, prev[key] + delta) };
+          return isValidSettings(next, gameMode) ? next : prev;
+        });
+      };
+      const canChange = (key, delta) => {
+        if (key === 'total') { const t = settings.total + delta; return t >= 3 && t <= 15; }
+        const v = settings[key] + delta;
+        if (v < 0) return false;
+        return isValidSettings({ ...settings, [key]: v }, gameMode);
       };
 
-      const updateSettings = (key, value) => {
-        setSettings(prev => {
-          const newSettings = { ...prev, [key]: parseInt(value) || 0 };
-          if (key === 'total') {
-            newSettings.total = Math.max(3, Math.min(15, newSettings.total));
-            const maxSpecial = newSettings.total - 1;
-            let specialSum = newSettings.und + newSettings.wht + newSettings.jes + newSettings.bg + newSettings.hnt + newSettings.ewz;
-            if (specialSum > maxSpecial) {
-              const rolesToAdjust = ['ewz', 'hnt', 'bg', 'jes', 'wht', 'und'];
-              for (const roleKey of rolesToAdjust) {
-                if (newSettings[roleKey] > 0) {
-                  const diff = specialSum - maxSpecial;
-                  const reduction = Math.min(newSettings[roleKey], diff);
-                  newSettings[roleKey] -= reduction;
-                  specialSum -= reduction;
-                  if (specialSum <= maxSpecial) break;
-                }
-              }
-            }
-          } else {
-            const max = maxImpossible(newSettings.total, key);
-            if (newSettings[key] > max) newSettings[key] = max;
-          }
-          return newSettings;
-        });
+      const selectMode = (m) => {
+        buzz(6);
+        setGameMode(m);
+        if (m !== MODES.STAT) setSettings(prev => clampSettings(prev, m));
+      };
+
+      // --- GAME FUNCTIONS ---
+      const chooseFirstSpeaker = (list) => {
+        const alive = list.filter(p => p.isAlive);
+        const preferred = alive.filter(p => p.role !== ROLES.WHT && !p.isZapped);
+        const pool = preferred.length ? preferred : alive;
+        setFirstSpeaker(pool.length ? pick(pool).id : null);
+      };
+
+      const startStatGame = () => {
+        const elixirCards = cardData.filter(c => !isNaN(parseFloat(c.elixir)));
+        if (!elixirCards.length) return;
+        setStatGuessTarget(pick(elixirCards));
+        setStatGuesses([]);
+        setStatGuessInput('');
+        setStatError('');
+        setGameState('stat_game');
       };
 
       const startGame = () => {
-        if (gameMode === MODES.STAT) {
-          if (cardData.length < 5) return;
-          const elixirCards = cardData.filter(c => !isNaN(parseFloat(c.elixir)));
-          setStatGuessTarget(elixirCards[Math.floor(Math.random() * elixirCards.length)]);
-          setStatGuesses([]);
-          setStatGuessInput('');
-          setGameState('stat_game');
-          return;
-        }
+        buzz(20);
+        if (gameMode === MODES.STAT) { startStatGame(); return; }
 
-        const pair = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+        const pair = pick(PAIRS);
         const swap = Math.random() > 0.5;
         const words = {
           [ROLES.CIV]: swap ? pair.undercover : pair.civilian,
@@ -337,93 +632,99 @@
         };
         setCurrentWords({ civilian: words[ROLES.CIV], undercover: words[ROLES.UND] });
 
-        let roleDeck = [...Array(settings.und).fill(ROLES.UND), ...Array(settings.wht).fill(ROLES.WHT)];
+        const s = clampSettings(settings, gameMode);
+        let roleDeck = [...Array(s.und).fill(ROLES.UND), ...Array(s.wht).fill(ROLES.WHT)];
         if (gameMode === MODES.CHS) {
-          roleDeck.push(...Array(settings.jes).fill(ROLES.JES), ...Array(settings.bg).fill(ROLES.BG), ...Array(settings.hnt).fill(ROLES.HNT), ...Array(settings.ewz).fill(ROLES.EWIZ));
+          roleDeck.push(...Array(s.jes).fill(ROLES.JES), ...Array(s.bg).fill(ROLES.BG), ...Array(s.hnt).fill(ROLES.HNT), ...Array(s.ewz).fill(ROLES.EWIZ));
         }
-        while (roleDeck.length < settings.total) roleDeck.push(ROLES.CIV);
-        
-        // Shuffle roles
-        for (let i = roleDeck.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [roleDeck[i], roleDeck[j]] = [roleDeck[j], roleDeck[i]];
-        }
-        
-        // Shuffle player names order
-        const currentPlayNames = playerNames.slice(0, settings.total).sort(() => Math.random() - 0.5);
+        while (roleDeck.length < s.total) roleDeck.push(ROLES.CIV);
+        roleDeck = shuffle(roleDeck);
 
-        let newPlayers = roleDeck.map((role, i) => ({ id: i, name: currentPlayNames[i], role, word: words[role], isAlive: true, isZapped: false, avatar: AVATAR_BADGES[i % AVATAR_BADGES.length] }));
+        // Seats keep their avatar; the reveal order is shuffled.
+        const seats = shuffle(Array.from({ length: s.total }, (_, i) => i));
+        let newPlayers = roleDeck.map((role, i) => {
+          const seat = seats[i];
+          return {
+            id: i, name: (playerNames[seat] || '').trim() || defaultName(seat), role, word: words[role],
+            isAlive: true, isZapped: false, avatar: AVATAR_BADGES[seat % AVATAR_BADGES.length]
+          };
+        });
 
         if (gameMode === MODES.CHS) {
-          // Mirror Match
+          // Mirror Match: two civilians are told they share a card.
           const civilians = newPlayers.filter(p => p.role === ROLES.CIV);
           if (civilians.length >= 2 && Math.random() < 0.05) {
-            const p1 = civilians[Math.floor(Math.random() * civilians.length)];
-            const p2 = civilians.filter(p => p.id !== p1.id)[Math.floor(Math.random() * (civilians.length - 1))];
-            if (p1 && p2) {
-              newPlayers = newPlayers.map(p => 
-                p.id === p1.id ? { ...p, mirrorId: p2.id, mirrorName: p2.name } :
-                p.id === p2.id ? { ...p, mirrorId: p1.id, mirrorName: p1.name } : p
-              );
-            }
+            const [p1, p2] = shuffle(civilians);
+            newPlayers = newPlayers.map(p =>
+              p.id === p1.id ? { ...p, mirrorId: p2.id, mirrorName: p2.name } :
+              p.id === p2.id ? { ...p, mirrorId: p1.id, mirrorName: p1.name } : p
+            );
           }
-          const bodyguards = newPlayers.filter(p => p.role === ROLES.BG);
-          bodyguards.forEach(bg => {
+          newPlayers.filter(p => p.role === ROLES.BG).forEach(bg => {
             const potentialTargets = newPlayers.filter(p => p.id !== bg.id && !p.isTarget);
             if (potentialTargets.length > 0) {
-              const target = potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
-              newPlayers = newPlayers.map(p => 
+              const target = pick(potentialTargets);
+              newPlayers = newPlayers.map(p =>
                 p.id === bg.id ? { ...p, targetId: target.id } :
                 p.id === target.id ? { ...p, isTarget: true } : p
               );
             }
           });
         }
-        
+
         setPlayers(newPlayers);
         setRevealIndex(0);
         setIsRevealing(false);
-        setGameState('reveal');
         setSelectedPlayerId(null);
         setJustEliminated([]);
         setMrWhiteGuess('');
-        setTimer(180);
+        setLastWhiteGuess(null);
+        setTimer(s.timer);
+        setPaused(false);
+        setRound(1);
+        setGameState('reveal');
       };
 
       const handleNextReveal = () => {
+        buzz(10);
         setIsRevealing(false);
         if (revealIndex + 1 < players.length) {
           setRevealIndex(revealIndex + 1);
         } else {
+          chooseFirstSpeaker(players);
           setGameState('discussing');
         }
       };
 
       const handleZap = (targetId) => {
-        setPlayers(prevPlayers => prevPlayers.map(p => p.id === targetId ? { ...p, isZapped: true } : p));
-        handleNextReveal();
+        buzz(30);
+        const updated = players.map(p => p.id === targetId ? { ...p, isZapped: true } : p);
+        setPlayers(updated);
+        setIsRevealing(false);
+        if (revealIndex + 1 < updated.length) setRevealIndex(revealIndex + 1);
+        else { chooseFirstSpeaker(updated); setGameState('discussing'); }
       };
-      
+
       const killPlayers = (eliminatedPlayers) => {
         setJustEliminated(eliminatedPlayers);
         const eliminatedIds = eliminatedPlayers.map(p => p.id);
         const updatedPlayers = players.map(p => eliminatedIds.includes(p.id) ? { ...p, isAlive: false } : p);
         setPlayers(updatedPlayers);
-        
+
         const alivePlayers = updatedPlayers.filter(p => p.isAlive);
-        const impostors = alivePlayers.filter(p => [ROLES.UND, ROLES.WHT, ROLES.EWIZ].includes(p.role)).length;
-        const civilians = alivePlayers.filter(p => [ROLES.CIV, ROLES.BG, ROLES.HNT].includes(p.role)).length;
-        
+        const impostors = alivePlayers.filter(p => IMPOSTOR_ROLES.includes(p.role)).length;
+        const civilians = alivePlayers.filter(p => CIVILIAN_ROLES.includes(p.role)).length;
+
         setSelectedPlayerId(null);
-        
+
         if (impostors === 0 && civilians > 0) {
-          setWinner({ team: 'CIVILIANS', reason: 'All impostors eliminated!' });
+          setWinner({ team: 'CIVILIANS', reason: 'Every impostor has been found.' });
           setGameState('over');
         } else if (impostors >= civilians && impostors > 0) {
-          setWinner({ team: 'IMPOSTORS', reason: 'Impostors have taken over!' });
+          setWinner({ team: 'IMPOSTORS', reason: 'The impostors took over the clan.' });
           setGameState('over');
         } else if (civilians === 0 && impostors === 0) {
-          setWinner({ team: 'NO ONE', reason: 'Mutual destruction!' });
+          setWinner({ team: 'NO ONE', reason: 'Nobody is left standing.' });
           setGameState('over');
         } else {
           setGameState('summary');
@@ -432,16 +733,19 @@
 
       const handleElimination = () => {
         if (selectedPlayerId === null) return;
+        buzz(40);
         const targetPlayer = players.find(p => p.id === selectedPlayerId);
-        
+
         if (targetPlayer.role === ROLES.JES) {
           setJustEliminated([targetPlayer]);
-          setWinner({ team: 'JESTER', reason: 'Jester tricked you!' });
+          setPlayers(players.map(p => p.id === targetPlayer.id ? { ...p, isAlive: false } : p));
+          setWinner({ team: 'JESTER', reason: `${targetPlayer.name} wanted to be voted out.` });
           setGameState('over');
           return;
         }
         if (targetPlayer.role === ROLES.WHT) {
           setJustEliminated([targetPlayer]);
+          setMrWhiteGuess('');
           setGameState('wht_guess');
           setSelectedPlayerId(null);
           return;
@@ -452,402 +756,686 @@
           setSelectedPlayerId(null);
           return;
         }
-        
         finalizeElimination(targetPlayer);
       };
 
       const finalizeElimination = (targetPlayer) => {
-        let playersToEliminate = [targetPlayer];
         const bodyguards = players.filter(p => p.role === ROLES.BG && p.isAlive && p.targetId === targetPlayer.id);
-        playersToEliminate.push(...bodyguards);
-        killPlayers(playersToEliminate);
+        killPlayers([targetPlayer, ...bodyguards]);
       };
 
       const handleHunterShot = (targetId) => {
+        buzz(40);
         const hunter = justEliminated.find(p => p.role === ROLES.HNT);
         const targetPlayer = players.find(p => p.id === targetId);
-        let playersToEliminate = [hunter, targetPlayer];
-        const bodyguards = players.filter(p => p.role === ROLES.BG && p.isAlive && p.targetId === targetPlayer.id);
-        playersToEliminate.push(...bodyguards);
-        killPlayers(playersToEliminate);
+        const bodyguards = players.filter(p => p.role === ROLES.BG && p.isAlive && p.id !== hunter.id && (p.targetId === targetPlayer.id || p.targetId === hunter.id));
+        const list = [hunter, targetPlayer, ...bodyguards].filter((p, i, a) => a.findIndex(x => x.id === p.id) === i);
+        killPlayers(list);
       };
 
       const handleMrWhiteGuess = () => {
+        if (!mrWhiteGuess.trim()) return;
         if (isCorrect(mrWhiteGuess, currentWords.civilian)) {
-          setWinner({ team: 'MR. WHITE', reason: `Guessed ${currentWords.civilian}!` });
+          buzz([60, 40, 60]);
+          setWinner({ team: 'MR. WHITE', reason: `${justEliminated[0]?.name} guessed ${currentWords.civilian}.` });
           setGameState('over');
         } else {
+          setLastWhiteGuess(mrWhiteGuess.trim());
           finalizeElimination(justEliminated[0]);
         }
       };
 
-      const handleStatGuess = () => {
-        const guessedCard = cardData.find(c => c.name.toLowerCase() === statGuessInput.trim().toLowerCase());
-        if (!guessedCard) { alert("Invalid card name!"); return; }
-        
-        let feedback = {};
-        let isWin = true;
-        const keysToCompare = ['elixir', 'rarity', 'type', 'targets', 'range_type', 'speed', 'hit_speed'];
+      const nextRound = () => {
+        buzz(10);
+        const cleared = players.map(p => ({ ...p, isZapped: false }));
+        setPlayers(cleared);
+        setRound(r => r + 1);
+        setTimer(settings.timer);
+        setPaused(false);
+        setLastWhiteGuess(null);
+        chooseFirstSpeaker(cleared);
+        setGameState('discussing');
+      };
 
-        keysToCompare.forEach(key => {
-          const targetValue = statGuessTarget[key];
-          const guessedValue = guessedCard[key];
-          
-          if (key === 'elixir' || key === 'hit_speed') {
-            const targetNum = parseFloat(targetValue);
-            const guessedNum = parseFloat(guessedValue);
-            if (guessedNum === targetNum) {
-              feedback[key] = { status: 'correct', value: guessedValue };
-            } else {
-              isWin = false;
-              feedback[key] = {
-                status: Math.abs(guessedNum - targetNum) <= 1.0 ? 'warm' : 'cold',
-                value: guessedValue,
-                direction: guessedNum < targetNum ? '▲' : '▼'
-              };
-            }
-          } else {
-            if (guessedValue === targetValue) {
-              feedback[key] = { status: 'correct', value: guessedValue };
-            } else {
-              isWin = false;
-              feedback[key] = { status: 'cold', value: guessedValue };
-            }
-          }
-        });
+      const quitToMenu = () => { setShowQuit(false); setGameState('setup'); };
+
+      // --- STAT GUESS ---
+      const guessedNames = useMemo(() => new Set(statGuesses.map(g => g.cardName)), [statGuesses]);
+      const suggestions = useMemo(() => {
+        const q = statGuessInput.trim().toLowerCase();
+        if (!q) return [];
+        return cardData
+          .filter(c => !guessedNames.has(c.name) && c.name.toLowerCase().includes(q))
+          .sort((a, b) => (b.name.toLowerCase().startsWith(q) - a.name.toLowerCase().startsWith(q)) || a.name.localeCompare(b.name))
+          .slice(0, 6);
+      }, [statGuessInput, cardData, guessedNames]);
+
+      const submitStatGuess = (nameOverride) => {
+        const raw = (nameOverride ?? statGuessInput).trim().toLowerCase();
+        if (!raw) return;
+        let guessedCard = cardData.find(c => c.name.toLowerCase() === raw);
+        if (!guessedCard && !nameOverride && suggestions.length === 1) guessedCard = suggestions[0];
+        if (!guessedCard) { setStatError('Not a card we know. Pick one from the list.'); buzz(60); return; }
+        if (guessedNames.has(guessedCard.name)) { setStatError(`You already tried ${guessedCard.name}.`); buzz(60); return; }
+
+        buzz(12);
+        const feedback = {};
+        [...STAT_ROW_1, ...STAT_ROW_2].forEach(([key]) => { feedback[key] = compareStat(key, guessedCard[key], statGuessTarget[key]); });
+        const isWin = guessedCard.name === statGuessTarget.name;
 
         const newGuesses = [{ cardName: guessedCard.name, feedback, isWin }, ...statGuesses];
         setStatGuesses(newGuesses);
         setStatGuessInput('');
+        setStatError('');
+        setSuggestOpen(false);
 
         if (isWin) {
-          setWinner({ team: 'GUESSERS', reason: `Correct! It was ${statGuessTarget.name}!` });
-          setGameState('over');
+          setWinner({ team: 'GUESSERS', reason: `Found in ${newGuesses.length} ${newGuesses.length === 1 ? 'try' : 'tries'}.` });
+          setTimeout(() => setGameState('over'), 900);
         } else if (newGuesses.length >= MAX_GUESSES) {
-          setWinner({ team: 'FAIL', reason: `Out of tries! It was ${statGuessTarget.name}.` });
-          setGameState('over');
+          setWinner({ team: 'FAIL', reason: `Out of tries. The card was ${statGuessTarget.name}.` });
+          setTimeout(() => setGameState('over'), 900);
         }
       };
 
-      // --- RENDER ---
-      
-      // Setup Screen
+      const quitButton = (
+        <button className="btn btn-red btn-icon" onClick={() => setShowQuit(true)} aria-label="Quit to menu"><Icon name="ph-house" fill /></button>
+      );
+      const quitModal = showQuit && (
+        <Modal title="LEAVE BATTLE?" onClose={() => setShowQuit(false)}
+          footer={<div className="grid grid-cols-2 gap-3"><button className="btn btn-sm" onClick={() => setShowQuit(false)}>Stay</button><button className="btn btn-red btn-sm" onClick={quitToMenu}>Leave</button></div>}>
+          <p className="body-font text-muted">This game ends and roles are lost. Your settings and names are kept.</p>
+        </Modal>
+      );
+
+      // ================= RENDER =================
+
+      // ---------- SETUP ----------
       if (gameState === 'setup') {
-        const totalEnemies = settings.und + settings.wht + (gameMode === MODES.CHS ? (settings.jes + settings.ewz) : 0);
-        const isValidGame = settings.total > 2 && totalEnemies > 0;
-        const buttonColor = gameMode === MODES.CHS ? "purple" : (gameMode === MODES.STAT ? "green" : "yellow");
-        
+        const mode = MODE_INFO[gameMode];
+        const keys = activeKeys(gameMode);
+        const impostors = countOf(settings, keys.filter(k => IMPOSTOR_KEYS.includes(k)));
+        const specials = countOf(settings, keys);
+        const civilians = settings.total - specials;
+        const isStat = gameMode === MODES.STAT;
+        const statReady = cardData.length > 0;
+        const canStart = isStat ? statReady : impostors > 0;
+        const cta = isStat ? (cardDataError ? 'Cards failed to load' : statReady ? 'Start guessing' : 'Loading cards') : (canStart ? 'Battle' : 'Add an impostor');
+
         return (
-          <Container className="overflow-y-auto animate-pop">
-            <header className="text-center mb-4 mt-2 flex-shrink-0">
-              <h1 className="clash-font text-white text-shadow-heavy leading-none flex items-center justify-center gap-2 text-3xl sm:text-4xl">
-                <img src={CROWN_LOGO} alt="Logo" className="w-8 h-8 sm:w-10 sm:h-10"/>
-                <span>UNDERCOVER</span>
-                <div className="text-[#FFB900] -mt-1">ROYALE</div>
+          <Screen>
+            <header className="flex items-center gap-3 mb-2 flex-shrink-0 anim-pop">
+              <img src={BADGE_BASE_URL + 'Crown_01.png'} alt="" className="w-11 h-11 object-contain" />
+              <h1 className="display stroke leading-[.95] flex-1">
+                <span className="block text-[26px]">UNDERCOVER</span>
+                <span className="block text-[30px] text-gold">ROYALE</span>
               </h1>
+              <button className="btn btn-icon" onClick={() => setShowRules(true)} aria-label="How to play"><Icon name="ph-question" /></button>
             </header>
 
-            <div className="flex bg-[#1c1f35]/50 p-1 rounded-xl mb-4 clash-font text-xs sm:text-base flex-shrink-0">
-              <Button onClick={() => setGameMode(MODES.REG)} color={gameMode === MODES.REG ? 'blue' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.REG && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>REGULAR</Button>
-              <Button onClick={() => setGameMode(MODES.CHS)} color={gameMode === MODES.CHS ? 'purple' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.CHS && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>CHAOS</Button>
-              <Button onClick={() => setGameMode(MODES.STAT)} color={gameMode === MODES.STAT ? 'green' : 'gray'} className={`flex-1 py-2 text-xs transition-all ${gameMode !== MODES.STAT && 'opacity-50 !bg-transparent !shadow-none !border-transparent'}`}>STAT GUESS</Button>
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar -mx-4 px-4 pb-3">
+              {/* Arena hero for the current mode */}
+              <div className="relative flex items-center gap-2 mb-3">
+                <img key={mode.arena} src={ARENA_BASE_URL + mode.arena} alt="" className="w-[42%] max-w-[180px] aspect-square object-contain anim-pop anim-bob drop-shadow-[0_10px_12px_rgba(0,0,0,.45)]" />
+                <div className="flex-1 anim-pop" key={gameMode}>
+                  <div className="display stroke text-3xl">{mode.label.toUpperCase()}</div>
+                  <p className="body-font text-sm text-muted mt-1 leading-snug">{mode.blurb}</p>
+                </div>
+              </div>
+
+              <div className="well p-1.5 flex gap-1.5 mb-4" role="tablist" aria-label="Game mode">
+                {Object.entries(MODE_INFO).map(([m, info]) => (
+                  <button key={m} role="tab" aria-selected={gameMode === m} className="tab stroke-sm" onClick={() => selectMode(m)}
+                    style={{ '--c1': info.tab[0], '--c2': info.tab[1], '--lip': info.tab[2] }}>
+                    <Icon name={info.icon} fill />
+                    {info.label.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+
+              {!isStat ? (
+                <div className="panel p-4 space-y-4 anim-pop" key={'cfg' + gameMode}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="display stroke text-xl">PLAYERS</div>
+                      <div className="body-font text-xs text-muted">3 to 15, one phone</div>
+                    </div>
+                    <Stepper label="players" value={settings.total}
+                      onDec={() => changeSetting('total', -1)} onInc={() => changeSetting('total', 1)}
+                      canDec={canChange('total', -1)} canInc={canChange('total', 1)} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {ROLE_SETTINGS.filter(r => keys.includes(r.k)).map((r, i) => (
+                      <div key={r.k} className="well p-2.5 flex flex-col gap-2 anim-rise" style={{ '--i': i }}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <RoleArt role={r.role} className="w-7 flex-shrink-0" />
+                          <span className="display stroke-sm text-[13px] leading-tight" style={{ color: ROLE_INFO[r.role].color }}>{ROLE_INFO[r.role].name}</span>
+                        </div>
+                        <Stepper label={ROLE_INFO[r.role].name} value={settings[r.k]}
+                          onDec={() => changeSetting(r.k, -1)} onInc={() => changeSetting(r.k, 1)}
+                          canDec={canChange(r.k, -1)} canInc={canChange(r.k, 1)} />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5" aria-live="polite">
+                    <span className="chip display"><span style={{ color: 'var(--civ)' }}>{civilians}</span> Civilian{civilians === 1 ? '' : 's'}</span>
+                    <span className="chip display"><span style={{ color: 'var(--und)' }}>{impostors}</span> Impostor{impostors === 1 ? '' : 's'}</span>
+                    {gameMode === MODES.CHS && settings.jes > 0 && <span className="chip display"><span style={{ color: 'var(--jes)' }}>{settings.jes}</span> Neutral</span>}
+                  </div>
+
+                  <div>
+                    <div className="display stroke-sm text-sm mb-2">DISCUSSION TIMER</div>
+                    <div className="well p-1 grid grid-cols-4 gap-1">
+                      {TIMER_OPTIONS.map(t => (
+                        <button key={t} className="tab stroke-sm !min-h-[38px]" aria-selected={settings.timer === t}
+                          style={{ '--c1': 'var(--blue-1)', '--c2': 'var(--blue-2)', '--lip': 'var(--blue-lip)' }}
+                          onClick={() => { buzz(6); setSettings(s => ({ ...s, timer: t })); }}>
+                          {t / 60} MIN
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button className="well w-full p-2.5 flex items-center gap-3 text-left active:scale-[.98] transition-transform" onClick={() => setShowNames(true)}>
+                    <div className="flex -space-x-3 flex-shrink-0">
+                      {Array.from({ length: Math.min(settings.total, 5) }).map((_, i) => (
+                        <img key={i} src={BADGE_BASE_URL + AVATAR_BADGES[i]} alt="" className="w-9 h-9 object-contain" />
+                      ))}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="display stroke-sm text-sm">EDIT NAMES</div>
+                      <div className="body-font text-xs text-muted truncate">{playerNames.slice(0, settings.total).map((n, i) => n.trim() || defaultName(i)).join(', ')}</div>
+                    </div>
+                    <Icon name="ph-pencil-simple" className="text-xl text-gold" />
+                  </button>
+                </div>
+              ) : (
+                <div className="panel p-4 anim-pop" key="statcfg">
+                  <div className="display stroke text-xl mb-3">HOW IT WORKS</div>
+                  <div className="space-y-2 body-font text-sm">
+                    <div className="flex items-center gap-3"><span className="stile s-correct !min-h-0 w-16 display stroke-sm text-xs">MATCH</span><span className="text-muted">Stat is exactly right.</span></div>
+                    <div className="flex items-center gap-3"><span className="stile s-warm !min-h-0 w-16 display stroke-sm text-xs">CLOSE</span><span className="text-muted">Nearly there, or partly right.</span></div>
+                    <div className="flex items-center gap-3"><span className="stile s-cold !min-h-0 w-16 display stroke-sm text-xs">MISS</span><span className="text-muted">Arrow shows if the answer is higher or lower.</span></div>
+                  </div>
+                  <div className="mt-4 chip body-font">
+                    {cardDataError ? <span style={{ color: 'var(--red-1)' }}>Could not load card data. Check your connection and reload.</span>
+                      : statReady ? <span>{cardData.length} cards in the pool</span>
+                      : <span className="animate-pulse">Loading cards...</span>}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {gameMode !== MODES.STAT ? (
-              <CardComponent className="space-y-4 mb-4 flex-1 flex flex-col overflow-y-auto min-h-0">
-                <div className="touch-pan-y">
-                  <div className="flex justify-between clash-font text-lg mb-1">
-                    <span className="text-blue-400">👥 Total Players</span>
-                    <span>{settings.total}</span>
-                  </div>
-                  <input type="range" min={3} max={15} value={settings.total} onChange={(e) => updateSettings('total', e.target.value)} className="w-full h-6 bg-[#1c1f35]/50 rounded-full accent-[#FFB900]"/>
-                </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <RoleSlider k='und' l='Undercover' c='text-red-400' m={maxImpossible(settings.total, 'und')} i='👺' val={settings.und} onUpdate={updateSettings} />
-                  <RoleSlider k='wht' l='Mr. White' c='text-slate-300' m={maxImpossible(settings.total, 'wht')} i='⬜' val={settings.wht} onUpdate={updateSettings} />
-                  {gameMode === MODES.CHS && (
-                    <>
-                      <RoleSlider k='jes' l='Jester' c='text-green-400' m={maxImpossible(settings.total, 'jes')} i='🃏' val={settings.jes} onUpdate={updateSettings} />
-                      <RoleSlider k='bg' l='Bodyguard' c='text-yellow-400' m={maxImpossible(settings.total, 'bg')} i='🛡️' val={settings.bg} onUpdate={updateSettings} />
-                      <RoleSlider k='hnt' l='Hunter' c='text-purple-400' m={maxImpossible(settings.total, 'hnt')} i='🤠' val={settings.hnt} onUpdate={updateSettings} />
-                      <RoleSlider k='ewz' l='E-Wizard' c='text-darkblue-400' m={maxImpossible(settings.total, 'ewz')} i='⚡' val={settings.ewz} onUpdate={updateSettings} />
-                    </>
-                  )}
-                </div>
-                <div className="flex justify-center pt-2 mt-auto">
-                  <Button color="blue" size="lg" onClick={() => setShowNames(true)} className="py-2 px-6 text-base">EDIT NAMES ✍️</Button>
-                </div>
-              </CardComponent>
-            ) : (
-              <CardComponent color="stats" className="space-y-4 mb-4 flex-1 flex flex-col items-center justify-center text-center">
-                <h3 className="clash-font text-3xl mb-2">CLASH WORDLE</h3>
-                <div className="text-5xl mb-4">🤔</div>
-                <div className="mt-4 p-2 bg-black/20 rounded-lg text-sm">
-                  {cardData.length > 0 ? <span className="text-green-400">✅ Loaded {cardData.length} cards</span> : <span className="text-red-400 animate-pulse">⌛ Loading data...</span>}
-                </div>
-              </CardComponent>
-            )}
-
-            <div className="flex-shrink-0 space-y-3">
-              <Button full color={isValidGame || gameMode === MODES.STAT ? buttonColor : "gray"} disabled={gameMode !== MODES.STAT && !isValidGame} onClick={startGame}>
-                {gameMode === MODES.STAT ? "START GUESSING! 🎯" : (isValidGame ? "BATTLE! ⚔️" : "AT LEAST 1 ENEMY REQUIRED!")}
-              </Button>
-              <Button full color="blue" onClick={() => setShowRules(true)} className="py-2 min-h-[45px] text-base">HOW TO PLAY ℹ️</Button>
+            <div className="flex-shrink-0 pt-2">
+              <button className={`btn btn-xl w-full ${mode.btn}`} disabled={!canStart} onClick={startGame}>
+                {canStart && <Icon name={isStat ? 'ph-target' : 'ph-sword'} fill />}
+                {cta}
+              </button>
+              <div className="text-center body-font text-[11px] text-white/35 mt-2 tracking-wider">BY VALE</div>
             </div>
 
             {showRules && (
-              <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 animate-pop backdrop-blur-sm" onClick={() => setShowRules(false)}>
-                <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
-                  <CardComponent color="blue" className="max-h-[80vh] flex flex-col">
-                    <header className="flex justify-between items-center mb-4 flex-shrink-0">
-                      <h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy">HOW TO PLAY</h2>
-                      <button onClick={() => setShowRules(false)} className="text-3xl opacity-70 hover:opacity-100">&times;</button>
-                    </header>
-                    <div className="overflow-y-auto flex-1 pr-2 space-y-4 text-sm opacity-90">
-                      <p><strong>Goal:</strong> Civilians find impostors. Impostors outnumber civilians.</p>
-                      <ul className="list-disc pl-4 space-y-3">
-                        <li className="text-[#4176FF]"><strong>Civilian:</strong> The good guys. You get the standard secret word. Find the impostors!</li>
-                        <li className="text-[#FF4141]"><strong>Undercover:</strong> Impostor. You get a slightly different word. Blend in!</li>
-                        <li className="text-slate-300"><strong>Mr. White:</strong> Impostor. NO word. Bluff, and guess the word if caught to win!</li>
-                        <li className="text-[#4CB050]"><strong>Jester:</strong> Neutral. Wants to get voted out. Wins INSTANTLY if eliminated!</li>
-                        <li className="text-[#FFB900]"><strong>Bodyguard:</strong> Civilian team. Protects one random player. Dies if they die!</li>
-                        <li className="text-[#B026FF]"><strong>Hunter:</strong> Civilian team. If voted out, shoots one last player!</li>
-                        <li className="text-[#1C598C]"><strong>E-Wizard:</strong> Impostor. Silences one player during the first round.</li>
-                      </ul>
-                    </div>
-                  </CardComponent>
-                </div>
-              </div>
-            )}
-            
-            {showNames && (
-              <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 animate-pop backdrop-blur-sm" onClick={() => setShowNames(false)}>
-                <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
-                  <CardComponent color="blue" className="max-h-[80vh] flex flex-col">
-                    <header className="flex justify-between items-center mb-4 flex-shrink-0">
-                      <h2 className="clash-font text-2xl text-[#FFB900] text-shadow-heavy">PLAYER NAMES</h2>
-                      <button onClick={() => setShowNames(false)} className="text-3xl opacity-70 hover:opacity-100">&times;</button>
-                    </header>
-                    <div className="overflow-y-auto flex-1 pr-2 space-y-2">
-                      {Array(settings.total).fill(0).map((_, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <span className="w-6 opacity-50">{i + 1}.</span>
-                          <input 
-                            type="text" 
-                            value={playerNames[i]} 
-                            onChange={(e) => {
-                              const newNames = [...playerNames];
-                              newNames[i] = e.target.value;
-                              setPlayerNames(newNames);
-                            }}
-                            className="flex-1 bg-[#1a1c2c] border-2 border-[#323655] rounded-lg px-2 py-1 text-white focus:border-[#FFB900] outline-none"
-                          />
+              <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}>
+                <div className="body-font text-sm space-y-4">
+                  <ol className="space-y-2">
+                    {[
+                      ['Pass the phone', 'Each player secretly sees their card.'],
+                      ['Describe it', 'Take turns saying one word about your card.'],
+                      ['Vote', 'Eliminate who you think is lying.'],
+                      ['Win', 'Civilians win when every impostor is out. Impostors win once they match the civilians.'],
+                    ].map(([h, b], i) => (
+                      <li key={h} className="well p-3 flex gap-3">
+                        <span className="display stroke text-xl text-gold w-5">{i + 1}</span>
+                        <span><span className="display stroke-sm">{h}.</span> <span className="text-muted">{b}</span></span>
+                      </li>
+                    ))}
+                  </ol>
+                  <div>
+                    <div className="display stroke text-lg mb-2">ROLES</div>
+                    <div className="space-y-2">
+                      {Object.entries(ROLE_INFO).map(([role, info]) => (
+                        <div key={role} className="well p-2.5 flex items-center gap-3">
+                          <RoleArt role={role} className="w-10 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <span className="display stroke-sm text-sm" style={{ color: info.color }}>{info.name}</span>
+                              <span className="text-[10px] text-muted uppercase tracking-wide">{info.team}{[ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ].includes(role) ? ', Chaos only' : ''}</span>
+                            </div>
+                            <p className="text-xs text-muted leading-snug">{info.blurb}</p>
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </CardComponent>
+                  </div>
+                  <p className="text-xs text-muted">Chaos mode twist: rarely, two civilians are secretly told they share the same card (Mirror Match).</p>
                 </div>
-              </div>
+              </Modal>
             )}
-          </Container>
+
+            {showNames && (
+              <Modal title="PLAYER NAMES" onClose={() => setShowNames(false)}
+                footer={<div className="grid grid-cols-2 gap-3">
+                  <button className="btn btn-slate btn-sm" onClick={() => setPlayerNames(Array(15).fill('').map((_, i) => defaultName(i)))}>Reset</button>
+                  <button className="btn btn-green btn-sm" onClick={() => setShowNames(false)}>Done</button>
+                </div>}>
+                <div className="space-y-2">
+                  {Array.from({ length: settings.total }).map((_, i) => (
+                    <label key={i} className="flex items-center gap-2">
+                      <img src={BADGE_BASE_URL + AVATAR_BADGES[i]} alt="" className="w-10 h-10 object-contain flex-shrink-0" />
+                      <span className="sr-only">Player {i + 1} name</span>
+                      <input type="text" className="field" maxLength={14} value={playerNames[i]} placeholder={defaultName(i)}
+                        onFocus={e => e.target.select()}
+                        onChange={(e) => { const n = [...playerNames]; n[i] = e.target.value; setPlayerNames(n); }} />
+                    </label>
+                  ))}
+                </div>
+              </Modal>
+            )}
+          </Screen>
         );
       }
 
-      // Reveal Screen
+      // ---------- REVEAL ----------
       if (gameState === 'reveal') {
         const player = players[revealIndex];
-        const isSpecial = [ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ].includes(player.role);
+        const info = ROLE_INFO[player.role];
+        const isSpecial = SPECIAL_ROLES.includes(player.role);
         const potentialZapTargets = players.filter(p => !p.isZapped && p.id !== player.id);
         const needsToZap = player.role === ROLES.EWIZ && potentialZapTargets.length > 0;
-        
-        let revealText = "Memorize your card!";
-        let revealTextColor = "text-slate-400";
-        let cardColor = 'blue';
-        let cardIcon = <img src={getCardUrl(player.word)} className="w-32 sm:w-40 h-auto drop-shadow-lg" onError={(e)=>{e.target.style.display='none';e.target.nextSibling.style.display='block'}}/>;
-        let extraAction = null;
-        
-        if (player.role === ROLES.WHT) { revealText = "You are Mr. White!"; revealTextColor = "text-white"; cardColor = 'gray'; cardIcon = <div className="text-8xl mb-4">❔</div>; }
-        else if (player.role === ROLES.JES) { revealText = "You are the Jester!"; revealTextColor = "text-green-400"; cardColor = 'green'; cardIcon = <img src={getCardUrl('goblins')} className="w-32 h-auto drop-shadow-lg"/>; }
-        else if (player.role === ROLES.HNT) { revealText = "You are the Hunter!"; revealTextColor = "text-purple-400"; cardColor = 'purple'; cardIcon = <img src={getCardUrl('hunter')} className="w-32 h-auto drop-shadow-lg"/>; }
-        else if (player.role === ROLES.BG) { revealText = `Protect ${players.find(p => p.id === player.targetId)?.name}!`; revealTextColor = "text-yellow-400"; cardColor = 'gold'; cardIcon = <img src={getCardUrl('royal-recruits')} className="w-32 h-auto drop-shadow-lg"/>; }
-        else if (player.role === ROLES.EWIZ) { revealText = needsToZap ? "Choose player to ZAP!" : "Mission complete."; revealTextColor = "text-darkblue-400"; cardColor = 'dark'; cardIcon = <img src={getCardUrl('electro-wizard')} className="w-32 h-auto drop-shadow-lg"/>; 
-          if(needsToZap) {
-            extraAction = (<div className="grid grid-cols-3 gap-2 w-full mt-4">{potentialZapTargets.map(p => (<button key={p.id} onClick={() => handleZap(p.id)} className="bg-[#1C598C] border-2 border-blue-400 rounded-lg p-2 text-xs font-bold">{p.name}</button>))}</div>);
-          }
-        }
-        else if (player.mirrorId !== undefined) { revealText = `MIRROR! ${player.mirrorName} has same word.`; }
+        const artSrc = isSpecial ? roleArtUrl(player.role) : getCardUrl(player.word);
+
+        let hint = 'Remember your card. Do not say it out loud.';
+        if (player.role === ROLES.WHT) hint = 'You have no card. Listen closely and bluff.';
+        else if (player.role === ROLES.JES) hint = 'Act suspicious. Get yourself voted out.';
+        else if (player.role === ROLES.HNT) hint = 'If you are voted out, you take someone with you.';
+        else if (player.role === ROLES.BG) hint = `Protect ${players.find(p => p.id === player.targetId)?.name}. If they fall, so do you.`;
+        else if (player.role === ROLES.EWIZ) hint = needsToZap ? 'Pick a player to silence for round one.' : 'Everyone is already silenced.';
+        else if (player.mirrorId !== undefined) hint = `Mirror Match: ${player.mirrorName} has the same card as you.`;
 
         return (
-          <Container>
-            <h2 className="clash-font text-center text-xl text-[#FFB900] mb-4">REVEAL {revealIndex + 1}/{players.length}</h2>
-            {isRevealing ? (
-              <CardComponent color={cardColor} className="flex-1 flex flex-col items-center justify-center mb-6 animate-pop">
-                <div className="mb-4 text-lg font-bold text-slate-400 tracking-widest uppercase">SECRET IDENTITY</div>
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  {cardIcon}
-                  {!isSpecial && <div className="clash-font text-2xl text-[#FFB900] px-2 mt-4 text-center">{player.word}</div>}
-                  {isSpecial && <div className="clash-font text-3xl text-white mt-2">{player.role.toUpperCase().replace('_',' ')}</div>}
-                </div>
-                <div className={`mt-4 font-bold text-xl ${revealTextColor} text-center px-2`}>{revealText}</div>
-                {extraAction}
-              </CardComponent>
-            ) : (
-              <CardComponent className="flex-1 flex flex-col items-center justify-center mb-6 animate-pop">
-                <div className="absolute top-4 left-4 font-bold text-slate-500">#{player.id + 1}</div>
-                <div className="text-center">
-                  <div className="text-7xl mb-6 opacity-50">🤐</div>
-                  <h3 className="text-2xl font-bold">Pass device to</h3>
-                  <h1 className="clash-font text-4xl text-[#FFB900] mt-2 truncate px-4">{player.name}</h1>
-                </div>
-              </CardComponent>
-            )}
-            <div className="flex-shrink-0">
-              {(!isRevealing || !needsToZap) && <Button full color={!isRevealing ? "blue" : "yellow"} onClick={!isRevealing ? () => setIsRevealing(true) : handleNextReveal}>{!isRevealing ? "SHOW IDENTITY 👁️" : "GOT IT! 👌"}</Button>}
-            </div>
-          </Container>
-        );
-      }
-      
-      // Discussion/Voting Screens
-      if (gameState === 'discussing' || gameState === 'voting' || gameState === 'hnt_rev') {
-        return (
-          <Container>
-            <header className="text-center mb-4">
-              <h2 className="clash-font text-2xl text-[#FFB900]">{gameState === 'discussing' ? 'DISCUSSION' : (gameState === 'hnt_rev' ? 'HUNTER REVENGE' : 'ELIMINATION')}</h2>
-              {gameState === 'discussing' && <div className={`text-xl font-bold ${timer < 30 ? 'text-red-500 animate-pulse' : 'text-white'}`}>⏱️ {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}</div>}
-              {gameState === 'hnt_rev' && <p className="text-orange-400 font-bold animate-pulse">Hunter, choose your last target!</p>}
-            </header>
-            <PlayerGrid players={players} gameState={gameState} selectedPlayerId={selectedPlayerId} onSelect={setSelectedPlayerId} />
-            <div className="mt-4">
-              {gameState === 'discussing' ? <Button full color="red" onClick={() => setGameState('voting')}>START VOTING 🗳️</Button> :
-              (selectedPlayerId !== null ? 
-                (gameState === 'hnt_rev' ? <Button full color="purple" onClick={() => handleHunterShot(selectedPlayerId)}>SHOOT! 🔫</Button> : <Button full color="red" onClick={handleElimination}>ELIMINATE {players.find(p => p.id === selectedPlayerId)?.name} 💀</Button>) :
-                (gameState === 'voting' ? <Button full color="blue" onClick={() => setGameState('discussing')}>BACK TO DISCUSS 🔙</Button> : null)
-              )}
-            </div>
-          </Container>
-        );
-      }
-      
-      // Mr. White Guess Screen
-      if (gameState === 'wht_guess') {
-        return (
-          <Container className="animate-pop">
-            <header className="text-center mb-8 mt-6"><div className="text-6xl mb-4">❔</div><h1 className="clash-font text-3xl text-white mb-2">LAST CHANCE!</h1><p className="font-bold opacity-90">{justEliminated[0]?.name} is Mr. White!</p></header>
-            <CardComponent color="gray" className="flex-1 flex flex-col items-center justify-center mb-8">
-              <h3 className="text-xl font-bold text-center mb-6">Guess Civilian Card to win!</h3>
-              <input type="text" value={mrWhiteGuess} onChange={(e) => setMrWhiteGuess(e.target.value)} placeholder="Type guess..." className="w-full p-4 rounded-xl bg-[#1c1f35]/80 border-4 border-[#323655] text-white text-center text-2xl clash-font outline-none focus:border-[#FFB900]" />
-            </CardComponent>
-            <div className="flex-shrink-0"><Button full color="yellow" onClick={handleMrWhiteGuess}>SUBMIT GUESS 🎯</Button></div>
-          </Container>
-        );
-      }
-      
-      // Round Summary Screen
-      if (gameState === 'summary') {
-        return (
-          <Container className="animate-pop">
-            <header className="text-center mb-4 mt-4"><h1 className="clash-font text-3xl text-white">ELIMINATED!</h1></header>
-            <div className="flex-1 overflow-y-auto space-y-4">
-              {justEliminated.map(p => (
-                <CardComponent key={p.id} color={getRoleColor(p.role)} className="flex flex-col items-center justify-center py-4">
-                  <h2 className="clash-font text-2xl text-white mb-2">{p.name}</h2>
-                  <div className="text-7xl mb-2">
-                    {p.role === ROLES.CIV ? <img src={SAD_GOBLIN_GIF} className="w-24 h-auto object-contain" onError={(e) => e.target.outerHTML = '😭'} /> : BADGES[p.role]?.i}
-                  </div>
-                  <div className="clash-font text-xl text-center text-white">{p.role.replace('_', ' ').toUpperCase()}</div>
-                </CardComponent>
+          <Screen>
+            <TopBar left={quitButton} title={<span>REVEAL <span className="text-gold">{revealIndex + 1}</span>/{players.length}</span>} />
+            <div className="flex gap-1 mb-4 flex-shrink-0" aria-hidden="true">
+              {players.map((_, i) => (
+                <div key={i} className="h-2 flex-1 rounded-full border-2 border-[var(--ink)]" style={{ background: i < revealIndex ? 'var(--gold-2)' : i === revealIndex ? 'var(--gold-1)' : 'var(--well)' }} />
               ))}
             </div>
-            <div className="mt-4"><Button full color="yellow" onClick={() => setGameState('discussing')}>NEXT ROUND ⏩</Button></div>
-          </Container>
+
+            <div className="flex-1 min-h-0 flex flex-col items-center overflow-y-auto no-scrollbar" key={revealIndex}>
+              <div className="flex items-center gap-3 mb-3 anim-pop">
+                <img src={BADGE_BASE_URL + player.avatar} alt="" className="w-14 h-14 object-contain" />
+                <div>
+                  <div className="body-font text-sm text-muted">{isRevealing ? 'Only you should see this' : 'Pass the phone to'}</div>
+                  <div className="display stroke text-3xl text-gold truncate max-w-[240px]">{player.name}</div>
+                </div>
+              </div>
+
+              <div className={`flip ${isRevealing && needsToZap ? 'w-[min(48vw,190px)]' : 'w-[min(72vw,280px)]'} aspect-[3/4] flex-shrink-0 ${isRevealing ? 'is-flipped' : ''}`}>
+                <div className="flip-inner">
+                  <button className="face cardback flex flex-col items-center justify-center gap-4 w-full" onClick={() => { buzz(15); setIsRevealing(true); }} aria-label="Reveal your card">
+                    <img src={ARENA_BASE_URL + 'arena23.png'} alt="" className="w-[62%] drop-shadow-[0_6px_0_rgba(0,0,0,.35)]" />
+                    <span className="display stroke text-xl">TAP TO REVEAL</span>
+                  </button>
+                  <div className="face face-back panel !rounded-[22px] flex flex-col items-center justify-center p-4 text-center" style={{ borderColor: 'var(--ink)', boxShadow: `inset 0 0 0 4px ${isSpecial ? info.color : 'var(--gold-2)'}, 0 8px 0 rgba(5,12,30,.6)` }}>
+                    {isRevealing && (
+                      <>
+                        <img src={artSrc} onError={onImgError} alt="" className="w-[62%] h-auto drop-shadow-[0_6px_0_rgba(0,0,0,.35)]" />
+                        {isSpecial
+                          ? <div className="display stroke text-2xl mt-3" style={{ color: info.color }}>{info.name.toUpperCase()}</div>
+                          : <div className="display stroke text-2xl mt-3 text-gold leading-tight">{player.word}</div>}
+                        {isSpecial && <div className="body-font text-[11px] text-muted mt-1 uppercase tracking-wider">Team {info.team}</div>}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {isRevealing && (
+                <p className="body-font text-center text-sm mt-4 px-4 anim-rise" style={{ color: player.mirrorId !== undefined ? 'var(--gold)' : 'var(--muted)' }}>{hint}</p>
+              )}
+
+              {isRevealing && needsToZap && (
+                <div className="grid grid-cols-3 gap-2 w-full mt-4 pb-2">
+                  {potentialZapTargets.map((p, i) => (
+                    <button key={p.id} className="ptile is-target anim-rise" style={{ '--i': i }} onClick={() => handleZap(p.id)}>
+                      <img className="badge !w-10 !h-10" src={BADGE_BASE_URL + p.avatar} alt="" />
+                      <div className="pname display stroke-sm">{p.name}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-shrink-0 pt-3">
+              {!isRevealing
+                ? <button className="btn btn-xl w-full" onClick={() => { buzz(15); setIsRevealing(true); }}><Icon name="ph-eye" fill /> Show my card</button>
+                : !needsToZap && <button className="btn btn-gold btn-xl w-full" onClick={handleNextReveal}>{revealIndex + 1 < players.length ? 'Got it, hide' : 'Start battle'}</button>}
+            </div>
+            {quitModal}
+          </Screen>
         );
       }
-      
-      // Stat Guess Game Screen
-      if (gameState === 'stat_game') {
+
+      // ---------- DISCUSS / VOTE / HUNTER ----------
+      if (gameState === 'discussing' || gameState === 'voting' || gameState === 'hnt_rev') {
+        const discussing = gameState === 'discussing';
+        const hunter = justEliminated.find(p => p.role === ROLES.HNT);
+        const selectedName = players.find(p => p.id === selectedPlayerId)?.name;
+        const first = players.find(p => p.id === firstSpeaker);
+        const low = timer <= 30;
+        const title = discussing ? 'DISCUSSION' : gameState === 'hnt_rev' ? 'LAST SHOT' : 'VOTE';
+
         return (
-          <Container className="animate-pop">
-            <header className="text-center mb-4">
-              <h2 className="clash-font text-2xl text-[#FFB900]">STAT GUESS</h2>
-              <p className="text-sm opacity-80">Tries: <span className={`font-bold ${MAX_GUESSES - statGuesses.length <= 3 ? 'text-red-500 animate-pulse' : 'text-[#FFB900]'}`}>{MAX_GUESSES - statGuesses.length} / {MAX_GUESSES}</span></p>
-            </header>
-            <CardComponent color="stats" className="flex-1 flex flex-col overflow-y-hidden min-h-0">
-              <div className="stat-row border-b border-white/50 pb-1 flex-shrink-0">
-                <div className="sticky-col text-center clash-font text-[10px] sm:text-xs opacity-70 bg-[#183918] pt-1 z-20">Card Name</div>
-                <div className="overflow-x-auto"><StatHeader /></div>
-              </div>
-              <div className="flex-1 overflow-y-auto min-h-0">
-                {statGuesses.map((g, i) => (
-                  <div key={i} className="stat-row gap-1 border-b border-white/10 py-1">
-                    <div className="sticky-col text-center font-bold text-[10px] sm:text-xs bg-[#183918] flex items-center justify-center rounded-lg p-1 truncate z-10 shadow-r-lg">{g.cardName}</div>
-                    <div className="overflow-x-auto"><StatRow guess={g} /></div>
+          <Screen>
+            <TopBar left={quitButton} title={title}
+              right={<span className="chip display stroke-sm whitespace-nowrap">R{round}</span>} />
+
+            {discussing && (
+              <div className="mb-4 flex-shrink-0 anim-pop">
+                <div className="flex items-center gap-3">
+                  <img src={BADGE_BASE_URL + 'Elixir_01.png'} alt="" className="w-9 h-9 object-contain" />
+                  <div className="flex-1 elixir" role="timer" aria-label={`Time left ${fmtTime(timer)}`}>
+                    <div className="elixir-fill" style={{ transform: `scaleX(${timer / settings.timer})` }} />
+                    <div className="elixir-ticks">{Array.from({ length: 10 }).map((_, i) => <span key={i} />)}</div>
                   </div>
-                ))}
+                  <div className={`display stroke text-2xl tabular-nums w-[64px] text-right ${low ? 'anim-pulse' : ''}`} style={{ color: timer === 0 ? 'var(--red-1)' : low ? 'var(--gold)' : '#fff' }}>{fmtTime(timer)}</div>
+                </div>
+                <div className="flex items-center justify-between mt-3 gap-2">
+                  <p className="body-font text-sm text-muted truncate">
+                    {timer === 0 ? <span style={{ color: 'var(--red-1)' }}>Time is up. Go to the vote.</span>
+                      : first ? <>One word each. <span className="text-gold">{first.name}</span> starts.</> : 'One word each.'}
+                  </p>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button className="btn btn-sm btn-icon" onClick={() => setPaused(p => !p)} aria-label={paused ? 'Resume timer' : 'Pause timer'} disabled={timer === 0}>
+                      <Icon name={paused ? 'ph-play' : 'ph-pause'} fill />
+                    </button>
+                    <button className="btn btn-sm btn-icon" onClick={() => setTimer(t => Math.min(t + 30, settings.timer))} aria-label="Add 30 seconds" disabled={timer >= settings.timer}>
+                      <span className="text-sm display">+30</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </CardComponent>
-            <div className="flex-shrink-0 mt-4">
-              <input type="text" list="c-l" value={statGuessInput} onChange={(e) => setStatGuessInput(e.target.value)} placeholder="Guess..." className="w-full p-3 rounded-xl bg-[#1c1f35]/80 border-2 border-[#323655] text-white text-center text-lg clash-font outline-none focus:border-[#FFB900]" />
-              <datalist id="c-l">{cardData.map(c => <option key={c.name} value={c.name} />)}</datalist>
-              <div className="flex gap-2 mt-2">
-                <Button full color="red" size="sm" onClick={() => setGameState('setup')} className="flex-1 py-2">QUIT</Button>
-                <Button full color="yellow" onClick={handleStatGuess} disabled={!statGuessInput.trim() || statGuesses.length >= MAX_GUESSES} className="flex-[2] py-2">GUESS 🎯</Button>
+            )}
+
+            {gameState === 'voting' && (
+              <p className="body-font text-center text-muted text-sm mb-4 flex-shrink-0 anim-pop">Tap the player the clan wants out.</p>
+            )}
+            {gameState === 'hnt_rev' && (
+              <div className="panel p-3 mb-4 flex items-center gap-3 flex-shrink-0 anim-pop" style={{ boxShadow: 'inset 0 0 0 3px var(--hnt), 0 5px 0 rgba(5,12,30,.6)' }}>
+                <RoleArt role={ROLES.HNT} className="w-12" />
+                <p className="body-font text-sm"><span className="display stroke-sm" style={{ color: 'var(--hnt)' }}>{hunter?.name}</span> was the Hunter. Pick one player to take down with you.</p>
+              </div>
+            )}
+
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar -mx-1 px-1 pt-3 pb-4">
+              <div className="grid grid-cols-3 gap-x-2 gap-y-4">
+                {players.map((p, i) => (
+                  <PlayerTile key={p.id} p={p} index={i}
+                    selected={selectedPlayerId === p.id}
+                    isFirst={discussing && firstSpeaker === p.id}
+                    showZap={discussing}
+                    onSelect={discussing ? null : setSelectedPlayerId}
+                    disabled={gameState === 'hnt_rev' && hunter && p.id === hunter.id} />
+                ))}
               </div>
             </div>
-          </Container>
+
+            <div className="flex-shrink-0 pt-2">
+              {discussing && <button className="btn btn-red btn-xl w-full" onClick={() => { buzz(15); setSelectedPlayerId(null); setGameState('voting'); }}><Icon name="ph-gavel" fill /> Go to vote</button>}
+              {gameState === 'voting' && (
+                <div className="grid grid-cols-[auto_1fr] gap-3">
+                  <button className="btn btn-icon !min-h-[64px] !w-[64px]" onClick={() => { setSelectedPlayerId(null); setGameState('discussing'); }} aria-label="Back to discussion"><Icon name="ph-arrow-left" /></button>
+                  <button className="btn btn-red btn-xl" disabled={selectedPlayerId === null} onClick={handleElimination}>
+                    <span className="truncate">{selectedName ? `Eliminate ${selectedName}` : 'Pick a player'}</span>
+                  </button>
+                </div>
+              )}
+              {gameState === 'hnt_rev' && (
+                <button className="btn btn-purple btn-xl w-full" disabled={selectedPlayerId === null} onClick={() => handleHunterShot(selectedPlayerId)}>
+                  <Icon name="ph-crosshair" /> <span className="truncate">{selectedName ? `Shoot ${selectedName}` : 'Pick a target'}</span>
+                </button>
+              )}
+            </div>
+            {quitModal}
+          </Screen>
         );
       }
-      
-      // Game Over Screen
+
+      // ---------- MR. WHITE GUESS ----------
+      if (gameState === 'wht_guess') {
+        return (
+          <Screen>
+            <TopBar left={quitButton} title="LAST CHANCE" />
+            <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center anim-pop">
+              <img src={UNKNOWN_CARD} alt="" className="w-32 mb-4 anim-bob" />
+              <h2 className="display stroke text-3xl"><span className="text-gold">{justEliminated[0]?.name}</span> is Mr. White</h2>
+              <p className="body-font text-muted mt-2 max-w-[30ch]">Name the civilians' card to steal the win. Close spelling counts.</p>
+              <input type="text" autoFocus value={mrWhiteGuess} onChange={(e) => setMrWhiteGuess(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleMrWhiteGuess()}
+                placeholder="Type a card name" aria-label="Your guess"
+                className="field mt-6 !text-2xl text-center display !py-4" />
+            </div>
+            <div className="flex-shrink-0 pt-3">
+              <button className="btn btn-gold btn-xl w-full" disabled={!mrWhiteGuess.trim()} onClick={handleMrWhiteGuess}><Icon name="ph-target" fill /> Lock in guess</button>
+            </div>
+            {quitModal}
+          </Screen>
+        );
+      }
+
+      // ---------- ROUND SUMMARY ----------
+      if (gameState === 'summary') {
+        const ids = justEliminated.map(p => p.id);
+        const hunter = justEliminated.find(p => p.role === ROLES.HNT);
+        const noteFor = (p) => {
+          if (p.role === ROLES.WHT && lastWhiteGuess) return `Guessed "${lastWhiteGuess}". Wrong.`;
+          if (p.role === ROLES.BG && ids.includes(p.targetId)) return `Fell protecting ${players.find(x => x.id === p.targetId)?.name}.`;
+          if (hunter && p.id !== hunter.id && p.role !== ROLES.BG) return `Shot by the Hunter.`;
+          if (p.role === ROLES.BG && hunter && p.targetId === hunter.id) return `Fell protecting ${hunter.name}.`;
+          return null;
+        };
+        const aliveCount = players.filter(p => p.isAlive).length;
+        return (
+          <Screen>
+            <div className="text-center mt-4 mb-5 flex-shrink-0">
+              <span className="ribbon display stroke text-2xl anim-banner">ELIMINATED</span>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4">
+              {justEliminated.map((p, i) => {
+                const info = ROLE_INFO[p.role];
+                const note = noteFor(p);
+                return (
+                  <div key={p.id} className="panel p-4 flex items-center gap-4 anim-rise" style={{ '--i': i * 3, boxShadow: `inset 0 0 0 3px ${info.color}, 0 5px 0 rgba(5,12,30,.6)` }}>
+                    <div className="w-24 flex-shrink-0 grid place-items-center">
+                      {p.role === ROLES.CIV
+                        ? <img src={SAD_GOBLIN_GIF} alt="Sad goblin" className="w-24 h-auto rounded-xl" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = getCardUrl(p.word); }} />
+                        : <RoleArt role={p.role} className="w-20" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <img src={BADGE_BASE_URL + p.avatar} alt="" className="w-7 h-7 object-contain" />
+                        <div className="display stroke text-2xl truncate">{p.name}</div>
+                      </div>
+                      <div className="body-font text-sm text-muted mt-1">was the</div>
+                      <div className="display stroke text-2xl" style={{ color: info.color }}>{info.name.toUpperCase()}</div>
+                      {note && <div className="body-font text-xs text-muted mt-1">{note}</div>}
+                    </div>
+                  </div>
+                );
+              })}
+              <p className="body-font text-center text-sm text-muted pt-2">{aliveCount} players still standing. The battle goes on.</p>
+            </div>
+            <div className="flex-shrink-0 pt-3">
+              <button className="btn btn-gold btn-xl w-full" onClick={nextRound}>Round {round + 1} <Icon name="ph-arrow-right" /></button>
+            </div>
+          </Screen>
+        );
+      }
+
+      // ---------- STAT GUESS GAME ----------
+      if (gameState === 'stat_game') {
+        const triesLeft = MAX_GUESSES - statGuesses.length;
+        const finished = statGuesses.some(g => g.isWin) || triesLeft <= 0;
+        const renderTile = ([key, label], g, idx) => {
+          const f = g.feedback[key];
+          const cls = f.status === 'correct' ? 's-correct' : f.status === 'warm' ? 's-warm' : 's-cold';
+          return (
+            <div key={key} className={`stile ${cls} anim-tile`} style={{ '--i': idx }}>
+              <span className="lbl">{label}</span>
+              <span className="val display stroke-sm">{key === 'hit_speed' && parseFloat(f.value) === 0 ? 'N/A' : String(f.value ?? '-')}</span>
+              {f.dir && <span className="dir display stroke-sm" aria-label={f.dir === 'up' ? 'higher' : 'lower'}><Icon name={f.dir === 'up' ? 'ph-arrow-fat-up' : 'ph-arrow-fat-down'} fill /></span>}
+            </div>
+          );
+        };
+
+        return (
+          <Screen>
+            <TopBar left={quitButton} title="STAT GUESS" />
+            <div className="flex items-center justify-center gap-1.5 mb-3 flex-shrink-0" aria-label={`${triesLeft} tries left`}>
+              {Array.from({ length: MAX_GUESSES }).map((_, i) => (
+                <span key={i} className="w-5 h-5 rounded-full border-2 border-[var(--ink)]"
+                  style={{ background: i < statGuesses.length ? 'var(--well)' : triesLeft <= 3 ? 'var(--red-2)' : 'var(--elixir-2)', boxShadow: i < statGuesses.length ? 'inset 0 2px 0 rgba(0,0,0,.4)' : 'inset 0 2px 0 rgba(255,255,255,.4)' }} />
+              ))}
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-3 pb-2">
+              {statGuesses.length === 0 && (
+                <div className="panel p-5 text-center anim-pop">
+                  <img src={ARENA_BASE_URL + 'arena20.png'} alt="" className="w-28 mx-auto anim-bob" />
+                  <div className="display stroke text-xl mt-2">A card is hiding</div>
+                  <p className="body-font text-sm text-muted mt-1">Type any card below. Each guess shows how close its stats are to the hidden one.</p>
+                </div>
+              )}
+              {statGuesses.map((g, gi) => (
+                <div key={g.cardName} className={`panel p-2.5 ${gi === 0 ? 'anim-pop' : ''}`} style={g.isWin ? { boxShadow: 'inset 0 0 0 3px var(--green-1), 0 5px 0 rgba(5,12,30,.6)' } : undefined}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <img src={getCardUrl(g.cardName)} onError={onImgError} alt="" className="w-8 h-auto" />
+                    <div className="display stroke text-lg truncate flex-1">{g.cardName}</div>
+                    <span className="body-font text-xs text-muted">#{statGuesses.length - gi}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5 mb-1.5">{STAT_ROW_1.map((s, i) => renderTile(s, g, gi === 0 ? i : 0))}</div>
+                  <div className="grid grid-cols-3 gap-1.5">{STAT_ROW_2.map((s, i) => renderTile(s, g, gi === 0 ? i + 4 : 0))}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex-shrink-0 pt-2 relative">
+              {suggestOpen && suggestions.length > 0 && (
+                <ul className="panel absolute bottom-full left-0 right-0 mb-2 p-1.5 space-y-1 z-20 anim-pop" role="listbox">
+                  {suggestions.map(c => (
+                    <li key={c.name}>
+                      <button className="w-full flex items-center gap-3 p-1.5 rounded-xl active:bg-white/10 hover:bg-white/10 text-left" role="option"
+                        onMouseDown={e => e.preventDefault()} onClick={() => submitStatGuess(c.name)}>
+                        <img src={getCardUrl(c.name)} onError={onImgError} alt="" className="w-8 h-auto" />
+                        <span className="display stroke-sm">{c.name}</span>
+                        <span className="ml-auto body-font text-xs text-muted">{c.rarity}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {statError && <p className="body-font text-sm mb-2 anim-shake" style={{ color: 'var(--red-1)' }} role="alert">{statError}</p>}
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <div className="relative">
+                  <Icon name="ph-magnifying-glass" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-lg" />
+                  <input type="text" value={statGuessInput} disabled={finished}
+                    onChange={(e) => { setStatGuessInput(e.target.value); setStatError(''); setSuggestOpen(true); }}
+                    onFocus={() => setSuggestOpen(true)} onBlur={() => setTimeout(() => setSuggestOpen(false), 120)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') submitStatGuess(); }}
+                    placeholder="Search a card" aria-label="Card name" autoComplete="off"
+                    className="field !pl-10 h-[64px]" />
+                </div>
+                <button className="btn btn-gold btn-xl" onClick={() => submitStatGuess()} disabled={!statGuessInput.trim() || finished}>Guess</button>
+              </div>
+            </div>
+            {quitModal}
+          </Screen>
+        );
+      }
+
+      // ---------- GAME OVER ----------
       if (gameState === 'over') {
         if (gameMode === MODES.STAT) {
+          const won = winner.team === 'GUESSERS';
           return (
-            <Container className="animate-pop">
-              <header className="text-center mb-6 mt-4">
-                <h1 className={`clash-font text-4xl mb-2 ${winner.team === 'GUESSERS' ? 'text-green-400' : 'text-red-400'}`}>{winner.team === 'GUESSERS' ? 'VICTORY!' : 'GAME OVER'}</h1>
-                <p className="font-bold opacity-90">{winner.reason}</p>
-              </header>
-              <CardComponent color="stats" className="flex-1 flex flex-col items-center justify-center mb-6">
-                <h3 className="clash-font text-2xl mb-4 text-[#FFB900]">TARGET CARD</h3>
-                <img src={getCardUrl(statGuessTarget.name)} className="w-40 h-auto drop-shadow-2xl mb-4" />
-                <div className="clash-font text-3xl">{statGuessTarget.name}</div>
-              </CardComponent>
-              <div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div>
-            </Container>
+            <Screen>
+              <div className="flex-1 min-h-0 flex flex-col items-center justify-center text-center">
+                <span className="ribbon display stroke text-3xl anim-banner" style={won ? undefined : { background: 'linear-gradient(180deg,var(--red-1),var(--red-2))', boxShadow: 'inset 0 -3px 0 var(--red-lip), 0 3px 0 var(--ink)' }}>{won ? 'VICTORY' : 'DEFEAT'}</span>
+                <p className="body-font text-muted mt-3">{winner.reason}</p>
+                <div className="relative mt-6 anim-pop">
+                  <div className="absolute inset-0 blur-2xl rounded-full" style={{ background: won ? 'rgba(143,227,86,.35)' : 'rgba(255,122,107,.3)' }} />
+                  <img src={getCardUrl(statGuessTarget.name)} onError={onImgError} alt={statGuessTarget.name} className="relative w-44 h-auto drop-shadow-[0_10px_0_rgba(0,0,0,.35)]" />
+                </div>
+                <div className="display stroke text-3xl mt-4 text-gold">{statGuessTarget.name}</div>
+                <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                  <span className="chip display">{statGuessTarget.elixir} Elixir</span>
+                  <span className="chip display">{statGuessTarget.rarity}</span>
+                  <span className="chip display">{statGuessTarget.type}</span>
+                </div>
+              </div>
+              <div className="flex-shrink-0 grid grid-cols-[auto_1fr] gap-3 pt-3">
+                <button className="btn btn-icon !min-h-[64px] !w-[64px]" onClick={() => setGameState('setup')} aria-label="Menu"><Icon name="ph-house" fill /></button>
+                <button className="btn btn-green btn-xl" onClick={startStatGame}><Icon name="ph-arrow-clockwise" /> Play again</button>
+              </div>
+            </Screen>
           );
         }
-        
+
+        const teamColor = { CIVILIANS: 'var(--civ)', IMPOSTORS: 'var(--und)', JESTER: 'var(--jes)', 'MR. WHITE': 'var(--wht)', 'NO ONE': 'var(--slate-1)' }[winner.team] || '#fff';
+        const winArena = winner.team === 'CIVILIANS' ? 'arena23.png' : winner.team === 'IMPOSTORS' || winner.team === 'MR. WHITE' ? 'arena22.png' : 'arena15.png';
+        const isWinner = (p) =>
+          (winner.team === 'CIVILIANS' && CIVILIAN_ROLES.includes(p.role)) ||
+          ((winner.team === 'IMPOSTORS' || winner.team === 'MR. WHITE') && IMPOSTOR_ROLES.includes(p.role)) ||
+          (winner.team === 'JESTER' && p.role === ROLES.JES && justEliminated.some(e => e.id === p.id));
+        const sorted = [...players].sort((a, b) => isWinner(b) - isWinner(a));
+
         return (
-          <Container className="animate-pop">
-            <header className="text-center mb-4 mt-2">
-              <div className="text-6xl mb-2">{winner.team === 'CIVILIANS' ? '🛡️' : (winner.team === 'JESTER' ? '🃏' : '🗡️')}</div>
-              <h1 className={`clash-font text-3xl ${winner.team === 'CIVILIANS' ? 'text-[#4176FF]' : (winner.team === 'JESTER' ? 'text-green-400' : 'text-[#FF4141]')}`}>{winner.team} WIN!</h1>
-              <p className="font-bold opacity-90 text-sm">{winner.reason}</p>
-            </header>
-            <CardComponent className={`flex-1 overflow-y-auto mb-4 ${winner.team === 'CIVILIANS' ? 'bg-blue-900/30' : 'bg-red-900/30'}`} noPad>
-              <div className="p-3 space-y-2">
-                {players.map(p => (
-                  <div key={p.id} className={`flex items-center justify-between bg-[#1c1f35]/50 p-2 rounded-xl ${justEliminated.some(e => e.id === p.id) ? 'border-2 border-yellow-500' : ''}`}>
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <img src={BADGE_BASE_URL + p.avatar} alt="Badge" className="w-6 h-6 flex-shrink-0 rounded-full" />
-                      <span className={`font-bold truncate ${p.isAlive ? '' : 'line-through opacity-50'}`}>{p.name}</span>
-                    </div>
-                    <span className={`text-xs font-bold px-2 py-1 rounded-lg ml-2 text-white ${BADGES[p.role]?.c || 'bg-slate-700'}`}>
-                      {p.role.replace('_', ' ').toUpperCase()}
-                      {gameMode !== MODES.STAT && ![ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ].includes(p.role) && ` (${p.word})`}
-                    </span>
+          <Screen>
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+              <div className="text-center pt-2">
+                <img src={ARENA_BASE_URL + winArena} alt="" className="w-28 mx-auto anim-banner drop-shadow-[0_8px_10px_rgba(0,0,0,.4)]" />
+                <h1 className="display stroke text-4xl mt-1 anim-banner" style={{ color: teamColor }}>{winner.team === 'NO ONE' ? 'DRAW' : `${winner.team} WIN`}</h1>
+                <p className="body-font text-muted text-sm mt-1">{winner.reason}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                {[['Civilian card', currentWords.civilian, 'var(--civ)'], ['Undercover card', currentWords.undercover, 'var(--und)']].map(([label, w, c], i) => (
+                  <div key={label} className="panel p-3 flex flex-col items-center text-center anim-rise" style={{ '--i': i + 2 }}>
+                    <div className="body-font text-[11px] uppercase tracking-wider" style={{ color: c }}>{label}</div>
+                    <img src={getCardUrl(w)} onError={onImgError} alt="" className="w-20 h-auto my-2" />
+                    <div className="display stroke text-base leading-tight">{w}</div>
                   </div>
                 ))}
               </div>
-            </CardComponent>
-            <div className="flex-shrink-0"><Button full color="yellow" onClick={() => setGameState('setup')}>PLAY AGAIN 🔄</Button></div>
-          </Container>
+
+              <div className="panel p-2 mt-4 space-y-1.5">
+                {sorted.map((p, i) => (
+                  <div key={p.id} className="well flex items-center gap-2 p-2 anim-rise" style={{ '--i': i + 4 }}>
+                    <img src={BADGE_BASE_URL + p.avatar} alt="" className={`w-9 h-9 object-contain flex-shrink-0 ${p.isAlive ? '' : 'grayscale opacity-60'}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className={`display stroke-sm truncate ${p.isAlive ? '' : 'opacity-60'}`}>{p.name}</div>
+                      {!SPECIAL_ROLES.includes(p.role) && <div className="body-font text-[11px] text-muted truncate">{p.word}</div>}
+                    </div>
+                    {isWinner(p) && <Icon name="ph-crown-simple" fill className="text-gold text-lg" />}
+                    {!p.isAlive && <Icon name="ph-skull" fill className="text-white/50" />}
+                    <RolePill role={p.role} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex-shrink-0 grid grid-cols-[auto_1fr] gap-3 pt-3">
+              <button className="btn btn-icon !min-h-[64px] !w-[64px]" onClick={() => setGameState('setup')} aria-label="Menu"><Icon name="ph-house" fill /></button>
+              <button className={`btn btn-xl ${MODE_INFO[gameMode].btn}`} onClick={startGame}><Icon name="ph-arrow-clockwise" /> Rematch</button>
+            </div>
+          </Screen>
         );
       }
-      
+
       return null;
     };
-    
+
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
