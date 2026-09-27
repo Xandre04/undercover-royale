@@ -2,7 +2,7 @@
 
 Clash Royale meets social deduction and stat guessing\! Find the impostor in your clan or guess the hidden card.
 
-**Undercover Royale** is a local multiplayer party game that combines social deduction with three unique game modes. It is a single-file Progressive Web App (PWA) designed for seamless use on one mobile device.
+**Undercover Royale** is a local multiplayer party game that combines social deduction with three unique game modes. It is an installable Progressive Web App (PWA) designed for one phone passed around the group, and it works offline once installed.
 
 ## [**🎮 PLAY NOW**](https://xandre04.github.io/undercover-royale/)
 
@@ -31,6 +31,21 @@ A solo or collaborative analytical game where players must guess a hidden Clash 
 | **Electro Wizard** | Impostor | ⚡ | During the reveal phase, secretly **ZAPs (silences)** one player for the entire first discussion round. |
 | **Mirror Match** | Trait | 🪞 | **(5% Chance)** Two Civilians get the same word and are secretly told of their alliance. |
 
+## **📲 Install It**
+
+* **Android / Chrome / Edge:** open the site and tap the green install button on the home screen (or *Install app* in the browser menu).  
+* **iPhone / iPad:** open the site in Safari, tap **Share**, then **Add to Home Screen**.  
+* After the first launch the game works without internet. Updates arrive automatically the next time you open it online.
+
+## **✨ Quality of Life**
+
+* Screen stays awake during a game, and the phone's back button asks before leaving a battle.  
+* Forgot your card? Tap the eye button during the discussion to check it privately.  
+* Scoreboard that tracks wins per player name across games.  
+* 50 card pairs, and recently played pairs are skipped.  
+* Stat Guess streaks, best streak, and a shareable emoji result.  
+* Sound effects and vibration, each with an on/off toggle.
+
 ## **🕹️ How to Play**
 
 ### **Social Deduction (Regular/Chaos)**
@@ -49,6 +64,19 @@ A solo or collaborative analytical game where players must guess a hidden Clash 
    * **Yellow:** Close. Elixir within 1, Hit Speed within 0.3s, Rarity or Speed one step away, or a partly matching Type/Targets/Range.  
    * **Red \+ Arrow:** Wrong. The arrow shows whether the hidden card's value is **higher (▲)** or **lower (▼)**.  
 4. **Limit:** You have 10 tries.
+
+## **🛠️ Development**
+
+No build tools are needed to edit the game.
+
+* `app.js`: the whole game (plain JavaScript using [Preact](https://preactjs.com) + [htm](https://github.com/developit/htm), no compile step).  
+* `styles.css`: the Clash-style components. Tailwind utility classes are used for layout.  
+* `app.css`: generated from the two files above. **Don't edit it by hand.** The *Build CSS* GitHub Action rebuilds and commits it on every push.  
+* `dev.html`: open this locally to preview changes with the Tailwind CDN before the Action has run.  
+* `sw.js` + `manifest.webmanifest`: offline support and installability.  
+* `card_data.json`: stats used by Stat Guess.
+
+To preview locally, serve the folder (for example `python -m http.server`) and open `http://localhost:8000/dev.html`.
 
 ## **📄 Disclaimer**
 

@@ -1,0 +1,6 @@
+/* Build input for app.css. Run: npx tailwindcss@3.4.17 -i src/tailwind.css -o app.css --minify
+   The GitHub Action in .github/workflows/build-css.yml does this on every push. */
+@import "../styles.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

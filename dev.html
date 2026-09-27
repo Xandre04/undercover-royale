@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Undercover Royale</title>
+  <title>Undercover Royale (dev)</title>
   <meta name="description" content="Clash Royale themed party game: find the impostor in your clan, or guess the hidden card from its stats.">
 
   <!-- Installable app -->
@@ -19,7 +19,9 @@
   <link rel="preload" href="./assets/fonts/Clash_Regular.otf" as="font" type="font/otf" crossorigin>
   <link rel="modulepreload" href="./vendor/preact-htm.js">
   <link rel="modulepreload" href="./vendor/icons.js">
-  <link rel="stylesheet" href="./app.css">
+  <!-- Dev preview: same app, but styles come from styles.css + the Tailwind CDN, so no build is needed. -->
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 
   <script>
     // Keep the install prompt if it fires before app.js has loaded.
