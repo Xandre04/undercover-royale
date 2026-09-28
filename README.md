@@ -20,6 +20,12 @@ Unlocks advanced roles, traps, and special abilities for a higher-stakes game. I
 
 A solo or collaborative analytical game where players must guess a hidden Clash Royale card based on iterative feedback about its statistics.
 
+### **🔴 ROYALE RUSH (Endless Runner)**
+
+A 3D endless runner down the arena path. Swipe left or right to change lanes, up to jump and down to slide. Dodge Skeleton Armies, barrels, rolling Logs and Arrows volleys, collect elixir, and grab card power-ups: **Rage** (double score), **Tornado** (pulls elixir to you) and **Guards** (survive one crash). Brush an obstacle from the side and the Barbarian closes in; stumble again and he catches you.
+
+The 3D models live in `runner/models/` and can be swapped for your own `.glb` files (see the README in that folder).
+
 ## **🎭 Special Roles & Abilities (Chaos Mode)**
 
 | Role | Team | Icon | Special Ability / Twist |
@@ -73,6 +79,8 @@ No build tools are needed to edit the game.
 * `styles.css`: the Clash-style components. Tailwind utility classes are used for layout.  
 * `app.css`: generated from the two files above. **Don't edit it by hand.** The *Build CSS* GitHub Action rebuilds and commits it on every push.  
 * `dev.html`: open this locally to preview changes with the Tailwind CDN before the Action has run.  
+* `runner/`: Royale Rush (three.js, loaded only when that mode opens). Models and how to replace them are in `runner/models/`.  
+* `tools/prune_glb.py`: shrinks a .glb model by dropping unused animations and meshes.  
 * `sw.js` + `manifest.webmanifest`: offline support and installability.  
 * `card_data.json`: stats used by Stat Guess.
 
