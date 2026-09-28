@@ -2,6 +2,7 @@
 // Styles live in styles.css (source) and app.css (built by the GitHub Action).
 import { html, render, useState, useEffect, useRef, useMemo } from './vendor/preact-htm.js';
 import { ICONS } from './vendor/icons.js';
+import { POWERUPS } from './runner/models.js';
 
 // --- CONFIG ---
 const CARD_BASE_URL = './assets/cards/';
@@ -77,7 +78,7 @@ const PAIRS = [
 
 // --- CONSTANTS ---
 const ROLES = { CIV:'civilian', UND:'undercover', WHT:'mr_white', JES:'jester', BG:'bodyguard', HNT:'hunter', EWIZ:'electro' };
-const MODES = { REG:'regular', CHS:'chaos', STAT:'stat_guess' };
+const MODES = { REG:'regular', CHS:'chaos', STAT:'stat_guess', RUSH:'rush' };
 const IMPOSTOR_ROLES = [ROLES.UND, ROLES.WHT, ROLES.EWIZ];
 const CIVILIAN_ROLES = [ROLES.CIV, ROLES.BG, ROLES.HNT];
 const SPECIAL_ROLES = [ROLES.WHT, ROLES.JES, ROLES.BG, ROLES.HNT, ROLES.EWIZ];
@@ -107,12 +108,14 @@ const IMPOSTOR_KEYS = ['und','wht','ewz'];
 const MODE_INFO = {
   [MODES.REG]:  { label:'Regular',    icon:'users-three', btn:'btn-gold',   tab:['var(--blue-1)','var(--blue-2)','var(--blue-lip)'],       arena:'arena7.webp',  blurb:'Civilians, Undercover and Mr. White. Say one word, find the fake.' },
   [MODES.CHS]:  { label:'Chaos',      icon:'skull',       btn:'btn-purple', tab:['var(--purple-1)','var(--purple-2)','var(--purple-lip)'], arena:'arena12.webp', blurb:'Adds the Jester, Bodyguard, Hunter and Electro Wizard.' },
-  [MODES.STAT]: { label:'Stat Guess', icon:'target',      btn:'btn-green',  tab:['var(--green-1)','var(--green-2)','var(--green-lip)'],    arena:'arena20.webp', blurb:'Guess the hidden card from its stats in 10 tries.' },
+  [MODES.STAT]: { label:'Stat Guess', short:'Stats', icon:'target', btn:'btn-green', tab:['var(--green-1)','var(--green-2)','var(--green-lip)'],    arena:'arena20.webp', blurb:'Guess the hidden card from its stats in 10 tries.' },
+  [MODES.RUSH]: { label:'Royale Rush', short:'Rush', icon:'person-simple-run', btn:'btn-red', tab:['var(--red-1)','var(--red-2)','var(--red-lip)'], arena:'arena2.webp', blurb:'Dodge skeletons, barrels and arrows. Grab elixir. Outrun the Barbarian.' },
 };
 
 const TIMER_OPTIONS = [60, 120, 180, 300];
 const DEFAULT_SETTINGS = { total:5, und:1, wht:0, jes:0, bg:0, hnt:0, ewz:0, timer:180, sound:true, vibrate:true };
 const DEFAULT_STAT_STATS = { played:0, wins:0, streak:0, best:0 };
+const DEFAULT_RUSH_STATS = { best:0, runs:0, elixir:0 };
 
 // --- UTILS ---
 const prefs = { sound: true, vibrate: true };
@@ -153,6 +156,20 @@ const SFX = {
   zap:  () => { tone(1400, .05, 'sawtooth', .04); tone(900, .08, 'sawtooth', .04, .05); tone(1600, .05, 'sawtooth', .04, .12); },
   win:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .2, 'triangle', .08, i * .12)),
   lose: () => [392, 330, 262].forEach((f, i) => tone(f, .25, 'triangle', .08, i * .16)),
+  coin: () => { tone(1320, .05, 'triangle', .045); tone(1760, .07, 'triangle', .04, .04); },
+  hop:  () => { tone(330, .06, 'triangle', .05); tone(520, .08, 'triangle', .05, .04); },
+  swish:() => tone(240, .07, 'triangle', .04),
+};
+
+const RUSH_SFX = {
+  elixir: () => SFX.coin(),
+  jump: () => SFX.hop(),
+  slide: () => SFX.swish(),
+  lane: () => tone(620, .03, 'triangle', .025),
+  powerup: () => { SFX.zap(); buzz(30); },
+  shieldBreak: () => { tone(300, .2, 'square', .06); buzz(60); },
+  stumble: () => { SFX.elim(); buzz(50); },
+  crash: () => { SFX.lose(); buzz([80, 40, 120]); },
 };
 
 // Settings validity: at least one civilian, and impostors must start outnumbered.
@@ -308,6 +325,149 @@ const RevealCard = ({ player, players, revealed, onReveal, small = false }) => {
     </div>`;
 };
 
+// Royale Rush: the 3D runner lives in runner/runner.js and is only loaded when needed.
+const RushScreen = ({ best, hold, onExit, onQuit, onResult }) => {
+  const hostRef = useRef(null);
+  const runnerRef = useRef(null);
+  const bestAtStart = useRef(best);
+  const [phase, setPhase] = useState('loading'); // loading | ready | running | paused | over | error
+  const [progress, setProgress] = useState(0);
+  const [hud, setHud] = useState({ score: 0, elixir: 0, rage: 0, magnet: 0, shield: 0, chaser: false });
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let runner = null;
+    import('./runner/runner.js')
+      .then(m => m.createRunner(hostRef.current, {
+        onProgress: (p) => !cancelled && setProgress(p),
+        onHud: (h) => !cancelled && setHud(h),
+        onEvent: (name) => {
+          if (name === 'autoPause') { setPhase(ph => ph === 'running' ? 'paused' : ph); return; }
+          RUSH_SFX[name] && RUSH_SFX[name]();
+        },
+        onGameOver: (r) => {
+          if (cancelled) return;
+          setResult({ ...r, newBest: r.score > bestAtStart.current && r.score > 0 });
+          setPhase('over');
+          onResult(r);
+        },
+      }))
+      .then(r => {
+        if (cancelled) { r.destroy(); return; }
+        runner = r; runnerRef.current = r;
+        setPhase('ready');
+      })
+      .catch(e => { console.error(e); if (!cancelled) setPhase('error'); });
+    return () => { cancelled = true; runner && runner.destroy(); runnerRef.current = null; };
+  }, []);
+
+  // Pause while the "leave battle" dialog is open.
+  useEffect(() => {
+    const r = runnerRef.current;
+    if (!r) return;
+    if (hold) r.pause();
+    else if (phase === 'running') r.resume();
+  }, [hold]);
+
+  const start = () => { SFX.tap(); buzz(15); runnerRef.current?.start(); setPhase('running'); };
+  const again = () => {
+    SFX.tap(); buzz(15);
+    bestAtStart.current = Math.max(bestAtStart.current, result?.score || 0);
+    setResult(null);
+    runnerRef.current?.restart();
+    setPhase('running');
+  };
+  const pause = () => { runnerRef.current?.pause(); setPhase('paused'); };
+  const resume = () => { runnerRef.current?.resume(); setPhase('running'); };
+
+  const powerChips = Object.entries(POWERUPS).filter(([k]) => hud[k] > 0);
+  const hudBest = Math.max(bestAtStart.current, hud.score);
+
+  return html`
+    <div class="relative h-full w-full overflow-hidden">
+      <div ref=${hostRef} class="absolute inset-0"></div>
+
+      <div class="absolute inset-x-0 top-0 safe-top px-3 pointer-events-none">
+        <div class="max-w-[460px] mx-auto flex items-start gap-2">
+          <button class="btn btn-red btn-icon pointer-events-auto" onClick=${onQuit} aria-label="Quit to menu"><${Icon} name="house" fill /></button>
+          <div class="flex-1 text-center">
+            <div class="display stroke text-4xl tabular-nums leading-none">${hud.score}</div>
+            <div class="display stroke-sm text-xs text-gold mt-1">BEST ${hudBest}</div>
+          </div>
+          ${phase === 'running'
+            ? html`<button class="btn btn-icon pointer-events-auto" onClick=${pause} aria-label="Pause"><${Icon} name="pause" fill /></button>`
+            : html`<div class="w-11"></div>`}
+        </div>
+        <div class="max-w-[460px] mx-auto flex flex-wrap items-center gap-1.5 mt-2">
+          <span class="chip display stroke-sm"><img src=${BADGE_BASE_URL + 'Elixir_01.webp'} alt="" class="w-5 h-5 object-contain" /> ${hud.elixir}</span>
+          ${powerChips.map(([k, p]) => html`
+            <span key=${k} class="chip display stroke-sm"><img src=${getCardUrl(p.card)} alt="" class="w-5 h-auto" /> ${p.name} ${Math.ceil(hud[k])}s</span>`)}
+          ${hud.chaser && phase === 'running' && html`<span class="chip display stroke-sm anim-pulse" style=${{ borderColor: 'var(--red-1)', color: 'var(--red-1)' }}>BARBARIAN CLOSE</span>`}
+        </div>
+      </div>
+
+      ${phase === 'loading' && html`
+        <div class="absolute inset-0 grid place-items-center bg-[rgba(10,23,51,.85)]">
+          <div class="w-[min(80vw,320px)] text-center">
+            <img src=${ARENA_BASE_URL + 'arena2.webp'} alt="" class="w-32 mx-auto anim-bob" />
+            <div class="display stroke text-2xl mt-2">BUILDING THE ARENA</div>
+            <div class="elixir mt-4"><div class="elixir-fill" style=${{ transform: `scaleX(${Math.max(0.05, progress)})`, transition: 'transform .2s' }}></div></div>
+          </div>
+        </div>`}
+
+      ${phase === 'error' && html`
+        <div class="absolute inset-0 grid place-items-center bg-[rgba(10,23,51,.9)] p-6">
+          <div class="panel p-5 text-center max-w-[340px]">
+            <div class="display stroke text-2xl">3D DID NOT LOAD</div>
+            <p class="body-font text-sm text-muted mt-2">This device or browser could not start the 3D arena. Try another browser, or connect to the internet the first time you play.</p>
+            <button class="btn w-full mt-4" onClick=${onExit}>Back to menu</button>
+          </div>
+        </div>`}
+
+      ${phase === 'ready' && html`
+        <div class="absolute inset-x-0 bottom-0 safe-bottom px-4 pointer-events-none">
+          <div class="panel p-4 max-w-[440px] mx-auto pointer-events-auto anim-pop">
+            <div class="display stroke text-2xl text-center">ROYALE RUSH</div>
+            <div class="grid grid-cols-3 gap-2 mt-3 text-center body-font text-xs text-muted">
+              <div class="well p-2"><div class="text-xl text-gold"><${Icon} name="hand-swipe-right" fill /></div>Swipe to change lane</div>
+              <div class="well p-2"><div class="text-xl text-gold"><${Icon} name="arrow-fat-up" fill /></div>Swipe up to jump</div>
+              <div class="well p-2"><div class="text-xl text-gold"><${Icon} name="arrow-fat-down" fill /></div>Swipe down to slide</div>
+            </div>
+            <button class="btn btn-gold btn-xl w-full mt-4" onClick=${start}><${Icon} name="person-simple-run" fill /> Run</button>
+          </div>
+        </div>`}
+
+      ${phase === 'paused' && !hold && html`
+        <div class="absolute inset-0 grid place-items-center bg-[rgba(10,23,51,.6)]">
+          <div class="panel p-5 w-[min(84vw,320px)] text-center anim-pop">
+            <div class="display stroke text-3xl">PAUSED</div>
+            <button class="btn btn-gold btn-xl w-full mt-4" onClick=${resume}><${Icon} name="play" fill /> Resume</button>
+            <button class="btn btn-slate w-full mt-3" onClick=${onExit}>Menu</button>
+          </div>
+        </div>`}
+
+      ${phase === 'over' && result && html`
+        <div class="absolute inset-0 grid place-items-center bg-[rgba(10,23,51,.55)] px-4">
+          <div class="panel p-5 w-full max-w-[380px] text-center">
+            <span class="ribbon display stroke text-2xl anim-banner" style=${{ background: 'linear-gradient(180deg,var(--red-1),var(--red-2))', boxShadow: 'inset 0 -3px 0 var(--red-lip), 0 3px 0 var(--ink)' }}>${result.caught ? 'CAUGHT' : 'KNOCKED OUT'}</span>
+            <div class="display stroke text-5xl mt-4 tabular-nums">${result.score}</div>
+            ${result.newBest
+              ? html`<div class="display stroke text-gold mt-1 anim-pulse">NEW BEST</div>`
+              : html`<div class="body-font text-sm text-muted mt-1">Best ${Math.max(bestAtStart.current, result.score)}</div>`}
+            <div class="flex justify-center flex-wrap gap-1.5 mt-3">
+              <span class="chip display"><img src=${BADGE_BASE_URL + 'Elixir_01.webp'} alt="" class="w-4 h-4 object-contain" /> ${result.elixir} elixir</span>
+              <span class="chip display">${result.distance} m</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-3 mt-5">
+              <button class="btn btn-icon !min-h-[60px] !w-[60px]" onClick=${onExit} aria-label="Menu"><${Icon} name="house" fill /></button>
+              <button class="btn btn-gold btn-xl" onClick=${again}><${Icon} name="arrow-clockwise" /> Run again</button>
+            </div>
+          </div>
+        </div>`}
+    </div>`;
+};
+
 // Capture the install prompt as early as possible (index.html also stashes it).
 let installPrompt = window.__installPrompt || null;
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; window.dispatchEvent(new Event('ur-installable')); });
@@ -327,6 +487,7 @@ const App = () => {
   });
   const [scores, setScores] = useState(saved.scores || {});
   const [statStats, setStatStats] = useState({ ...DEFAULT_STAT_STATS, ...(saved.statStats || {}) });
+  const [rushStats, setRushStats] = useState({ ...DEFAULT_RUSH_STATS, ...(saved.rushStats || {}) });
   const [recentPairs, setRecentPairs] = useState(Array.isArray(saved.recentPairs) ? saved.recentPairs : []);
   const [players, setPlayers] = useState([]);
   const [revealIndex, setRevealIndex] = useState(0);
@@ -379,8 +540,8 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ gameMode, settings, playerNames, scores, statStats, recentPairs })); } catch (e) {}
-  }, [gameMode, settings, playerNames, scores, statStats, recentPairs]);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ gameMode, settings, playerNames, scores, statStats, rushStats, recentPairs })); } catch (e) {}
+  }, [gameMode, settings, playerNames, scores, statStats, rushStats, recentPairs]);
 
   // Discussion timer
   useEffect(() => {
@@ -512,7 +673,7 @@ const App = () => {
   const selectMode = (m) => {
     buzz(6); SFX.tap();
     setGameMode(m);
-    if (m !== MODES.STAT) setSettings(prev => clampSettings(prev, m));
+    if (m === MODES.REG || m === MODES.CHS) setSettings(prev => clampSettings(prev, m));
   };
 
   const handleInstall = async () => {
@@ -557,6 +718,7 @@ const App = () => {
     buzz(20); SFX.flip();
     if (gameMode === MODES.STAT) { startStatGame(); return; }
     gameId.current += 1;
+    if (gameMode === MODES.RUSH) { setGameState('rush'); return; }
 
     const pair = pickPair();
     const swap = Math.random() > 0.5;
@@ -810,9 +972,10 @@ const App = () => {
     const specials = countOf(settings, keys);
     const civilians = settings.total - specials;
     const isStat = gameMode === MODES.STAT;
+    const isRush = gameMode === MODES.RUSH;
     const statReady = cardData.length > 0;
-    const canStart = isStat ? statReady : impostors > 0;
-    const cta = isStat ? (cardDataError ? 'Cards failed to load' : statReady ? 'Start guessing' : 'Loading cards') : (canStart ? 'Battle' : 'Add an impostor');
+    const canStart = isRush ? true : isStat ? statReady : impostors > 0;
+    const cta = isRush ? 'Run' : isStat ? (cardDataError ? 'Cards failed to load' : statReady ? 'Start guessing' : 'Loading cards') : (canStart ? 'Battle' : 'Add an impostor');
     const scoreList = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
     screen = html`
@@ -841,11 +1004,42 @@ const App = () => {
               <button key=${m} role="tab" aria-selected=${gameMode === m} class="tab stroke-sm" onClick=${() => selectMode(m)}
                 style=${{ '--c1': info.tab[0], '--c2': info.tab[1], '--lip': info.tab[2] }}>
                 <${Icon} name=${info.icon} fill />
-                ${info.label.toUpperCase()}
+                ${(info.short || info.label).toUpperCase()}
               </button>`)}
           </div>
 
-          ${!isStat ? html`
+          ${isRush ? html`
+            <div class="panel p-4 anim-pop" key="rushcfg">
+              <div class="display stroke text-xl mb-3">HOW TO RUN</div>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                ${[['arrow-left', 'arrow-right', 'Swipe sideways', 'Change lane'], ['arrow-fat-up', null, 'Swipe up', 'Jump'], ['arrow-fat-down', null, 'Swipe down', 'Slide']].map(([a, b, h, t]) => html`
+                  <div key=${h} class="well p-2 flex flex-col items-center gap-1">
+                    <div class="text-2xl text-gold flex"><${Icon} name=${a} fill />${b && html`<${Icon} name=${b} fill />`}</div>
+                    <div class="display stroke-sm text-xs">${t}</div>
+                    <div class="body-font text-[10px] text-muted leading-tight">${h}</div>
+                  </div>`)}
+              </div>
+              <p class="body-font text-xs text-muted mt-2 flex items-center gap-1.5"><${Icon} name="keyboard" /> On a keyboard: arrow keys or WASD, space to jump.</p>
+              <div class="display stroke text-lg mt-4 mb-2">POWER-UPS</div>
+              <div class="space-y-2">
+                ${Object.entries(POWERUPS).map(([k, p]) => html`
+                  <div key=${k} class="well p-2 flex items-center gap-3">
+                    <img src=${getCardUrl(p.card)} alt="" class="w-9 h-auto" />
+                    <div class="min-w-0">
+                      <div class="display stroke-sm text-sm">${p.name}</div>
+                      <div class="body-font text-xs text-muted">${p.blurb}. Lasts ${p.duration}s.</div>
+                    </div>
+                  </div>`)}
+              </div>
+              <p class="body-font text-xs text-muted mt-3">Brush an obstacle from the side and you stumble, and the Barbarian catches up. Stumble again while he is close and he gets you.</p>
+              ${rushStats.runs > 0 && html`
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                  <span class="chip display"><${Icon} name="trophy" fill className="text-gold" /> Best ${rushStats.best}</span>
+                  <span class="chip display">Runs ${rushStats.runs}</span>
+                  <span class="chip display"><img src=${BADGE_BASE_URL + 'Elixir_01.webp'} alt="" class="w-4 h-4 object-contain" /> ${rushStats.elixir}</span>
+                </div>`}
+            </div>
+          ` : !isStat ? html`
             <div class="panel p-4 space-y-4 anim-pop" key=${'cfg' + gameMode}>
               <div class="flex items-center justify-between">
                 <div>
@@ -943,7 +1137,7 @@ const App = () => {
 
         <div class="flex-shrink-0 pt-2">
           <button class=${`btn btn-xl w-full ${mode.btn}`} disabled=${!canStart} onClick=${startGame}>
-            ${canStart && html`<${Icon} name=${isStat ? 'target' : 'sword'} fill />`}
+            ${canStart && html`<${Icon} name=${isRush ? 'person-simple-run' : isStat ? 'target' : 'sword'} fill />`}
             ${cta}
           </button>
           <div class="text-center body-font text-[11px] text-white/35 mt-2 tracking-wider">BY VALE</div>
@@ -1231,6 +1425,13 @@ const App = () => {
           <button class="btn btn-gold btn-xl w-full" onClick=${nextRound}>Round ${round + 1} <${Icon} name="arrow-right" /></button>
         </div>
       <//>`;
+  }
+
+  // ---------- ROYALE RUSH ----------
+  else if (gameState === 'rush') {
+    screen = html`<${RushScreen} best=${rushStats.best} hold=${showQuit}
+      onExit=${() => setGameState('setup')} onQuit=${() => setShowQuit(true)}
+      onResult=${(r) => setRushStats(st => ({ best: Math.max(st.best, r.score), runs: st.runs + 1, elixir: st.elixir + r.elixir }))} />`;
   }
 
   // ---------- STAT GUESS GAME ----------
